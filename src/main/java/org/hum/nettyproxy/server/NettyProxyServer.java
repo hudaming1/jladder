@@ -1,7 +1,7 @@
 package org.hum.nettyproxy.server;
 
-import org.hum.nettyproxy.adapter.socks5.handler.ServerPipeChannelHandler;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
+import org.hum.nettyproxy.server.handler.NettyServerPipeChannelHandler;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -19,7 +19,7 @@ public class NettyProxyServer {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
 				ch.pipeline().addLast(new NettyProxyConnectMessageCodec.Decoder());
-				ch.pipeline().addLast(new ServerPipeChannelHandler());
+				ch.pipeline().addLast(new NettyServerPipeChannelHandler());
 			}
 		});
 		serverBootStrap.bind(1081);

@@ -1,9 +1,9 @@
 package org.hum.nettyproxy.server.handler;
 
+import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
+import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec.NettyProxyConnectMessage;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
-import org.hum.nettyproxy.common.model.NettyProxyConnectMessage;
-import org.hum.nettyproxy.common.model.NettyProxyPrepareMessage;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -35,7 +35,7 @@ public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<N
 				// pipe2: 读localServer并向remote写（从localServer到remote）
 				localServerChannel.pipeline().addLast(new ForwardHandler(remoteChannelFuture.channel()));
 				// 告知localserver，proxy已经准备好
-				localServerChannel.writeAndFlush(NettyProxyPrepareMessage.buildSuccess());
+				localServerChannel.writeAndFlush(NettyProxyBuildSuccessMessage.build());
 				// socks协议壳已脱，因此后面转发只需要靠pipe_handler即可，因此删除SocksConnectHandler
 				localServerChannel.pipeline().remove(NettyServerPipeChannelHandler.this);
 			}

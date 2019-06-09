@@ -1,9 +1,12 @@
 package org.hum.nettyproxy.adapter.socks5.handler;
 
 import org.hum.nettyproxy.common.Constant;
-import org.hum.nettyproxy.common.model.NettyProxyConnectMessage;
+import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
+import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
+import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -30,7 +33,6 @@ public class ServerPipeChannelHandler extends SimpleChannelInboundHandler<SocksC
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new ProxyPreparedMessageDecoder());
 				ch.pipeline().addLast(new PrepareConnectChannelHandler(browserCtx));
 			}
 		});
@@ -40,19 +42,17 @@ public class ServerPipeChannelHandler extends SimpleChannelInboundHandler<SocksC
 			@Override
 			public void operationComplete(final ChannelFuture proxyServerChannelFuture) throws Exception {
 				// 将ip和port输出到proxy-server
-				NettyProxyConnectMessage connectMsg = new NettyProxyConnectMessage(Constant.MAGIC_NUMBER, msg.host().length(), msg.host(), (short) msg.port());
-				proxyServerChannelFuture.channel().pipeline().addLast(new ProxyConnectMessageEncoder());
-				proxyServerChannelFuture.channel().writeAndFlush(connectMsg).addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture future) throws Exception {
-						browserCtx.pipeline().remove(ServerPipeChannelHandler.this);
-					}
-				});
+				ByteBuf directBuffer = proxyServerChannelFuture.channel().alloc().directBuffer();
+				directBuffer.writeInt(Constant.MAGIC_NUMBER);
+				directBuffer.writeInt(msg.host().length());
+				directBuffer.writeBytes(msg.host().getBytes());
+				directBuffer.writeShort((short) msg.port());
+				proxyServerChannelFuture.channel().writeAndFlush(directBuffer);
 			}
 		});
 	}
 	
-	private static class PrepareConnectChannelHandler extends SimpleChannelInboundHandler<ProxyPreparedMessage> {
+	private static class PrepareConnectChannelHandler extends SimpleChannelInboundHandler<NettyProxyBuildSuccessMessage> {
 		
 		private ChannelHandlerContext browserCtx;
 		public PrepareConnectChannelHandler(ChannelHandlerContext browserCtx) {
@@ -60,12 +60,10 @@ public class ServerPipeChannelHandler extends SimpleChannelInboundHandler<SocksC
 		}
 
 		@Override
-		protected void channelRead0(ChannelHandlerContext proxyCtx, ProxyPreparedMessage msg) throws Exception {
-			// 开启数据转发管道，读proxy并向browser写（从proxy到browser）
-			proxyCtx.pipeline().addLast(new IODecoder());
+		protected void channelRead0(ChannelHandlerContext proxyCtx, NettyProxyBuildSuccessMessage msg) throws Exception {
+			// 开启数据转发管道，读proxy并向browser写（proxy->browser）
 			proxyCtx.pipeline().addLast(new DecryptPipeChannelHandler("local.pipe4", browserCtx.channel()));
 			proxyCtx.pipeline().remove(PrepareConnectChannelHandler.class);
-			proxyCtx.pipeline().remove(ProxyPreparedMessageDecoder.class);
 			// 读browser并向proxy写（从browser到proxy）
 			browserCtx.pipeline().addLast(new EncryptPipeChannelHandler("local.pipe1", proxyCtx.channel()));
 			// 与proxy-server握手完成后，告知browser socks协议结束，后面可以开始发送真正数据了(为了保证数据传输正确性，flush最好还是放到后面)
