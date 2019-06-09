@@ -1,5 +1,7 @@
 package org.hum.nettyproxy.common.handler;
 
+import java.util.Arrays;
+
 import org.hum.nettyproxy.common.util.Utils;
 
 import io.netty.buffer.ByteBuf;
@@ -11,33 +13,38 @@ import io.netty.util.ReferenceCountUtil;
 
 public class DecryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 
-	@SuppressWarnings("unused")
-	private String name;
 	private Channel pipeChannel;
 
-	public DecryptPipeChannelHandler(String name, Channel channel) {
-		this.name = name;
+	public DecryptPipeChannelHandler(Channel channel) {
 		this.pipeChannel = channel;
 	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		try {
-			if (pipeChannel.isActive()) {
-				ByteBuf bytebuff = (ByteBuf) msg; 
-				if (!bytebuff.hasArray()) {
-					byte[] arr = new byte[bytebuff.readableBytes()];
-					try {
-						bytebuff.getBytes(0, arr); 
-						byte[] decrypt = Utils.decrypt(arr);
-						pipeChannel.writeAndFlush(Unpooled.wrappedBuffer(decrypt));
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+		if (pipeChannel.isActive()) {
+			ByteBuf bytebuff = (ByteBuf) msg;
+			System.out.println("current_readable_size=" + bytebuff.readableBytes() + ", byteBuf=" + bytebuff);
+			if (bytebuff.readableBytes() >= 4) {
+				byte[] arr = new byte[bytebuff.readInt()];
+				System.out.println("decode.len=" + arr.length + ", avaiable.len=" + bytebuff.readableBytes());
+				if (bytebuff.readableBytes() < arr.length) {
+					bytebuff.resetReaderIndex();
+					System.out.println("cann't be read!");
+					bytebuff.retain(); // TODO 如果不满足读取条件，怎么将bytebuf还回去，而不做抛弃处理呢？
+					return;
+				}
+				System.out.println("can be read!");
+				try {
+					bytebuff.readBytes(arr);
+					System.out.println("decode.arr=" + Arrays.toString(arr));
+					byte[] decrypt = Utils.decrypt(arr);
+					ByteBuf byteBuf = ctx.alloc().buffer();
+					byteBuf.writeBytes(decrypt);
+					pipeChannel.writeAndFlush(byteBuf);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
-		} finally {
-			ReferenceCountUtil.release(msg);
 		}
 	}
 }

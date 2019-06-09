@@ -3,7 +3,8 @@ package org.hum.nettyproxy.server.handler;
 import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec.NettyProxyConnectMessage;
-import org.hum.nettyproxy.common.handler.ForwardHandler;
+import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
+import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -17,26 +18,27 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<NettyProxyConnectMessage> {
 	
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, NettyProxyConnectMessage msg) throws Exception {
+	protected void channelRead0(ChannelHandlerContext insideProxyCtx, NettyProxyConnectMessage msg) throws Exception {
 		Bootstrap bootstrap = new Bootstrap();
 		// 交换数据完成
-		ctx.pipeline().remove(NettyProxyConnectMessageCodec.Decoder.class);
-		final Channel localServerChannel = ctx.channel();
-		bootstrap.group(localServerChannel.eventLoop()).channel(NioSocketChannel.class);
+		insideProxyCtx.pipeline().remove(NettyProxyConnectMessageCodec.Decoder.class);
+		final Channel insideProxyChannel = insideProxyCtx.channel();
+		bootstrap.group(insideProxyChannel.eventLoop()).channel(NioSocketChannel.class);
 		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
 		bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 		// pipe1: 读remote并向localServer写（从remote到localServer）
-		bootstrap.handler(new ForwardHandler(localServerChannel));
+		bootstrap.handler(new EncryptPipeChannelHandler(insideProxyCtx.channel()));
 		// server与remote建立连接
 		bootstrap.connect(msg.getHost(), msg.getPort()).addListener(new ChannelFutureListener() {
 			@Override
-			public void operationComplete(final ChannelFuture remoteChannelFuture) throws Exception {
+			public void operationComplete(final ChannelFuture targetWebsiteChannelFuture) throws Exception {
+				System.out.println("proxy-server connect remote-server : " + msg.getHost() + ":" + msg.getPort());
 				// pipe2: 读localServer并向remote写（从localServer到remote）
-				localServerChannel.pipeline().addLast(new ForwardHandler(remoteChannelFuture.channel()));
+				insideProxyChannel.pipeline().addLast(new DecryptPipeChannelHandler(targetWebsiteChannelFuture.channel()));
 				// 告知localserver，proxy已经准备好
-				localServerChannel.writeAndFlush(NettyProxyBuildSuccessMessage.build());
+				insideProxyChannel.writeAndFlush(NettyProxyBuildSuccessMessage.build());
 				// socks协议壳已脱，因此后面转发只需要靠pipe_handler即可，因此删除SocksConnectHandler
-				localServerChannel.pipeline().remove(NettyServerPipeChannelHandler.this);
+				insideProxyChannel.pipeline().remove(NettyServerPipeChannelHandler.this);
 			}
 		});
 	}

@@ -24,5 +24,6 @@ public class NettyProxyServer {
 			}
 		});
 		serverBootStrap.bind(Config.PROXY_PORT);
+		System.out.println("proxy-server started, listenning port:" + Config.PROXY_PORT);
 	}
 }

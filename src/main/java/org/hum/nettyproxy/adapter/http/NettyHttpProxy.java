@@ -1,7 +1,7 @@
 package org.hum.nettyproxy.adapter.http;
 
 import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
-import org.hum.nettyproxy.adapter.http.handler.HttpProxyProcessHandler;
+import org.hum.nettyproxy.adapter.http.handler.HttpProxyEncryptHandler;
 import org.hum.nettyproxy.common.util.NamedThreadFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -47,7 +47,7 @@ public class NettyHttpProxy implements Runnable {
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(new HttpProxyProcessHandler());
+			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(new HttpProxyEncryptHandler());
 		}
 	}
 	

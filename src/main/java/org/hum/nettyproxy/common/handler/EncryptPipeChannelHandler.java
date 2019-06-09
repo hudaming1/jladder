@@ -1,22 +1,23 @@
 package org.hum.nettyproxy.common.handler;
 
-import org.hum.nettyproxy.common.Constant;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import org.hum.nettyproxy.common.util.Utils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
 public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 
-	@SuppressWarnings("unused")
-	private String name;
 	private Channel pipeChannel;
 
-	public EncryptPipeChannelHandler(String name, Channel channel) {
-		this.name = name;
+	public EncryptPipeChannelHandler(Channel channel) {
 		this.pipeChannel = channel;
 	}
 
@@ -30,9 +31,11 @@ public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 					bytebuff.getBytes(0, arr);
 					try {
 						byte[] encrypt = Utils.encrypt(arr);
-						ByteBuf buf = ctx.alloc().directBuffer(encrypt.length + 4); // +4是int长度
+						ByteBuf buf = ctx.alloc().directBuffer(); 
+						buf.writeInt(encrypt.length);
 						buf.writeBytes(encrypt);
-						buf.writeBytes(Constant.FIXED_DERTIMED.getBytes());
+						System.out.println("encode.arr=" + Arrays.toString(encrypt));
+						System.out.println("encode.len=" + encrypt.length + ", readabled_size=" + buf.readableBytes());
 						pipeChannel.writeAndFlush(buf);
 					} catch (Exception e) {
 						e.printStackTrace();

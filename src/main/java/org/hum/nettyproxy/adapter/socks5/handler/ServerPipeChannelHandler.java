@@ -62,10 +62,10 @@ public class ServerPipeChannelHandler extends SimpleChannelInboundHandler<SocksC
 		@Override
 		protected void channelRead0(ChannelHandlerContext proxyCtx, NettyProxyBuildSuccessMessage msg) throws Exception {
 			// 开启数据转发管道，读proxy并向browser写（proxy->browser）
-			proxyCtx.pipeline().addLast(new DecryptPipeChannelHandler("local.pipe4", browserCtx.channel()));
+			proxyCtx.pipeline().addLast(new DecryptPipeChannelHandler(browserCtx.channel()));
 			proxyCtx.pipeline().remove(PrepareConnectChannelHandler.class);
 			// 读browser并向proxy写（从browser到proxy）
-			browserCtx.pipeline().addLast(new EncryptPipeChannelHandler("local.pipe1", proxyCtx.channel()));
+			browserCtx.pipeline().addLast(new EncryptPipeChannelHandler(proxyCtx.channel()));
 			// 与proxy-server握手完成后，告知browser socks协议结束，后面可以开始发送真正数据了(为了保证数据传输正确性，flush最好还是放到后面)
 			browserCtx.channel().writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, SocksAddressType.IPv4));
 		}
