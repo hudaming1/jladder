@@ -20,7 +20,7 @@ public class NettyHttpProxy implements Runnable {
 	private ChannelInitializer<Channel> channelInitializer = new HttpChannelInitializer();
 
 	public NettyHttpProxy(int port) {
-		this.port = port;
+		this(port, Runtime.getRuntime().availableProcessors());
 	}
 	
 	public NettyHttpProxy(int port, int workerCnt) {
@@ -49,5 +49,9 @@ public class NettyHttpProxy implements Runnable {
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(new HttpProxyProcessHandler());
 		}
+	}
+	
+	public static void main(String[] args) {
+		new Thread(new NettyHttpProxy(5432, Runtime.getRuntime().availableProcessors() * 5)).start();
 	}
 }
