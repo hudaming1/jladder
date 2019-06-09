@@ -1,5 +1,6 @@
 package org.hum.nettyproxy.server;
 
+import org.hum.nettyproxy.common.Config;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.server.handler.NettyServerPipeChannelHandler;
 
@@ -22,6 +23,6 @@ public class NettyProxyServer {
 				ch.pipeline().addLast(new NettyServerPipeChannelHandler());
 			}
 		});
-		serverBootStrap.bind(1081);
+		serverBootStrap.bind(Config.PROXY_PORT);
 	}
 }

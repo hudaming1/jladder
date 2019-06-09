@@ -40,8 +40,4 @@ public class DecryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 			ReferenceCountUtil.release(msg);
 		}
 	}
-	
-	public static void main(String[] args) {
-		System.out.println(new String(new byte[] {  10, }));
-	}
 }

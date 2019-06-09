@@ -15,11 +15,10 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<NettyProxyConnectMessage> {
-
-	private final Bootstrap bootstrap = new Bootstrap();
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, NettyProxyConnectMessage msg) throws Exception {
+		Bootstrap bootstrap = new Bootstrap();
 		// 交换数据完成
 		ctx.pipeline().remove(NettyProxyConnectMessageCodec.Decoder.class);
 		final Channel localServerChannel = ctx.channel();
