@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.common;
+package org.hum.nettyproxy.common.util;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.http.model;
+package org.hum.nettyproxy.adapter.http.model;
 
 import java.util.HashMap;
 import java.util.Map;

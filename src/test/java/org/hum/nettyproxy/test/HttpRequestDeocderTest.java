@@ -1,7 +1,7 @@
 package org.hum.nettyproxy.test;
 
-import org.hum.nettyproxy.http.codec.HttpRequestDecoder;
-import org.hum.nettyproxy.http.model.HttpRequest;
+import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
+import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

@@ -1,8 +1,8 @@
-package org.hum.nettyproxy.http;
+package org.hum.nettyproxy.adapter.http;
 
-import org.hum.nettyproxy.common.NamedThreadFactory;
-import org.hum.nettyproxy.http.codec.HttpRequestDecoder;
-import org.hum.nettyproxy.http.handler.HttpProxyProcessHandler;
+import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
+import org.hum.nettyproxy.adapter.http.handler.HttpProxyProcessHandler;
+import org.hum.nettyproxy.common.util.NamedThreadFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;

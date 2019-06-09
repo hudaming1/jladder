@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.http.util;
+package org.hum.nettyproxy.adapter.http.util;
 
 import io.netty.buffer.ByteBuf;
 

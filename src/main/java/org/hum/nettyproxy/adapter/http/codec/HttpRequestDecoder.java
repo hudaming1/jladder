@@ -1,7 +1,7 @@
-package org.hum.nettyproxy.http.codec;
+package org.hum.nettyproxy.adapter.http.codec;
 
-import org.hum.nettyproxy.http.model.HttpRequest;
-import org.hum.nettyproxy.http.util.HttpHelper;
+import org.hum.nettyproxy.adapter.http.model.HttpRequest;
+import org.hum.nettyproxy.adapter.http.util.HttpHelper;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

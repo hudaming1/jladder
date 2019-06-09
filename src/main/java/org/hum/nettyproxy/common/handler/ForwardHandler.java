@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.http.handler;
+package org.hum.nettyproxy.common.handler;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,7 +18,9 @@ public class ForwardHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext remoteCtx, Object msg) throws Exception {
     	// forward response
-    	this.channel.writeAndFlush(msg);
+    	if (channel.isActive()) {
+    		this.channel.writeAndFlush(msg);
+    	}
     }
 
     @Override

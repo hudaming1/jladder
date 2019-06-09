@@ -1,10 +1,12 @@
-package org.hum.nettyproxy.http.handler;
+package org.hum.nettyproxy.adapter.http.handler;
 
-import org.hum.nettyproxy.http.codec.HttpRequestDecoder;
-import org.hum.nettyproxy.http.model.HttpRequest;
+import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
+import org.hum.nettyproxy.adapter.http.model.HttpRequest;
+import org.hum.nettyproxy.common.handler.ForwardHandler;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -16,6 +18,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
 	private static final String ConnectedLine = "HTTP/1.1 200 Connection established\r\n\r\n";
+	private static final ByteBuf CONNECT_PROXY_LINE = Unpooled.wrappedBuffer(ConnectedLine.getBytes());
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext localCtx, HttpRequest req) throws Exception {
@@ -49,9 +52,7 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
 				// 与服务端建立连接完成后，告知浏览器Connect成功，可以进行ssl通信了
-				ByteBuf byteBuf = localCtx.alloc().buffer();
-				byteBuf.writeBytes(ConnectedLine.getBytes());
-				localCtx.writeAndFlush(byteBuf);
+				localCtx.writeAndFlush(CONNECT_PROXY_LINE);
 				// 建立转发 (browser -> server)
 				localCtx.pipeline().addLast(new ForwardHandler(remoteFuture.channel()));
 			}
