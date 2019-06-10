@@ -3,9 +3,10 @@ package org.hum.nettyproxy.adapter.http.handler;
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.Config;
 import org.hum.nettyproxy.common.Constant;
+import org.hum.nettyproxy.common.codec.DynamicLengthDecoder;
 import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
-import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler2;
+import org.hum.nettyproxy.common.handler.InactiveHandler;
 import org.hum.nettyproxy.common.util.Utils;
 
 import io.netty.bootstrap.Bootstrap;
@@ -87,9 +88,8 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 	        // 脱壳(握手成功后，就开始进行加密通信，因此这个handler就没用了)
 	        outsideProxyCtx.pipeline().remove(this);
 	        // proxy.response -> browser (仅开启单项转发就够了，因为HTTP是请求/应答协议)
-	        outsideProxyCtx.pipeline().addLast(new DecryptPipeChannelHandler(browserChannel));
+	        outsideProxyCtx.pipeline().addLast(new DynamicLengthDecoder(), new DecryptPipeChannelHandler(browserChannel), new InactiveHandler(browserChannel));
 	        
-
 			byte[] arr = new byte[req.getByteBuf().readableBytes()];
 			req.getByteBuf().readBytes(arr);
 			byte[] encrypt = Utils.encrypt(arr);

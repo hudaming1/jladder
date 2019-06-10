@@ -1,14 +1,11 @@
 package org.hum.nettyproxy.common.handler;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 import org.hum.nettyproxy.common.util.Utils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
