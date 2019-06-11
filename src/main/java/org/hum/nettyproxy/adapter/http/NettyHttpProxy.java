@@ -39,7 +39,7 @@ public class NettyHttpProxy implements Runnable {
 		serverBootstrap.bind(port).addListener(new GenericFutureListener<Future<? super Void>>() {
 			@Override
 			public void operationComplete(Future<? super Void> future) throws Exception {
-				System.out.println("server started, listening port: " + port);
+				System.out.println("http-server started, listening port: " + port);
 			}
 		});
 	}

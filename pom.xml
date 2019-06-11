@@ -53,7 +53,12 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.hum.socks.v6.proxyserver.ProxyServerStart</mainClass>
+							<!-- 
+							 -->
+							<mainClass>org.hum.nettyproxy.server.NettyProxyServer</mainClass>
+							 <!-- 
+							<mainClass>org.hum.nettyproxy.adapter.http.NettyHttpProxy</mainClass>
+							  -->
 						</manifest>
 					</archive>
 				</configuration>

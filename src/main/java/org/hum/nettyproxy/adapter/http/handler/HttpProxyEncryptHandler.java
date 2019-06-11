@@ -33,6 +33,8 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		if (req.getHost() == null || req.getHost().isEmpty()) {
 			return;
 		}
+		
+		System.out.println(req.getHost() + ":" + req.getPort());
 
 		if (!"CONNECT".equals(req.getMethod())) {
 			// 建立远端转发连接（远端收到响应后，一律转发给本地）
