@@ -7,7 +7,7 @@ import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.codec.DynamicLengthDecoder;
 import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
-import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
+import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
 import org.hum.nettyproxy.common.util.Utils;
 
@@ -80,6 +80,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		bootStrap.connect(Config.PROXY_HOST, Config.PROXY_PORT).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
+				
 				// forward request
 				byte[] hostBytes = req.getHost().getBytes();
 				ByteBuf byteBuf = remoteFuture.channel().alloc().directBuffer();
@@ -89,10 +90,8 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 				byteBuf.writeShort(req.getPort());
 				remoteFuture.channel().writeAndFlush(byteBuf);
 				
-				// 与服务端建立连接完成后，告知浏览器Connect成功，可以进行ssl通信了
-				browserCtx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes())); // TODO 待优化，在direct上分配
-				// 建立转发 (browser -> server)
-				browserCtx.pipeline().addLast(new EncryptPipeChannelHandler(remoteFuture.channel()));
+				// 建立转发 (pipe : browser -> server)
+				// browserCtx.pipeline().addLast(new ForwardHandler(remoteFuture.channel())); // https已经是加密过的协议了，因此这里无需再次加密
 			}
 		});
 	}
@@ -120,6 +119,17 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 	        /** 正常情况 **/
 	        // 脱壳(握手成功后，就开始进行加密通信，因此这个handler就没用了)
 	        outsideProxyCtx.pipeline().remove(this);
+	        // https：开启双向通信
+	        System.out.println("proxy connect [" + req.getHost() + "] success");
+	        if (req.getPort() == 443) { 
+	        	outsideProxyCtx.pipeline().addLast(new ForwardHandler(browserChannel), new InactiveHandler(browserChannel));
+	        	browserChannel.pipeline().addLast(new ForwardHandler("browser->ouside_server", outsideProxyCtx.channel()));
+				
+				// 与服务端建立连接完成后，告知浏览器Connect成功，可以进行ssl通信了
+	        	browserChannel.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes())); // TODO 待优化，在direct上分配
+	        	return ;
+	        } 
+	        
 	        // proxy.response -> browser (仅开启单项转发就够了，因为HTTP是请求/应答协议)
 	        outsideProxyCtx.pipeline().addLast(new DynamicLengthDecoder(), new DecryptPipeChannelHandler(browserChannel), new InactiveHandler(browserChannel));
 	        

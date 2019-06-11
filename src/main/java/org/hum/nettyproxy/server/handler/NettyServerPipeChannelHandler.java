@@ -6,6 +6,7 @@ import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec.NettyProxyConnectMessage;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
+import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
 
 import io.netty.bootstrap.Bootstrap;
@@ -33,7 +34,12 @@ public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<N
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new EncryptPipeChannelHandler(insideProxyCtx.channel()), new InactiveHandler(insideProxyCtx.channel()));
+				// FIXME 判断https
+				if (msg.getPort() == 443) {
+					ch.pipeline().addLast(new ForwardHandler("remote->inside_server", insideProxyChannel), new InactiveHandler(insideProxyCtx.channel()));
+				} else {
+					ch.pipeline().addLast(new EncryptPipeChannelHandler(insideProxyCtx.channel()), new InactiveHandler(insideProxyCtx.channel()));
+				}
 			}
 		});
 		// server与remote建立连接
@@ -41,9 +47,16 @@ public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<N
 			@Override
 			public void operationComplete(final ChannelFuture targetWebsiteChannelFuture) throws Exception {
 				System.out.println("proxy-server connect remote-server : " + msg.getHost() + ":" + msg.getPort());
-				// pipe2: 读localServer并向remote写（从localServer到remote）
-				insideProxyChannel.pipeline().addLast(new DynamicLengthDecoder(), new DecryptPipeChannelHandler(targetWebsiteChannelFuture.channel()));
-				// 告知localserver，proxy已经准备好
+				// FIXME 判断https
+				if (msg.getPort() == 443) {
+					insideProxyChannel.pipeline().addLast(new ForwardHandler("inside_server->remote", targetWebsiteChannelFuture.channel()));
+					System.out.println("use forward-handler");
+				} else {
+					// 读localServer并向remote写（从localServer到remote）
+					insideProxyChannel.pipeline().addLast(new DynamicLengthDecoder(), new DecryptPipeChannelHandler(targetWebsiteChannelFuture.channel()));
+					System.out.println("use encrypt-handler");
+				}
+				// 告知localserver，proxy已经准备好，可以开始转发browser的数据了
 				insideProxyChannel.writeAndFlush(NettyProxyBuildSuccessMessage.build());
 				// socks协议壳已脱，因此后面转发只需要靠pipe_handler即可，因此删除SocksConnectHandler
 				insideProxyChannel.pipeline().remove(NettyServerPipeChannelHandler.this);

@@ -10,9 +10,16 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  */
 public class ForwardHandler extends ChannelInboundHandlerAdapter {
 	private Channel channel;
+	@SuppressWarnings("unused")
+	private String name;
 	
 	public ForwardHandler(Channel channel) {
 		this.channel = channel;
+	}
+	
+	public ForwardHandler(String name, Channel channel) {
+		this.channel = channel;
+		this.name = name;
 	}
 	
     @Override
@@ -20,6 +27,7 @@ public class ForwardHandler extends ChannelInboundHandlerAdapter {
     	// forward response
     	if (channel.isActive()) {
     		this.channel.writeAndFlush(msg);
+    		// System.out.println("[" + name + "] flush ");
     	}
     }
 
