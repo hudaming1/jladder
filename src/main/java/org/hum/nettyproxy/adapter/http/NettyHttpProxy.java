@@ -44,8 +44,6 @@ public class NettyHttpProxy implements Runnable {
 		});
 	}
 	
-	// TODO 864字节两边不一致啊，所以解密失败。
-	
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
