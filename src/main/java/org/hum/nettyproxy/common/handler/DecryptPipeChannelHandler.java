@@ -22,18 +22,19 @@ public class DecryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		if (pipeChannel.isActive()) {
 			ByteBuf bytebuff = (ByteBuf) msg;
-			System.out.println("current_readable_size=" + bytebuff.readableBytes() + ", byteBuf=" + bytebuff);
+			// System.out.println("current_readable_size=" + bytebuff.readableBytes() + ", byteBuf=" + bytebuff);
 			if (bytebuff.readableBytes() > 0) {
 				byte[] arr = new byte[bytebuff.readableBytes()];
 				System.out.println("decode.len=" + arr.length + ", avaiable.len=" + bytebuff.readableBytes());
 				try {
 					bytebuff.readBytes(arr);
-					System.out.println("decode.arr=" + Arrays.toString(arr));
+					//System.out.println("decode.arr=" + Arrays.toString(arr));
 					byte[] decrypt = Utils.decrypt(arr);
 					ByteBuf byteBuf = ctx.alloc().buffer();
 					byteBuf.writeBytes(decrypt);
 					pipeChannel.writeAndFlush(byteBuf);
 				} catch (Exception e) {
+					System.out.println(Arrays.toString(arr));
 					e.printStackTrace();
 				} finally {
 					ReferenceCountUtil.release(msg);
