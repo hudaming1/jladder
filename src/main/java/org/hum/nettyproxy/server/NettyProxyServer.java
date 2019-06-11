@@ -15,7 +15,7 @@ public class NettyProxyServer {
 	public static void main(String[] args) {
 		ServerBootstrap serverBootStrap = new ServerBootstrap();
 		serverBootStrap.channel(NioServerSocketChannel.class);
-		serverBootStrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 5));
+		serverBootStrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 10));
 		serverBootStrap.childHandler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
