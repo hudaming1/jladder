@@ -38,6 +38,11 @@ public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
     		String value = line.substring(splitIndex + 1, line.length()).trim();
     		request.getHeaders().put(key, value);
     		
+    		// 从HTTP请求头中摘除代理痕迹
+    		if ("Proxy-Connection".equals(key)) {
+    			continue;
+    		}
+    		
     		// parse to host and port
     		if ("host".equalsIgnoreCase(key)) {
     			if (value.contains(":")) {

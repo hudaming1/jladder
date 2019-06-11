@@ -36,39 +36,13 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		
 		System.out.println(req.getHost() + ":" + req.getPort());
 
-		if (!"CONNECT".equals(req.getMethod())) {
-			// 建立远端转发连接（远端收到响应后，一律转发给本地）
-			Bootstrap bootStrap = new Bootstrap();
-			bootStrap.channel(NioSocketChannel.class);
-			bootStrap.group(browserCtx.channel().eventLoop());
-			bootStrap.handler(new ChannelInitializer<Channel>() {
-				@Override
-				protected void initChannel(Channel ch) throws Exception {
-					ch.pipeline().addLast(new ShakeHanlder(browserCtx.channel(), req));
-				}
-			});
-			
-			bootStrap.connect(Config.PROXY_HOST, Config.PROXY_PORT).addListener(new ChannelFutureListener() {
-				@Override
-				public void operationComplete(ChannelFuture remoteFuture) throws Exception {
-					// forward request
-					byte[] hostBytes = req.getHost().getBytes();
-					ByteBuf byteBuf = remoteFuture.channel().alloc().directBuffer();
-					byteBuf.writeInt(Constant.MAGIC_NUMBER);
-					byteBuf.writeInt(hostBytes.length);
-					byteBuf.writeBytes(hostBytes);
-					byteBuf.writeShort(req.getPort());
-					remoteFuture.channel().writeAndFlush(byteBuf);
-				}
-			});
-			return ;
+		if ("CONNECT".equals(req.getMethod())) {
+			// 因为https在后面建立ssl认证时，全部基于tcp协议，无法使用http，因此这里需要将http-decoder删除。
+			browserCtx.pipeline().remove(HttpRequestDecoder.class);
+			// 因为当前handler是基于http协议的，因此也无法处理后续https通信了。
+			browserCtx.pipeline().remove(this);
 		}
 		
-		/** 针对Https协议，用另一套逻辑 **/
-		// 因为https在后面建立ssl认证时，全部基于tcp协议，无法使用http，因此这里需要将http-decoder删除。
-		browserCtx.pipeline().remove(HttpRequestDecoder.class);
-		// 因为当前handler是基于http协议的，因此也无法处理后续https通信了。
-		browserCtx.pipeline().remove(this);
 		Bootstrap bootStrap = new Bootstrap();
 		bootStrap.channel(NioSocketChannel.class);
 		bootStrap.group(browserCtx.channel().eventLoop());
@@ -82,7 +56,6 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		bootStrap.connect(Config.PROXY_HOST, Config.PROXY_PORT).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
-				
 				// forward request
 				byte[] hostBytes = req.getHost().getBytes();
 				ByteBuf byteBuf = remoteFuture.channel().alloc().directBuffer();
@@ -91,9 +64,6 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 				byteBuf.writeBytes(hostBytes);
 				byteBuf.writeShort(req.getPort());
 				remoteFuture.channel().writeAndFlush(byteBuf);
-				
-				// 建立转发 (pipe : browser -> server)
-				// browserCtx.pipeline().addLast(new ForwardHandler(remoteFuture.channel())); // https已经是加密过的协议了，因此这里无需再次加密
 			}
 		});
 	}

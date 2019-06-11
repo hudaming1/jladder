@@ -38,7 +38,7 @@ public class NettySocksProxy implements Runnable {
 		serverBootstrap.bind(port).addListener(new GenericFutureListener<Future<? super Void>>() {
 			@Override
 			public void operationComplete(Future<? super Void> future) throws Exception {
-				System.out.println("server started, listenning port:" + port);
+				System.out.println("netty-server started, listenning port:" + port);
 			}
 		});
 	}
@@ -51,5 +51,9 @@ public class NettySocksProxy implements Runnable {
 			ch.pipeline().addLast(new SocksMessageEncoder());
 			ch.pipeline().addLast(new SocksProxyProcessHandler());
 		}
+	}
+	
+	public static void main(String[] args) {
+		new Thread(new NettySocksProxy(3389)).start();
 	}
 }

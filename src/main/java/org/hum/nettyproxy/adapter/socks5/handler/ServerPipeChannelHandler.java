@@ -1,5 +1,6 @@
 package org.hum.nettyproxy.adapter.socks5.handler;
 
+import org.hum.nettyproxy.common.Config;
 import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
@@ -22,9 +23,6 @@ import io.netty.handler.codec.socks.SocksCmdStatus;
 
 public class ServerPipeChannelHandler extends SimpleChannelInboundHandler<SocksCmdRequest> {
 
-	private final String PROXY_HOST = "47.75.102.227";
-	private final int PROXY_PORT = 5432;
-	
 	@Override
 	protected void channelRead0(final ChannelHandlerContext browserCtx, final SocksCmdRequest msg) throws Exception {
 		Bootstrap bootstrap = new Bootstrap();
@@ -37,8 +35,8 @@ public class ServerPipeChannelHandler extends SimpleChannelInboundHandler<SocksC
 			}
 		});
 		bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
-		bootstrap.connect(PROXY_HOST, PROXY_PORT).addListener(new ChannelFutureListener() {
+		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Config.CONNECT_TIMEOUT);
+		bootstrap.connect(Config.PROXY_HOST, Config.PROXY_PORT).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(final ChannelFuture proxyServerChannelFuture) throws Exception {
 				// 将ip和port输出到proxy-server

@@ -1,5 +1,6 @@
 package org.hum.nettyproxy.server.handler;
 
+import org.hum.nettyproxy.common.Config;
 import org.hum.nettyproxy.common.codec.DynamicLengthDecoder;
 import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
@@ -28,8 +29,8 @@ public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<N
 		insideProxyCtx.pipeline().remove(NettyProxyConnectMessageCodec.Decoder.class);
 		final Channel insideProxyChannel = insideProxyCtx.channel();
 		bootstrap.group(insideProxyChannel.eventLoop()).channel(NioSocketChannel.class);
-		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
-		bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+		// bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Config.CONNECT_TIMEOUT);
 		// pipe1: 读remote并向localServer写（从remote到localServer）
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override

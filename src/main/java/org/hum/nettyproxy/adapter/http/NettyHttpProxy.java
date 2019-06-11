@@ -52,6 +52,6 @@ public class NettyHttpProxy implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		new Thread(new NettyHttpProxy(5432, Runtime.getRuntime().availableProcessors() * 10)).start();
+		new Thread(new NettyHttpProxy(3389, Runtime.getRuntime().availableProcessors() * 10)).start();
 	}
 }

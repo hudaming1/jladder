@@ -13,17 +13,17 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 public class NettyProxyServer {
 
 	public static void main(String[] args) {
-		ServerBootstrap serverBootStrap = new ServerBootstrap();
-		serverBootStrap.channel(NioServerSocketChannel.class);
-		serverBootStrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 10));
-		serverBootStrap.childHandler(new ChannelInitializer<Channel>() {
+		ServerBootstrap serverBootstrap = new ServerBootstrap();
+		serverBootstrap.channel(NioServerSocketChannel.class);
+		serverBootstrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 10));
+		serverBootstrap.childHandler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
 				ch.pipeline().addLast(new NettyProxyConnectMessageCodec.Decoder());
 				ch.pipeline().addLast(new NettyServerPipeChannelHandler());
 			}
 		});
-		serverBootStrap.bind(Config.PROXY_PORT);
+		serverBootstrap.bind(Config.PROXY_PORT);
 		System.out.println("proxy-server started, listenning port:" + Config.PROXY_PORT);
 	}
 }
