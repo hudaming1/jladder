@@ -2,6 +2,7 @@ package org.hum.nettyproxy.adapter.http.handler;
 
 import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
+import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 
 import io.netty.bootstrap.Bootstrap;
@@ -14,10 +15,12 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+/**
+ * 普通HTTP/HTTPS代理类
+ * @author hudaming
+ */
 public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
-	private static final String ConnectedLine = "HTTP/1.1 200 Connection established\r\n\r\n";
-	
 	@Override
 	protected void channelRead0(ChannelHandlerContext localCtx, HttpRequest req) throws Exception {
 
@@ -29,7 +32,7 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 		Forward forward = new Forward(localCtx, req.getHost(), req.getPort());
 		System.out.println("connect " + req.getHost() + ":" + req.getPort());
 		
-		if (!"CONNECT".equals(req.getMethod())) {
+		if (!req.isHttps()) {
 			// 针对普通HTTP协议，用直接转发的逻辑
 			forward.start().addListener(new ChannelFutureListener() {
 				@Override
@@ -52,7 +55,7 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
 				// 与服务端建立连接完成后，告知浏览器Connect成功，可以进行ssl通信了
-				localCtx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes())); // TODO 待优化，在direct上分配
+				localCtx.writeAndFlush(Unpooled.wrappedBuffer(Constant.ConnectedLine.getBytes())); // TODO 待优化，在direct上分配
 				// 建立转发 (browser -> server)
 				localCtx.pipeline().addLast(new ForwardHandler(remoteFuture.channel()));
 			}

@@ -15,6 +15,13 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+/**
+ * HTTP/HTTPS 加密转发
+ * <pre>
+ *   针对HTTP请求，需要程序进行加密解密转发；而针对HTTPS请求，加解密由SSL协议完成，因此只需要透传转发。
+ * </pre>
+ * @author hudaming
+ */
 public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpRequest> {
 	
 	@Override
@@ -39,7 +46,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		bootStrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new ShakeHanlder(browserCtx.channel(), req));
+				ch.pipeline().addLast(new NettyHttpProxyEncShakeHanlder(browserCtx.channel(), req));
 			}
 		});
 		// 建立连接

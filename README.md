@@ -11,6 +11,7 @@
 > 7. 是否HTTPS不要通过端口判断，传入类型判断
 > 8. HTTP的Get请求带中文，貌似处理不了
 > 9. 从HTTP头中摘除Proxy-Connection头.  OK
+> 10. 增加日志sfl4j
 
 
 #### 测试连接：

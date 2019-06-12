@@ -14,8 +14,6 @@ import io.netty.handler.codec.ByteToMessageDecoder;
  * </pre>
  * @author hudaming
  */
-// TODO 可以加Sharable吗
-// @Sharable
 public class DynamicLengthDecoder extends ByteToMessageDecoder {
 
     public DynamicLengthDecoder() {

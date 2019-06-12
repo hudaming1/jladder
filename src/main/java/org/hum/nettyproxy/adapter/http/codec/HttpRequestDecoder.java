@@ -1,33 +1,36 @@
 package org.hum.nettyproxy.adapter.http.codec;
 
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
-import org.hum.nettyproxy.adapter.http.util.HttpHelper;
+import org.hum.nettyproxy.adapter.http.util.ByteBufHelper;
+import org.hum.nettyproxy.common.Constant;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
+/**
+ * HTTP请求解码器
+ * @author hudaming
+ */
 public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     	ByteBuf byteBuf = (ByteBuf) msg;
-    	// parse byteBuf to request
-    	HttpRequest httpRequest = parse(byteBuf);
-        ctx.fireChannelRead(httpRequest);
+        ctx.fireChannelRead(parse(byteBuf));
     }
     
     public HttpRequest parse(ByteBuf byteBuf) {
     	HttpRequest request = new HttpRequest();
     	// read request-line
-    	request.setLine(HttpHelper.readLine(byteBuf));
+    	request.setLine(ByteBufHelper.readLine(byteBuf));
     	
     	// parse to method
     	request.setMethod(request.getLine().split(" ")[0]);
     	
     	// read request-header
     	String line = null;
-    	while (!(line = HttpHelper.readLine(byteBuf)).equals("")) {
+    	while (!(line = ByteBufHelper.readLine(byteBuf)).equals("")) {
     		int splitIndex = line.indexOf(":");
     		
     		if (splitIndex <= 0) {
@@ -39,26 +42,26 @@ public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
     		request.getHeaders().put(key, value);
     		
     		// 从HTTP请求头中摘除代理痕迹
-    		if ("Proxy-Connection".equals(key)) {
+    		if (Constant.HTTP_PROXY_HEADER.equals(key)) {
     			continue;
     		}
     		
     		// parse to host and port
-    		if ("host".equalsIgnoreCase(key)) {
+    		if (Constant.HTTP_HOST_HEADER.equalsIgnoreCase(key)) {
     			if (value.contains(":")) {
     				String[] arr = value.split(":");
 	    			request.setHost(arr[0]);
 	    			request.setPort(Integer.parseInt(arr[1]));
     			} else {
 					request.setHost(value);
-					request.setPort("CONNECT".equalsIgnoreCase(request.getMethod()) ? 443 : 80);
+					request.setPort(Constant.HTTPS_METHOD.equalsIgnoreCase(request.getMethod()) ? Constant.DEFAULT_HTTPS_PORT : Constant.DEFAULT_HTTP_PORT);
     			}
     		}
     	}
     	
     	// read request-body
     	StringBuilder body = new StringBuilder();
-    	while (!(line = HttpHelper.readLine(byteBuf)).equals("")) {
+    	while (!(line = ByteBufHelper.readLine(byteBuf)).equals("")) {
     		body.append(line);
     	}
     	request.setBody(body.toString());

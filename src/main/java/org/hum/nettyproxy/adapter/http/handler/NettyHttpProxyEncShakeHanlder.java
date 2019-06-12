@@ -15,12 +15,16 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public class ShakeHanlder extends ChannelInboundHandlerAdapter {
+/**
+ * 配合HttpProxyEncryptHandler处理
+ * @author hudaming
+ */
+public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter {
 
 	private Channel browserChannel;
 	private HttpRequest req;
 	
-	public ShakeHanlder(Channel channel, HttpRequest req) {
+	public NettyHttpProxyEncShakeHanlder(Channel channel, HttpRequest req) {
 		this.browserChannel = channel;
 		this.req = req;
 	}
@@ -55,17 +59,18 @@ public class ShakeHanlder extends ChannelInboundHandlerAdapter {
         
         // proxy.response -> browser (仅开启单项转发就够了，因为HTTP是请求/应答协议)
         outsideProxyCtx.pipeline().addLast(new DynamicLengthDecoder(), new DecryptPipeChannelHandler(browserChannel), new InactiveHandler(browserChannel));
-        
-        // HTTP协议因为是明文协议，因此在和Proxy通信时，需要程序自己加密
+
+        // TODO 这里我感觉应该可以优化：能不能直接返回byteBuf里的arr，从而不要再次开辟一段新的内存空间。
 		byte[] arr = new byte[req.getByteBuf().readableBytes()];
 		req.getByteBuf().readBytes(arr);
+		// HTTP协议因为是明文协议，因此在和Proxy通信时，需要程序自己加密
 		byte[] encrypt = Utils.encrypt(arr);
         ByteBuf buf = outsideProxyCtx.alloc().directBuffer();
         buf.writeInt(encrypt.length);
         buf.writeBytes(encrypt);
 		System.out.println("encode.len=" + encrypt.length);
         
-        // 转发给Proxy
+        // 转发给outside_server
         outsideProxyCtx.pipeline().writeAndFlush(buf);
         System.out.println("flush req");
     }

@@ -2,7 +2,7 @@ package org.hum.nettyproxy.adapter.http.util;
 
 import io.netty.buffer.ByteBuf;
 
-public class HttpHelper {
+public class ByteBufHelper {
 
 	private static final byte RETURN_LINE = 10;
     

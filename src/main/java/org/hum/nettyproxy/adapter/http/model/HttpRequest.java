@@ -3,6 +3,8 @@ package org.hum.nettyproxy.adapter.http.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hum.nettyproxy.common.Constant;
+
 import io.netty.buffer.ByteBuf;
 import lombok.Data;
 
@@ -18,6 +20,6 @@ public class HttpRequest {
 	private String method;
 	
 	public boolean isHttps() {
-		return "CONNECT".equalsIgnoreCase(method);
+		return Constant.HTTPS_METHOD.equalsIgnoreCase(method);
 	}
 }
