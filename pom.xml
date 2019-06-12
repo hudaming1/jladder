@@ -14,14 +14,14 @@
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
 		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.10</version>
-		</dependency>
-		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.16.20</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.1</version>
 		</dependency>
 	</dependencies>
 
@@ -53,12 +53,9 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<!-- 
-							 -->
+							<!-- -->
 							<mainClass>org.hum.nettyproxy.server.NettyProxyServer</mainClass>
-							 <!-- 
-							<mainClass>org.hum.nettyproxy.adapter.http.NettyHttpProxy</mainClass>
-							  -->
+							<!-- <mainClass>org.hum.nettyproxy.adapter.http.NettyHttpProxy</mainClass> -->
 						</manifest>
 					</archive>
 				</configuration>
