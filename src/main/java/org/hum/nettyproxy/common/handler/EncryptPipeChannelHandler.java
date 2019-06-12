@@ -1,6 +1,8 @@
 package org.hum.nettyproxy.common.handler;
 
 import org.hum.nettyproxy.common.util.AESCoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -10,6 +12,8 @@ import io.netty.util.ReferenceCountUtil;
 
 public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 
+	private static final Logger logger = LoggerFactory.getLogger(EncryptPipeChannelHandler.class);
+	
 	private Channel pipeChannel;
 
 	public EncryptPipeChannelHandler(Channel channel) {
@@ -25,19 +29,23 @@ public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 					byte[] arr = new byte[bytebuff.readableBytes()];
 					bytebuff.getBytes(0, arr);
 					try {
-						byte[] encrypt = AESCoder.encrypt(arr);
-						ByteBuf buf = ctx.alloc().directBuffer(); 
-						buf.writeInt(encrypt.length);
-						buf.writeBytes(encrypt);
-						System.out.println("encode.len=" + encrypt.length + ", readabled_size=" + buf.readableBytes());
-						pipeChannel.writeAndFlush(buf);
+						pipeChannel.writeAndFlush(Encryptor.encrypt(ctx.alloc().directBuffer(), arr));
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error("encoding error", e);
 					}
 				}
 			}
 		} finally {
 			ReferenceCountUtil.release(msg);
+		}
+	}
+	
+	public static class Encryptor {
+		public static ByteBuf encrypt(ByteBuf byteBuf, byte[] bytes) {
+			byte[] encrypt = AESCoder.encrypt(bytes);
+			byteBuf.writeInt(encrypt.length);
+			byteBuf.writeBytes(encrypt);
+			return byteBuf;
 		}
 	}
 }

@@ -27,7 +27,6 @@ public class ForwardHandler extends ChannelInboundHandlerAdapter {
     	// forward response
     	if (channel.isActive()) {
     		this.channel.writeAndFlush(msg);
-    		// System.out.println("[" + name + "] flush ");
     	}
     }
 

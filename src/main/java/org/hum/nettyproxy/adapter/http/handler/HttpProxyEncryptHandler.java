@@ -2,9 +2,11 @@ package org.hum.nettyproxy.adapter.http.handler;
 
 import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
-import org.hum.nettyproxy.common.Constant;
+import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec.EncoderUtil;
 import org.hum.nettyproxy.core.ConfigContext;
 import org.hum.nettyproxy.core.NettyProxyConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -24,6 +26,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  * @author hudaming
  */
 public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpRequest> {
+
+	private static final Logger logger = LoggerFactory.getLogger(HttpProxyEncryptHandler.class);
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequest req) throws Exception {
@@ -54,15 +58,13 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		bootStrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
-				// TODO log
-				// forward request
+				logger.info("connect {}:{} successfully.", config.getOutsideProxyHost(), config.getOutsideProxyPort());
+				
 				byte[] hostBytes = req.getHost().getBytes();
 				ByteBuf byteBuf = remoteFuture.channel().alloc().directBuffer();
-				byteBuf.writeInt(Constant.MAGIC_NUMBER);
-				byteBuf.writeInt(hostBytes.length);
-				byteBuf.writeBytes(hostBytes);
-				byteBuf.writeShort(req.getPort());
-				remoteFuture.channel().writeAndFlush(byteBuf);
+				
+				// 告诉OutsideServer连接到远端服务器的地址和端口。
+				remoteFuture.channel().writeAndFlush(EncoderUtil.encode(byteBuf, hostBytes, (short) req.getPort()));
 			}
 		});
 	}

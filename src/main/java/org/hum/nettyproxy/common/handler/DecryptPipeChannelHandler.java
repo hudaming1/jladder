@@ -22,10 +22,8 @@ public class DecryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		if (pipeChannel.isActive()) {
 			ByteBuf bytebuff = (ByteBuf) msg;
-			// System.out.println("current_readable_size=" + bytebuff.readableBytes() + ", byteBuf=" + bytebuff);
 			if (bytebuff.readableBytes() > 0) {
 				byte[] arr = new byte[bytebuff.readableBytes()];
-				System.out.println("decode.len=" + arr.length + ", avaiable.len=" + bytebuff.readableBytes());
 				try {
 					bytebuff.readBytes(arr);
 					byte[] decrypt = AESCoder.decrypt(arr);
