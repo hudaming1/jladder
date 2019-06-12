@@ -7,11 +7,11 @@
 > 3. 调整TCP参数，例如超时等
 > 4. 开发socks协议
 > 5. 支持监控：例如连接数，发送字节数，已接收字节数等
-> 6. 配置通过main方法的args传入
+> 6. [OK]配置通过main方法的args传入  
 > 7. 是否HTTPS不要通过端口判断，传入类型判断
 > 8. HTTP的Get请求带中文，貌似处理不了
-> 9. 从HTTP头中摘除Proxy-Connection头.  OK
-> 10. 增加日志sfl4j
+> 9. [OK]从HTTP头中摘除Proxy-Connection头.  
+> 10. [OK] 增加日志sfl4j
 
 
 #### 测试连接：

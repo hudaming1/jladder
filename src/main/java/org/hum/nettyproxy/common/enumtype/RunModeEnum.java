@@ -1,40 +1,28 @@
 package org.hum.nettyproxy.common.enumtype;
 
-import org.hum.nettyproxy.ServerRun.Starter;
-import org.hum.nettyproxy.adapter.http.NettyHttpProxyStarter;
+import lombok.Getter;
 
 /**
  * netty-proxy-server 转发模式枚举
  * @author hudaming
  */
+@Getter
 public enum RunModeEnum {
 
-	HttpSimpleProxy(1, "单节点Http协议转发", new NettyHttpProxyStarter()),
-	HttpInsideServer(11, "墙内Http协议转发", null), // 需要配合OutsideServer完成转发
-	SocksInsideServer(12, "墙内Socks5协议转发", null),  // 需要配合OutsideServer完成转发
-	OutsideServer(100, "墙外转发服务器", null),
+	HttpSimpleProxy(1, "http-simple", "单节点Http协议转发"),
+	HttpInsideServer(11, "http-inside", "墙内Http协议转发"), // 需要配合OutsideServer完成转发
+	SocksInsideServer(12, "socks-inside", "墙内Socks5协议转发"),  // 需要配合OutsideServer完成转发
+	OutsideServer(100, "outside-server", "墙外转发服务器"),
 	;
 
 	private int code;
 	private String desc;
-	private Starter starter;
+	private String name;
 	
-	RunModeEnum(int code, String desc, Starter starter) {
+	RunModeEnum(int code, String name, String desc) {
 		this.code = code;
+		this.name = name;
 		this.desc = desc;
-		this.starter = starter;
-	}
-
-	public int getCode() {
-		return code;
-	}
-
-	public String getDesc() {
-		return desc;
-	}
-	
-	public Starter getStarter() {
-		return starter;
 	}
 
 	public static RunModeEnum getEnum(Integer code) {

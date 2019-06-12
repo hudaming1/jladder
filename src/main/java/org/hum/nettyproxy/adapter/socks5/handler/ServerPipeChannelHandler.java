@@ -5,6 +5,8 @@ import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
+import org.hum.nettyproxy.core.ConfigContext;
+import org.hum.nettyproxy.core.NettyProxyConfig;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -25,6 +27,9 @@ public class ServerPipeChannelHandler extends SimpleChannelInboundHandler<SocksC
 
 	@Override
 	protected void channelRead0(final ChannelHandlerContext browserCtx, final SocksCmdRequest msg) throws Exception {
+
+		NettyProxyConfig config = ConfigContext.getConfig();
+		
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.group(browserCtx.channel().eventLoop());
 		bootstrap.channel(NioSocketChannel.class);
@@ -36,7 +41,7 @@ public class ServerPipeChannelHandler extends SimpleChannelInboundHandler<SocksC
 		});
 		bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Config.CONNECT_TIMEOUT);
-		bootstrap.connect(Config.PROXY_HOST, Config.PROXY_PORT).addListener(new ChannelFutureListener() {
+		bootstrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(final ChannelFuture proxyServerChannelFuture) throws Exception {
 				// 将ip和port输出到proxy-server

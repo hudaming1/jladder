@@ -2,7 +2,7 @@ package org.hum.nettyproxy.common.handler;
 
 import java.util.Arrays;
 
-import org.hum.nettyproxy.common.util.Utils;
+import org.hum.nettyproxy.common.util.AESCoder;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -29,7 +29,7 @@ public class DecryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 				try {
 					bytebuff.readBytes(arr);
 					//System.out.println("decode.arr=" + Arrays.toString(arr));
-					byte[] decrypt = Utils.decrypt(arr);
+					byte[] decrypt = AESCoder.decrypt(arr);
 					ByteBuf byteBuf = ctx.alloc().buffer();
 					byteBuf.writeBytes(decrypt);
 					pipeChannel.writeAndFlush(byteBuf);

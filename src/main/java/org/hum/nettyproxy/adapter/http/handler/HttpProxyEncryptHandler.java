@@ -2,8 +2,9 @@ package org.hum.nettyproxy.adapter.http.handler;
 
 import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
-import org.hum.nettyproxy.common.Config;
 import org.hum.nettyproxy.common.Constant;
+import org.hum.nettyproxy.core.ConfigContext;
+import org.hum.nettyproxy.core.NettyProxyConfig;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -31,6 +32,8 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 			return;
 		}
 		
+		NettyProxyConfig config = ConfigContext.getConfig();
+		
 		System.out.println(req.getHost() + ":" + req.getPort());
 
 		if (req.isHttps()) {
@@ -50,7 +53,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 			}
 		});
 		// 建立连接
-		bootStrap.connect(Config.PROXY_HOST, Config.PROXY_PORT).addListener(new ChannelFutureListener() {
+		bootStrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
 				// forward request

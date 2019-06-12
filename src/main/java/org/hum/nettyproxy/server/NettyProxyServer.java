@@ -1,6 +1,5 @@
 package org.hum.nettyproxy.server;
 
-import org.hum.nettyproxy.common.Config;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.server.handler.NettyServerPipeChannelHandler;
 
@@ -23,7 +22,7 @@ public class NettyProxyServer {
 				ch.pipeline().addLast(new NettyServerPipeChannelHandler());
 			}
 		});
-		serverBootstrap.bind(Config.PROXY_PORT);
-		System.out.println("proxy-server started, listenning port:" + Config.PROXY_PORT);
+		serverBootstrap.bind(5432);
+		System.out.println("proxy-server started, listenning port:" + 5432);
 	}
 }

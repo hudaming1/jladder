@@ -1,6 +1,6 @@
 package org.hum.nettyproxy.common.handler;
 
-import org.hum.nettyproxy.common.util.Utils;
+import org.hum.nettyproxy.common.util.AESCoder;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -25,7 +25,7 @@ public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 					byte[] arr = new byte[bytebuff.readableBytes()];
 					bytebuff.getBytes(0, arr);
 					try {
-						byte[] encrypt = Utils.encrypt(arr);
+						byte[] encrypt = AESCoder.encrypt(arr);
 						ByteBuf buf = ctx.alloc().directBuffer(); 
 						buf.writeInt(encrypt.length);
 						buf.writeBytes(encrypt);

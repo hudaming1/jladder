@@ -7,7 +7,7 @@ import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyP
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
-import org.hum.nettyproxy.common.util.Utils;
+import org.hum.nettyproxy.common.util.AESCoder;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -64,7 +64,7 @@ public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter 
 		byte[] arr = new byte[req.getByteBuf().readableBytes()];
 		req.getByteBuf().readBytes(arr);
 		// HTTP协议因为是明文协议，因此在和Proxy通信时，需要程序自己加密
-		byte[] encrypt = Utils.encrypt(arr);
+		byte[] encrypt = AESCoder.encrypt(arr);
         ByteBuf buf = outsideProxyCtx.alloc().directBuffer();
         buf.writeInt(encrypt.length);
         buf.writeBytes(encrypt);

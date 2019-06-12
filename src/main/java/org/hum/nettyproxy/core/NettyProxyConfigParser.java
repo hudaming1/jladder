@@ -1,4 +1,4 @@
-package org.hum.nettyproxy;
+package org.hum.nettyproxy.core;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -6,34 +6,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
+import org.hum.nettyproxy.common.util.NetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.Data;
+public class NettyProxyConfigParser {
 
-@Data
-public class ServerRunArg {
-
-	// nettyproxy.runmode=11
-	private RunModeEnum runMode;
-	// nettyproxy.port=5432
-	private int port;
-	// nettyproxy.workercnt=80
-	private int workerCnt;
-	// nettyproxy.outside_proxy_host=57.12.39.152
-	private String outsidePorxyHost;
-	// nettyproxy.outside_proxy_port=5432
-	private int outsideProxyPort;
-	
-	public ServerRunArg() { }
-	public ServerRunArg(RunModeEnum runMode, int port) {
-		this.runMode = runMode;
-		this.port = port;
-	}
-}
-class ServerRunArgParser {
-
-	private static final Logger logger = LoggerFactory.getLogger(ServerRunArgParser.class);
+	private static final Logger logger = LoggerFactory.getLogger(NettyProxyConfigParser.class);
 	private static final String NETTY_PROXY_ARGS_PREFIX = "nettyproxy.";
 	private static final String RUNMODE_KEY = "runmode";
 	private static final String PORT_KEY = "port";
@@ -41,11 +20,12 @@ class ServerRunArgParser {
 	private static final String OUTSIDE_PROXY_HOST_KEY = "outside_proxy_host";
 	private static final String OUTSIDE_PROXY_PORT_KEY = "outside_proxy_port";
 	
-	private static final int DEFAULT_LISTENNING_PORT = 52996;
-	private static final int DEFAULT_WORKER_CNT = Runtime.getRuntime().availableProcessors() * 10;
-	private static final ServerRunArg DEFAULT_SERVER_RUN_ARGS = new ServerRunArg(RunModeEnum.HttpSimpleProxy, DEFAULT_LISTENNING_PORT);
+	private static final int DETECTIVE_OUTSIDE_TIMEOUT = 8000; // 探测墙外服务器超时时间
+	private static final int DEFAULT_LISTENNING_PORT = 52996; // 默认监听端口
+	private static final int DEFAULT_WORKER_CNT = Runtime.getRuntime().availableProcessors() * 10; // 默认workerCount数量
+	private static final NettyProxyConfig DEFAULT_SERVER_RUN_ARGS = new NettyProxyConfig(RunModeEnum.HttpSimpleProxy, DEFAULT_LISTENNING_PORT); // 默认参数
 	
-	public static ServerRunArg toServerRunArg(String args[]) {
+	public static NettyProxyConfig toServerRunArg(String args[]) {
 		logger.debug("prepare parse args, input_args=" + Arrays.toString(args));
 		
 		Map<String, String> paramMap = toMap(args);
@@ -57,7 +37,7 @@ class ServerRunArgParser {
 
 		RunModeEnum runMode = RunModeEnum.getEnum(parseInt(paramMap.get(RUNMODE_KEY), "param \"runmode\" is invaild"));
 		
-		ServerRunArg serverRunArgs = new ServerRunArg();
+		NettyProxyConfig serverRunArgs = new NettyProxyConfig();
 		serverRunArgs.setRunMode(runMode);
 		serverRunArgs.setPort(parseInt(paramMap.get(PORT_KEY), "param \"port\" is invaild"));
 		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY)? parseInt(paramMap.get(PORT_KEY), "param \"workercnt\" is invaild") : DEFAULT_WORKER_CNT);
@@ -67,9 +47,17 @@ class ServerRunArgParser {
 			if (outsideProxyHost == null || outsideProxyHost.isEmpty()) {
 				throw new IllegalArgumentException("param \"outside_proxy_host\" is invaild");
 			}
-			serverRunArgs.setOutsidePorxyHost(outsideProxyHost);
+			serverRunArgs.setOutsideProxyHost(outsideProxyHost);
 			serverRunArgs.setOutsideProxyPort(parseInt(paramMap.get(OUTSIDE_PROXY_PORT_KEY), "param \"outside_proxy_port\" is invaild"));
-			// TODO 检测Proxy是否可达
+			
+			logger.info("now checking outside_proxy[{}{}] is reachable...", serverRunArgs.getOutsideProxyHost(), serverRunArgs.getOutsideProxyPort());
+			// 检测Proxy是否可达
+			if (!NetUtil.isReachable(serverRunArgs.getOutsideProxyHost(), serverRunArgs.getOutsideProxyPort(), DETECTIVE_OUTSIDE_TIMEOUT)) {
+				logger.error("===========================Notice=================================");
+				logger.error("\toutside_server[" + serverRunArgs.getOutsideProxyHost() + ":" + serverRunArgs.getOutsideProxyPort() + "] unreachabled");
+				logger.error("==================================================================");
+			} 
+			logger.info("outside_server[{}:{}] is reachable", serverRunArgs.getOutsideProxyHost(), serverRunArgs.getOutsideProxyPort());
 		}
 		
 		return serverRunArgs;
