@@ -28,7 +28,6 @@ public class DecryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 				System.out.println("decode.len=" + arr.length + ", avaiable.len=" + bytebuff.readableBytes());
 				try {
 					bytebuff.readBytes(arr);
-					//System.out.println("decode.arr=" + Arrays.toString(arr));
 					byte[] decrypt = AESCoder.decrypt(arr);
 					ByteBuf byteBuf = ctx.alloc().buffer();
 					byteBuf.writeBytes(decrypt);

@@ -1,5 +1,7 @@
 package org.hum.nettyproxy.adapter.http.handler;
 
+import java.util.Arrays;
+
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.codec.DynamicLengthDecoder;
@@ -64,11 +66,11 @@ public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter 
 		byte[] arr = new byte[req.getByteBuf().readableBytes()];
 		req.getByteBuf().readBytes(arr);
 		// HTTP协议因为是明文协议，因此在和Proxy通信时，需要程序自己加密
+		System.out.println("before_encode.arr=" + Arrays.toString(arr));
 		byte[] encrypt = AESCoder.encrypt(arr);
         ByteBuf buf = outsideProxyCtx.alloc().directBuffer();
         buf.writeInt(encrypt.length);
         buf.writeBytes(encrypt);
-		System.out.println("encode.len=" + encrypt.length);
         
         // 转发给outside_server
         outsideProxyCtx.pipeline().writeAndFlush(buf);

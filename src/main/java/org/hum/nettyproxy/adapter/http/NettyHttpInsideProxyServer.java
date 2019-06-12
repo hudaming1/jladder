@@ -59,5 +59,4 @@ public class NettyHttpInsideProxyServer implements Runnable {
 			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(new HttpProxyEncryptHandler());
 		}
 	}
-
 }

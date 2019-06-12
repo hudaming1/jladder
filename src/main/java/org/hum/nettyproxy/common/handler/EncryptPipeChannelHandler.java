@@ -29,9 +29,7 @@ public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 						ByteBuf buf = ctx.alloc().directBuffer(); 
 						buf.writeInt(encrypt.length);
 						buf.writeBytes(encrypt);
-						// System.out.println("encode.arr=" + Arrays.toString(encrypt));
 						System.out.println("encode.len=" + encrypt.length + ", readabled_size=" + buf.readableBytes());
-						//System.out.println(Arrays.toString(encrypt));
 						pipeChannel.writeAndFlush(buf);
 					} catch (Exception e) {
 						e.printStackTrace();

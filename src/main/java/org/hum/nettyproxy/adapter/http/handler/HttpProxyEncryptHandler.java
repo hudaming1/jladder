@@ -34,8 +34,6 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		
 		NettyProxyConfig config = ConfigContext.getConfig();
 		
-		System.out.println(req.getHost() + ":" + req.getPort());
-
 		if (req.isHttps()) {
 			// 因为https在后面建立ssl认证时，全部基于tcp协议，无法使用http，因此这里需要将http-decoder删除。
 			browserCtx.pipeline().remove(HttpRequestDecoder.class);
@@ -56,6 +54,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		bootStrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
+				// TODO log
 				// forward request
 				byte[] hostBytes = req.getHost().getBytes();
 				ByteBuf byteBuf = remoteFuture.channel().alloc().directBuffer();
