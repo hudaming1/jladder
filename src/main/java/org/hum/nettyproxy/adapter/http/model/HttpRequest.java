@@ -16,4 +16,8 @@ public class HttpRequest {
 	private String host;
 	private int port;
 	private String method;
+	
+	public boolean isHttps() {
+		return "CONNECT".equalsIgnoreCase(method);
+	}
 }

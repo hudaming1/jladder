@@ -3,7 +3,6 @@ package org.hum.nettyproxy.common.codec;
 import java.util.List;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
@@ -29,13 +28,6 @@ public class DynamicLengthDecoder extends ByteToMessageDecoder {
             out.add(decoded);
         }
     }
-    
-    public static void main(String[] args) {
-		ByteBuf byteBuf = Unpooled.buffer();
-		byteBuf.writeInt(123123);
-		System.out.println(byteBuf.getInt(0));
-		System.out.println(byteBuf.readInt());
-	}
 
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
     	if (in.readableBytes() < 4) {
