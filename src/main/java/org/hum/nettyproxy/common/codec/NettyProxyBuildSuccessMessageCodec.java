@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.hum.nettyproxy.common.Constant;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import lombok.Data;
 
 public class NettyProxyBuildSuccessMessageCodec {
@@ -26,9 +26,8 @@ public class NettyProxyBuildSuccessMessageCodec {
 			this.code = code;
 		}
 		
-		public static ByteBuf build() {
-			// TODO 待优化
-			ByteBuf byteBuf = Unpooled.directBuffer();
+		public static ByteBuf build(Channel channel) {
+			ByteBuf byteBuf = channel.alloc().directBuffer();
 			byteBuf.writeInt(SUCCESS_MSG.magicNuml);
 			byteBuf.writeInt(SUCCESS_MSG.code);
 			return byteBuf;

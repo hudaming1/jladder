@@ -63,7 +63,7 @@ public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<N
 				}
 				
 				// 告知inside_server，outside_server已经和remote建立连接成功，可以开始转发browser的数据了
-				insideProxyChannel.writeAndFlush(NettyProxyBuildSuccessMessage.build());
+				insideProxyChannel.writeAndFlush(NettyProxyBuildSuccessMessage.build(insideProxyChannel));
 				// connectMessage建立完成后，就没用了，因此删除NettyServerPipeChannelHandler
 				insideProxyChannel.pipeline().remove(NettyServerPipeChannelHandler.this);
 			}
