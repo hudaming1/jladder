@@ -18,7 +18,7 @@ public class InactiveHandler extends ChannelInboundHandlerAdapter {
 	
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	logger.info("remote-server is closed!");
+    	logger.info("remote-server[{}<->{}] is closed!", ctx.channel().remoteAddress(), needNoticeCloseChannel.remoteAddress());
         ctx.fireChannelInactive();
         if (needNoticeCloseChannel.isActive()) {
         	needNoticeCloseChannel.close();

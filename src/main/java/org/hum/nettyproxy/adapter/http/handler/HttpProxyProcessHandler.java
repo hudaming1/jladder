@@ -4,6 +4,11 @@ import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
+import org.hum.nettyproxy.common.handler.InactiveHandler;
+import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
+import org.hum.nettyproxy.core.ConfigContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -21,6 +26,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  */
 public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
+	private static final Logger logger = LoggerFactory.getLogger(HttpProxyProcessHandler.class);
+	
 	@Override
 	protected void channelRead0(ChannelHandlerContext localCtx, HttpRequest req) throws Exception {
 
@@ -30,7 +37,6 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 		
 		// 建立远端转发连接（远端收到响应后，一律转发给本地）
 		Forward forward = new Forward(localCtx, req.getHost(), req.getPort());
-		System.out.println("connect " + req.getHost() + ":" + req.getPort());
 		
 		if (!req.isHttps()) {
 			// 针对普通HTTP协议，用直接转发的逻辑
@@ -41,6 +47,7 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 					remoteFuture.channel().writeAndFlush(req.getByteBuf());
 				}
 			});
+			logger.info("connect http-server [{}:{}] successfully. ", req.getHost(), req.getPort());
 			return ;
 		}
 		
@@ -54,10 +61,11 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 		forward.start().addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
+				logger.info("connect ssl-server [{}:{}] successfully. ", req.getHost(), req.getPort());
 				// 与服务端建立连接完成后，告知浏览器Connect成功，可以进行ssl通信了
 				localCtx.writeAndFlush(Unpooled.wrappedBuffer(Constant.ConnectedLine.getBytes())); // TODO 待优化，在direct上分配
 				// 建立转发 (browser -> server)
-				localCtx.pipeline().addLast(new ForwardHandler(remoteFuture.channel()));
+				localCtx.pipeline().addLast(new ForwardHandler(remoteFuture.channel()), new InactiveHandler(remoteFuture.channel()));
 			}
 		});
 	}
@@ -72,10 +80,11 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 			bootStrap = new Bootstrap();
 			bootStrap.channel(NioSocketChannel.class);
 			bootStrap.group(ctx.channel().eventLoop());
+			NettyBootstrapUtil.initTcpServerOptions(bootStrap, ConfigContext.getConfig());
 			bootStrap.handler(new ChannelInitializer<Channel>() {
 				@Override
 				protected void initChannel(Channel ch) throws Exception {
-					ch.pipeline().addLast(new ForwardHandler(ctx.channel()));
+					ch.pipeline().addLast(new ForwardHandler(ctx.channel()), new InactiveHandler(ctx.channel()));
 				}
 			});
 		}

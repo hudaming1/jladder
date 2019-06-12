@@ -29,10 +29,4 @@ public class ForwardHandler extends ChannelInboundHandlerAdapter {
     		this.channel.writeAndFlush(msg);
     	}
     }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ctx.fireChannelInactive();
-        channel.close();
-    }
 }

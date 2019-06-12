@@ -3,6 +3,7 @@ package org.hum.nettyproxy.adapter.http.handler;
 import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec.EncoderUtil;
+import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
 import org.hum.nettyproxy.core.ConfigContext;
 import org.hum.nettyproxy.core.NettyProxyConfig;
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		Bootstrap bootStrap = new Bootstrap();
 		bootStrap.channel(NioSocketChannel.class);
 		bootStrap.group(browserCtx.channel().eventLoop());
+		NettyBootstrapUtil.initTcpServerOptions(bootStrap, config);
 		bootStrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {

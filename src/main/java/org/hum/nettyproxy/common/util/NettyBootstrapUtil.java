@@ -6,12 +6,13 @@ import org.hum.nettyproxy.core.NettyProxyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 
-public class ServerBootstrapUtil {
+public class NettyBootstrapUtil {
 
-	private static final Logger logger = LoggerFactory.getLogger(ServerBootstrapUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(NettyBootstrapUtil.class);
 	
 	public static void initTcpServerOptions(ServerBootstrap serverBootstrap, NettyProxyConfig config) {
 		// init server-options
@@ -43,6 +44,24 @@ public class ServerBootstrapUtil {
 			}
 		} else {
 			logger.debug("no tcp-server-child-options found.");
+			return ;
+		}
+	}
+
+	public static void initTcpServerOptions(Bootstrap bootstrap, NettyProxyConfig config) {
+		// init server-options
+		if (config.getTcpServerOptions() != null && !config.getTcpServerOptions().isEmpty()) {
+			for (Entry<String, String> tcpOption : config.getTcpServerOptions().entrySet()) {
+				ChannelOption<Object> channelOption = ChannelOption.valueOf(tcpOption.getKey());
+				if (channelOption == null) {
+					logger.warn("unkonwn tcp-option=" + tcpOption.getKey());
+					continue;
+				}
+				bootstrap.option(channelOption, tcpOption.getValue());
+				logger.info("add tcp-option, {}={}", tcpOption.getKey(), tcpOption.getValue());
+			}
+		} else {
+			logger.debug("no tcp-options found.");
 			return ;
 		}
 	}
