@@ -53,9 +53,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<!-- -->
-							<mainClass>org.hum.nettyproxy.server.NettyProxyServer</mainClass>
-							<!-- <mainClass>org.hum.nettyproxy.adapter.http.NettyHttpProxy</mainClass> -->
+							<mainClass>org.hum.nettyproxy.ServerRun</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
