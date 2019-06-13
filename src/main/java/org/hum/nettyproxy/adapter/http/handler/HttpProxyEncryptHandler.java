@@ -2,7 +2,7 @@ package org.hum.nettyproxy.adapter.http.handler;
 
 import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
-import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec.EncoderUtil;
+import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
 import org.hum.nettyproxy.core.ConfigContext;
 import org.hum.nettyproxy.core.NettyProxyConfig;
@@ -34,6 +34,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequest req) throws Exception {
 
 		if (req.getHost() == null || req.getHost().isEmpty()) {
+			browserCtx.close();
 			return;
 		}
 		
@@ -46,18 +47,18 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 			browserCtx.pipeline().remove(this);
 		}
 		
-		Bootstrap bootStrap = new Bootstrap();
-		bootStrap.channel(NioSocketChannel.class);
-		bootStrap.group(browserCtx.channel().eventLoop());
-		NettyBootstrapUtil.initTcpServerOptions(bootStrap, config);
-		bootStrap.handler(new ChannelInitializer<Channel>() {
+		Bootstrap bootstrap = new Bootstrap();
+		bootstrap.channel(NioSocketChannel.class);
+		bootstrap.group(browserCtx.channel().eventLoop());
+		NettyBootstrapUtil.initTcpServerOptions(bootstrap, config);
+		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
 				ch.pipeline().addLast(new NettyHttpProxyEncShakeHanlder(browserCtx.channel(), req));
 			}
 		});
 		// 建立连接
-		bootStrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
+		bootstrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
 				logger.info("connect {}:{} successfully.", config.getOutsideProxyHost(), config.getOutsideProxyPort());
@@ -66,7 +67,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 				ByteBuf byteBuf = remoteFuture.channel().alloc().directBuffer();
 				
 				// 告诉OutsideServer连接到远端服务器的地址和端口。
-				remoteFuture.channel().writeAndFlush(EncoderUtil.encode(byteBuf, hostBytes, (short) req.getPort()));
+				remoteFuture.channel().writeAndFlush(NettyProxyConnectMessageCodec.EncoderUtil.encode(byteBuf, hostBytes, (short) req.getPort()));
 			}
 		});
 	}

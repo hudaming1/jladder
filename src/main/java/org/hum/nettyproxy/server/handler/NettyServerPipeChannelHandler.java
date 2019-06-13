@@ -1,6 +1,5 @@
 package org.hum.nettyproxy.server.handler;
 
-import org.hum.nettyproxy.common.Config;
 import org.hum.nettyproxy.common.codec.DynamicLengthDecoder;
 import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
@@ -9,6 +8,8 @@ import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
+import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
+import org.hum.nettyproxy.core.ConfigContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
@@ -34,7 +34,7 @@ public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<N
 		insideProxyCtx.pipeline().remove(NettyProxyConnectMessageCodec.Decoder.class);
 		final Channel insideProxyChannel = insideProxyCtx.channel();
 		bootstrap.group(insideProxyChannel.eventLoop()).channel(NioSocketChannel.class);
-		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Config.CONNECT_TIMEOUT);
+		NettyBootstrapUtil.initTcpServerOptions(bootstrap, ConfigContext.getConfig());
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel remoteChannel) throws Exception {

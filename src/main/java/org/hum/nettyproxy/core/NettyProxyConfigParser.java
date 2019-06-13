@@ -40,7 +40,7 @@ public class NettyProxyConfigParser {
 		NettyProxyConfig serverRunArgs = new NettyProxyConfig();
 		serverRunArgs.setRunMode(runMode);
 		serverRunArgs.setPort(parseInt(paramMap.get(PORT_KEY), "param \"port\" is invaild"));
-		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY)? parseInt(paramMap.get(PORT_KEY), "param \"workercnt\" is invaild") : DEFAULT_WORKER_CNT);
+		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY)? parseInt(paramMap.get(WORKER_CNT_KEY), "param \"workercnt\" is invaild") : DEFAULT_WORKER_CNT);
 		
 		if (runMode == RunModeEnum.HttpInsideServer || runMode == RunModeEnum.SocksInsideServer) { 
 			String outsideProxyHost = paramMap.get(OUTSIDE_PROXY_HOST_KEY);

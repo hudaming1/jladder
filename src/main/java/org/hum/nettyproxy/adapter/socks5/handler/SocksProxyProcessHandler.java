@@ -1,7 +1,7 @@
 package org.hum.nettyproxy.adapter.socks5.handler;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -16,7 +16,7 @@ import io.netty.handler.codec.socks.SocksRequest;
 
 public class SocksProxyProcessHandler extends SimpleChannelInboundHandler<SocksRequest>{
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+	private static final Logger logger = LoggerFactory.getLogger(SocksProxyProcessHandler.class);
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, SocksRequest msg) throws Exception {
@@ -32,8 +32,8 @@ public class SocksProxyProcessHandler extends SimpleChannelInboundHandler<SocksR
 		case CMD:
 			SocksCmdRequest req = (SocksCmdRequest) msg;
 			if (req.cmdType() == SocksCmdType.CONNECT) {
-				System.out.println(sdf.format(new Date()) + "\t\t\t" + req.host() + ":" + req.port());
-				ctx.pipeline().addLast(new ServerPipeChannelHandler());
+				logger.info("prepare connect {}:{}", req.host(), req.port());
+				ctx.pipeline().addLast(new SocksInsideServerHandler());
 				ctx.pipeline().remove(this);
 				ctx.fireChannelRead(msg);
 			} else {
