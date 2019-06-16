@@ -1,11 +1,11 @@
 package org.hum.nettyproxy.adapter.http;
 
-import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
 import org.hum.nettyproxy.adapter.http.handler.HttpProxyProcessHandler;
 import org.hum.nettyproxy.common.NamedThreadFactory;
+import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.core.ConfigContext;
+import org.hum.nettyproxy.core.NettyProxyContext;
 import org.hum.nettyproxy.core.NettyProxyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 		this.config = config;
 		serverBootstrap = new ServerBootstrap();
 		httpChannelInitializer = new HttpChannelInitializer();
-		ConfigContext.regist(config);
+		NettyProxyContext.regist(config);
 	}
 	
 	@Override

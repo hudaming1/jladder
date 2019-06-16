@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.adapter.http.codec;
+package org.hum.nettyproxy.common.codec.http;
 
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.Constant;

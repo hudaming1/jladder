@@ -1,18 +1,17 @@
 package org.hum.nettyproxy.adapter.socks5.handler;
 
 import org.hum.nettyproxy.common.Constant;
-import org.hum.nettyproxy.common.codec.DynamicLengthDecoder;
-import org.hum.nettyproxy.common.codec.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
-import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
+import org.hum.nettyproxy.common.codec.customer.DynamicLengthDecoder;
+import org.hum.nettyproxy.common.codec.customer.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
+import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.core.ConfigContext;
+import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.hum.nettyproxy.core.NettyProxyConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hum.nettyproxy.core.NettyProxyContext;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -31,8 +30,6 @@ import io.netty.handler.codec.socks.SocksCmdStatus;
 
 public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksCmdRequest> {
 
-	private static final Logger logger = LoggerFactory.getLogger(SocksInsideServerHandler.class);
-
 	@Override
 	protected void channelRead0(final ChannelHandlerContext browserCtx, final SocksCmdRequest msg) throws Exception {
 
@@ -41,9 +38,9 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 			return;
 		}
 		
-		NettyProxyConfig config = ConfigContext.getConfig();
+		NettyProxyConfig config = NettyProxyContext.getConfig();
 
-		if (msg.port() == 443) {
+		if (msg.port() == Constant.DEFAULT_HTTPS_PORT) {
 			browserCtx.pipeline().remove(this);
 		}
 		
@@ -54,13 +51,13 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
+				ch.pipeline().addFirst(new NettyProxyMonitorHandler());
 				ch.pipeline().addLast(new PrepareConnectChannelHandler(browserCtx, msg));
 			}
 		});
 		bootstrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(final ChannelFuture outsideServerChannelFuture) throws Exception {
-				logger.info("connect {}:{} successfully.", config.getOutsideProxyHost(), config.getOutsideProxyPort());
 
 				byte[] hostBytes = msg.host().getBytes();
 				ByteBuf byteBuf = outsideServerChannelFuture.channel().alloc().directBuffer();
@@ -92,11 +89,10 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 	        }
 
 	        outsideProxyCtx.pipeline().remove(this);
-	        logger.info("outside-server connect server [{}:{}] successfully", req.host(), req.port());
 	        
 	        Channel browserChannel = browserCtx.channel();
 
-	        if (req.port() == 443) { 
+	        if (req.port() == Constant.DEFAULT_HTTPS_PORT) { 
 	        	outsideProxyCtx.pipeline().addLast(new ForwardHandler("outside_server->browser", browserChannel), new InactiveHandler(browserChannel));
 	        	browserChannel.pipeline().addLast(new ForwardHandler("browser->ouside_server", outsideProxyCtx.channel()));
 				// 与服务端建立连接完成后，告知浏览器Connect成功，可以进行ssl通信了

@@ -4,8 +4,10 @@ import org.hum.nettyproxy.adapter.socks5.handler.SocksProxyProcessHandler;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.core.ConfigContext;
+import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorManager;
+import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.hum.nettyproxy.core.NettyProxyConfig;
+import org.hum.nettyproxy.core.NettyProxyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,14 +27,16 @@ public class NettySocksInsideProxyServer implements Runnable {
 	private final String SocksServerThreadNamePrefix = RunModeEnum.SocksInsideServer.getName();
 	private final ServerBootstrap serverBootstrap;
 	private final ChannelInitializer<Channel> channelInitializer;
+	private final NettyProxyMonitorManager nettyProxyMonitorManager;
 	private final NettyProxyConfig config;
 
 
 	public NettySocksInsideProxyServer(NettyProxyConfig config) {
 		this.config = config;
 		serverBootstrap = new ServerBootstrap();
-		channelInitializer = new SocksChannelInitializer();
-		ConfigContext.regist(config);
+		channelInitializer = new SocksInsideChannelInitializer();
+		nettyProxyMonitorManager = new NettyProxyMonitorManager();
+		NettyProxyContext.regist(config, nettyProxyMonitorManager);
 	}
 
 	@Override
@@ -54,9 +58,10 @@ public class NettySocksInsideProxyServer implements Runnable {
 		});
 	}
 	
-	private static class SocksChannelInitializer extends ChannelInitializer<Channel> {
+	private static class SocksInsideChannelInitializer extends ChannelInitializer<Channel> {
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
+			ch.pipeline().addFirst(new NettyProxyMonitorHandler());
 			ch.pipeline().addLast(new SocksInitRequestDecoder());
 			ch.pipeline().addLast(new SocksMessageEncoder());
 			ch.pipeline().addLast(new SocksProxyProcessHandler());

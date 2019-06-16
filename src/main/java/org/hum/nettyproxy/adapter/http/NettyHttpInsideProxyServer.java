@@ -1,11 +1,13 @@
 package org.hum.nettyproxy.adapter.http;
 
-import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
 import org.hum.nettyproxy.adapter.http.handler.HttpProxyEncryptHandler;
 import org.hum.nettyproxy.common.NamedThreadFactory;
+import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.core.ConfigContext;
+import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorManager;
+import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
+import org.hum.nettyproxy.core.NettyProxyContext;
 import org.hum.nettyproxy.core.NettyProxyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +26,16 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	private final String HttpInsideServerThreadNamePrefix = RunModeEnum.HttpInsideServer.getName();
 	
 	private final ServerBootstrap serverBootstrap;
-	private final HttpChannelInitializer httpChannelInitializer;
+	private final NettyProxyMonitorManager nettyProxyMonitorManager;
+	private final HttpInsideChannelInitializer httpChannelInitializer;
 	private final NettyProxyConfig config;
 
 	public NettyHttpInsideProxyServer(NettyProxyConfig config) {
 		this.config = config;
 		serverBootstrap = new ServerBootstrap();
-		httpChannelInitializer = new HttpChannelInitializer();
-		ConfigContext.regist(config);
+		httpChannelInitializer = new HttpInsideChannelInitializer();
+		nettyProxyMonitorManager = new NettyProxyMonitorManager();
+		NettyProxyContext.regist(config, nettyProxyMonitorManager);
 	}
 	
 	@Override
@@ -53,9 +57,10 @@ public class NettyHttpInsideProxyServer implements Runnable {
 		});
 	}
 	
-	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
+	private static class HttpInsideChannelInitializer extends ChannelInitializer<Channel> {
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
+			ch.pipeline().addFirst(new NettyProxyMonitorHandler());
 			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(new HttpProxyEncryptHandler());
 		}
 	}

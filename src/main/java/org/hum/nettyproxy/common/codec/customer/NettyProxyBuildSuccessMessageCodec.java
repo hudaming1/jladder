@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.common.codec;
+package org.hum.nettyproxy.common.codec.customer;
 
 import java.io.Serializable;
 

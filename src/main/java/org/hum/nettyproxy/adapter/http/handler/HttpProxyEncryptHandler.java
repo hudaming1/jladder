@@ -1,13 +1,12 @@
 package org.hum.nettyproxy.adapter.http.handler;
 
-import org.hum.nettyproxy.adapter.http.codec.HttpRequestDecoder;
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
-import org.hum.nettyproxy.common.codec.NettyProxyConnectMessageCodec;
+import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec;
+import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.core.ConfigContext;
+import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.hum.nettyproxy.core.NettyProxyConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hum.nettyproxy.core.NettyProxyContext;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -28,8 +27,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  */
 public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
-	private static final Logger logger = LoggerFactory.getLogger(HttpProxyEncryptHandler.class);
-	
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequest req) throws Exception {
 
@@ -38,7 +35,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 			return;
 		}
 		
-		NettyProxyConfig config = ConfigContext.getConfig();
+		NettyProxyConfig config = NettyProxyContext.getConfig();
 		
 		if (req.isHttps()) {
 			// 因为https在后面建立ssl认证时，全部基于tcp协议，无法使用http，因此这里需要将http-decoder删除。
@@ -54,6 +51,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
+				ch.pipeline().addFirst(new NettyProxyMonitorHandler());
 				ch.pipeline().addLast(new NettyHttpProxyEncShakeHanlder(browserCtx.channel(), req));
 			}
 		});
@@ -61,7 +59,6 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		bootstrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
-				logger.info("connect {}:{} successfully.", config.getOutsideProxyHost(), config.getOutsideProxyPort());
 				
 				byte[] hostBytes = req.getHost().getBytes();
 				ByteBuf byteBuf = remoteFuture.channel().alloc().directBuffer();
