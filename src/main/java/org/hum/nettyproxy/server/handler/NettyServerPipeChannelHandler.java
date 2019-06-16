@@ -4,12 +4,12 @@ import org.hum.nettyproxy.common.codec.customer.DynamicLengthDecoder;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec.NettyProxyConnectMessage;
+import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.core.NettyProxyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

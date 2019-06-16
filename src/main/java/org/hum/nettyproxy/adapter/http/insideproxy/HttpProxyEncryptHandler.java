@@ -1,11 +1,11 @@
-package org.hum.nettyproxy.adapter.http.handler;
+package org.hum.nettyproxy.adapter.http.insideproxy;
 
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
+import org.hum.nettyproxy.common.core.NettyProxyConfig;
+import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.core.NettyProxyConfig;
-import org.hum.nettyproxy.core.NettyProxyContext;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;

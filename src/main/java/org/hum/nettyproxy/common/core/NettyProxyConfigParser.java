@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.core;
+package org.hum.nettyproxy.common.core;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,6 +16,7 @@ public class NettyProxyConfigParser {
 	private static final String NETTY_PROXY_ARGS_PREFIX = "nettyproxy.";
 	private static final String RUNMODE_KEY = "runmode";
 	private static final String PORT_KEY = "port";
+	private static final String HTTP_SERVER_PORT_KEY = "http_server_port";
 	private static final String WORKER_CNT_KEY = "workercnt";
 	private static final String OUTSIDE_PROXY_HOST_KEY = "outside_proxy_host";
 	private static final String OUTSIDE_PROXY_PORT_KEY = "outside_proxy_port";
@@ -35,12 +36,15 @@ public class NettyProxyConfigParser {
 			return DEFAULT_SERVER_RUN_ARGS;
 		}
 
-		RunModeEnum runMode = RunModeEnum.getEnum(parseInt(paramMap.get(RUNMODE_KEY), "param \"runmode\" is invaild"));
+		RunModeEnum runMode = RunModeEnum.getEnum(parseInt(paramMap.get(RUNMODE_KEY), "param \"runmode[" + paramMap.get(RUNMODE_KEY) + "]\" is invaild"));
 		
 		NettyProxyConfig serverRunArgs = new NettyProxyConfig();
 		serverRunArgs.setRunMode(runMode);
-		serverRunArgs.setPort(parseInt(paramMap.get(PORT_KEY), "param \"port\" is invaild"));
-		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY)? parseInt(paramMap.get(WORKER_CNT_KEY), "param \"workercnt\" is invaild") : DEFAULT_WORKER_CNT);
+		serverRunArgs.setPort(parseInt(paramMap.get(PORT_KEY), "param \"port [" + paramMap.get(PORT_KEY) + "]\" is invaild"));
+		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY)? parseInt(paramMap.get(WORKER_CNT_KEY), "param \"workercnt[" + paramMap.get(WORKER_CNT_KEY) + "]\" is invaild") : DEFAULT_WORKER_CNT);
+		if (paramMap.containsKey(HTTP_SERVER_PORT_KEY)) {
+			serverRunArgs.setBindHttpServerPort(parseInt(paramMap.get(HTTP_SERVER_PORT_KEY), "param \"http_server_port[" + paramMap.get(HTTP_SERVER_PORT_KEY) + "]\" is invaild"));
+		}
 		
 		if (runMode == RunModeEnum.HttpInsideServer || runMode == RunModeEnum.SocksInsideServer) { 
 			String outsideProxyHost = paramMap.get(OUTSIDE_PROXY_HOST_KEY);
@@ -48,7 +52,7 @@ public class NettyProxyConfigParser {
 				throw new IllegalArgumentException("param \"outside_proxy_host\" is invaild");
 			}
 			serverRunArgs.setOutsideProxyHost(outsideProxyHost);
-			serverRunArgs.setOutsideProxyPort(parseInt(paramMap.get(OUTSIDE_PROXY_PORT_KEY), "param \"outside_proxy_port\" is invaild"));
+			serverRunArgs.setOutsideProxyPort(parseInt(paramMap.get(OUTSIDE_PROXY_PORT_KEY), "param \"outside_proxy_port[" + paramMap.get(OUTSIDE_PROXY_PORT_KEY) + "]\" is invaild"));
 			
 			logger.info("now checking outside_proxy[{}{}] is reachable...", serverRunArgs.getOutsideProxyHost(), serverRunArgs.getOutsideProxyPort());
 			// 检测Proxy是否可达

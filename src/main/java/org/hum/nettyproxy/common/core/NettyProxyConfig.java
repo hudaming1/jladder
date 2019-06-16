@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.core;
+package org.hum.nettyproxy.common.core;
 
 import java.util.Map;
 
@@ -35,18 +35,20 @@ public class NettyProxyConfig {
 	 */
 	private int outsideProxyPort;
 	/**
+	 * 启动HttpServer服务器，并开放端口
+	 * 启动参数样例：nettyproxy.httpserver=80
+	 */
+	private Integer bindHttpServerPort;
+	/**
 	 *作为Server时的TCP选项
-	 *TODO 暂未实现
 	 */
 	private Map<String, String> TcpServerOptions;
 	/**
 	 *作为Server时的Child-TCP选项
-	 *TODO 暂未实现
 	 */
 	private Map<String, String> TcpServerChildOptions;
 	/**
 	 * 作为Client时的TCP选项
-	 *TODO 暂未实现
 	 */
 	private Map<String, String> TcpClientOptions;
 	

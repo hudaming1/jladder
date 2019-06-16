@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.adapter.http.handler;
+package org.hum.nettyproxy.adapter.http.insideproxy;
 
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.Constant;

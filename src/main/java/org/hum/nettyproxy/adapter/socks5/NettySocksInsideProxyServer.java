@@ -2,12 +2,12 @@ package org.hum.nettyproxy.adapter.socks5;
 
 import org.hum.nettyproxy.adapter.socks5.handler.SocksProxyProcessHandler;
 import org.hum.nettyproxy.common.NamedThreadFactory;
+import org.hum.nettyproxy.common.core.NettyProxyConfig;
+import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorManager;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
-import org.hum.nettyproxy.core.NettyProxyConfig;
-import org.hum.nettyproxy.core.NettyProxyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

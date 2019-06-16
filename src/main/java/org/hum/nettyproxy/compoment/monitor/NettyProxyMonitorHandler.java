@@ -1,6 +1,6 @@
 package org.hum.nettyproxy.compoment.monitor;
 
-import org.hum.nettyproxy.core.NettyProxyContext;
+import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +34,14 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
 	
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	ByteBuf byteBuf = (ByteBuf) msg;
-    	// 记录已读取字节数
-    	// increase connection count
-    	NettyProxyMonitorManager monitor = NettyProxyContext.getMonitor();
-    	if (monitor != null) {
-    		monitor.increaseInBytesLength(byteBuf.readableBytes());
+    	if (msg instanceof ByteBuf) {
+	    	ByteBuf byteBuf = (ByteBuf) msg;
+	    	// 记录已读取字节数
+	    	// increase connection count
+	    	NettyProxyMonitorManager monitor = NettyProxyContext.getMonitor();
+	    	if (monitor != null) {
+	    		monitor.increaseInBytesLength(byteBuf.readableBytes());
+	    	}
     	}
         ctx.fireChannelRead(msg);
     }
@@ -58,11 +60,13 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-    	// 记录输出字节数
-    	ByteBuf byteBuf = (ByteBuf) msg;
-    	NettyProxyMonitorManager monitor = NettyProxyContext.getMonitor();
-    	if (monitor != null) {
-    		monitor.increaseOutBytesLength(byteBuf.writerIndex());
+    	if (msg instanceof ByteBuf) {
+	    	// 记录输出字节数
+	    	ByteBuf byteBuf = (ByteBuf) msg;
+	    	NettyProxyMonitorManager monitor = NettyProxyContext.getMonitor();
+	    	if (monitor != null) {
+	    		monitor.increaseOutBytesLength(byteBuf.writerIndex());
+	    	}
     	}
         ctx.write(msg, promise);
     }

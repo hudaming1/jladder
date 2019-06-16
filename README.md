@@ -2,7 +2,7 @@
 基于Netty开发的Http/Socks代理服务器
 
 #### 待解决：
-> 1. 传输优化，斟酌一下到底在heap上分配还是在direct上分配
+> 1. [OK] 传输优化，斟酌一下到底在heap上分配还是在direct上分配
 > 2. 支持IPv6
 > 3. 调整TCP参数，例如超时等
 > 4. [OK] 开发socks协议

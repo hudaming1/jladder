@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.core;
+package org.hum.nettyproxy.common.core;
 
 import java.util.concurrent.ConcurrentHashMap;
 
