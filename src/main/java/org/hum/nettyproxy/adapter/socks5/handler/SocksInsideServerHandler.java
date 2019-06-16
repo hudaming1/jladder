@@ -9,7 +9,6 @@ import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.hum.nettyproxy.core.NettyProxyConfig;
 import org.hum.nettyproxy.core.NettyProxyContext;
 
@@ -51,7 +50,6 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addFirst(new NettyProxyMonitorHandler());
 				ch.pipeline().addLast(new PrepareConnectChannelHandler(browserCtx, msg));
 			}
 		});

@@ -1,10 +1,17 @@
 package org.hum.nettyproxy.adapter.http;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.hum.nettyproxy.adapter.http.handler.HttpProxyProcessHandler;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
+import org.hum.nettyproxy.compoment.interceptor.NamespaceRobberHandler;
+import org.hum.nettyproxy.compoment.interceptor.NamespaceRobberHandler.Interceptor;
+import org.hum.nettyproxy.compoment.interceptor.impl.NettyProxyComRobberHandler;
+import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.hum.nettyproxy.core.NettyProxyContext;
 import org.hum.nettyproxy.core.NettyProxyConfig;
 import org.slf4j.Logger;
@@ -56,6 +63,10 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
+			ch.pipeline().addFirst(new NettyProxyMonitorHandler());
+			Map<String, Interceptor> regxMap = new HashMap<String, NamespaceRobberHandler.Interceptor>();
+			regxMap.put("nettyproxy.com", new NettyProxyComRobberHandler());
+			ch.pipeline().addFirst(new NamespaceRobberHandler(regxMap));
 			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(new HttpProxyProcessHandler());
 		}
 	}

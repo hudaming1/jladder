@@ -5,7 +5,7 @@ import java.util.Map;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public abstract class NamespaceRobberHandler extends ChannelInboundHandlerAdapter {
+public class NamespaceRobberHandler extends ChannelInboundHandlerAdapter {
 
 	private Map<String, Interceptor> regxMap; // 需要拦截的域名
 	
@@ -17,7 +17,7 @@ public abstract class NamespaceRobberHandler extends ChannelInboundHandlerAdapte
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     	
     	// 1.解析msg，判断是否是HTTP协议
-    	String namespace = ""; // TODO
+    	String namespace = "nettyproxy.com"; // TODO
     	
     	// 2.从http协议中，解析出要访问的域名
     	Interceptor interceptor = regxMap.get(namespace);

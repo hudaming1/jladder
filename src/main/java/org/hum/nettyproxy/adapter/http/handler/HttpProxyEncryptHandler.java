@@ -4,7 +4,6 @@ import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.hum.nettyproxy.core.NettyProxyConfig;
 import org.hum.nettyproxy.core.NettyProxyContext;
 
@@ -51,7 +50,6 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addFirst(new NettyProxyMonitorHandler());
 				ch.pipeline().addLast(new NettyHttpProxyEncShakeHanlder(browserCtx.channel(), req));
 			}
 		});

@@ -1,15 +1,14 @@
 package org.hum.nettyproxy.server.handler;
 
 import org.hum.nettyproxy.common.codec.customer.DynamicLengthDecoder;
-import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
+import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec.NettyProxyConnectMessage;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.hum.nettyproxy.core.NettyProxyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,6 @@ public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<N
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel remoteChannel) throws Exception {
-				remoteChannel.pipeline().addFirst(new NettyProxyMonitorHandler());
 				if (msg.isHttps()) {
 					// 如果目标服务器是https，则直接转发即可 (remote->inside_server)
 					remoteChannel.pipeline().addLast(new ForwardHandler("remote->inside_server", insideProxyChannel), new InactiveHandler(insideProxyCtx.channel()));

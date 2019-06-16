@@ -28,6 +28,7 @@ public class ServerRun {
 	 * </pre> 
 	 */
 	public static void main(String[] args) {
+		// args = "nettyproxy.runmode=1 nettyproxy.port=3389 nettyproxy.workercnt=96".split(" ");
 		NettyProxyConfig serverRunArg = NettyProxyConfigParser.toServerRunArg(args);
 		logger.info("input_args=" + serverRunArg);
 		ServerRunProxyFactory.create(serverRunArg.getRunMode()).start(serverRunArg);
