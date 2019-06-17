@@ -1,6 +1,5 @@
 package org.hum.nettyproxy.adapter.http.simpleserver;
 
-import org.hum.nettyproxy.adapter.http.simpleproxy.HttpProxyProcessHandler;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.core.NettyProxyConfig;
@@ -13,7 +12,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
