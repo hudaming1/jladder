@@ -1,5 +1,10 @@
 package org.hum.nettyproxy.common.util;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 import io.netty.buffer.ByteBuf;
 
 public class ByteBufHelper {
@@ -16,4 +21,20 @@ public class ByteBufHelper {
     	
     	return sbuilder.toString().trim();
     }
+
+	public static ByteBuf readFile(ByteBuf byteBuf, File file) throws IOException {
+		BufferedInputStream fileInputStream = null;
+		try {
+			fileInputStream = new BufferedInputStream(new FileInputStream(file));
+			int read = -1;
+			while ((read = fileInputStream.read()) != -1) {
+				byteBuf.writeByte((byte) read);
+			}
+			return byteBuf;
+		} finally {
+			if (fileInputStream != null) {
+				fileInputStream.close();
+			}
+		}
+	}
 }
