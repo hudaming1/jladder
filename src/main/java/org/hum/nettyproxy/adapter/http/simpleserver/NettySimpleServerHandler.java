@@ -2,7 +2,7 @@ package org.hum.nettyproxy.adapter.http.simpleserver;
 
 import java.io.File;
 
-import org.hum.nettyproxy.adapter.http.simpleserver.enumtype.RequestTypeEnum;
+import org.hum.nettyproxy.adapter.http.simpleserver.enumtype.ContentTypeEnum;
 import org.hum.nettyproxy.common.util.ByteBufHelper;
 import org.hum.nettyproxy.common.util.StringUtil;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 		}
 		
 		// 2.判断文件类型，为response头做准备
-		RequestTypeEnum requestType = RequestTypeEnum.get(StringUtil.subHttpUriSuffix(msg.uri()));
+		ContentTypeEnum requestType = ContentTypeEnum.get(StringUtil.subHttpUriSuffix(msg.uri()));
 		
 		// 3.读取文件内容
 		ByteBuf byteBuf = ByteBufHelper.readFile(ctx.alloc().directBuffer(), file);
@@ -69,10 +69,10 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 	}
 	
 	private void writeAndFlush(ChannelHandlerContext ctx, HttpResponseStatus status, ByteBuf byteBuf) {
-		writeAndFlush(ctx, status, RequestTypeEnum.HTML, byteBuf);
+		writeAndFlush(ctx, status, ContentTypeEnum.HTML, byteBuf);
 	}
 	
-	private void writeAndFlush(ChannelHandlerContext ctx, HttpResponseStatus status, RequestTypeEnum requestType, ByteBuf byteBuf) {
+	private void writeAndFlush(ChannelHandlerContext ctx, HttpResponseStatus status, ContentTypeEnum requestType, ByteBuf byteBuf) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, byteBuf);
 		if (requestType != null) {
 			response.headers().set(HttpHeaderNames.CONTENT_TYPE, requestType.getContentType() + "; charset=UTF-8");
