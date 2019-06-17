@@ -1,7 +1,6 @@
 package org.hum.nettyproxy.adapter.http.simpleserver;
 
 import org.hum.nettyproxy.common.NamedThreadFactory;
-import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.core.NettyProxyConfig;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.slf4j.Logger;
@@ -12,6 +11,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
@@ -41,7 +42,8 @@ public class NettyHttpServer implements Runnable {
 		serverBootstrap.childHandler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new HttpRequestDecoder());
+				ch.pipeline().addLast(new HttpServerCodec());
+				ch.pipeline().addLast(new HttpObjectAggregator(1024 * 1024));
 				ch.pipeline().addLast(new NettySimpleServerHandler());
 			}
 		});

@@ -1,9 +1,8 @@
 package org.hum.nettyproxy.adapter.http.simpleserver;
 
-import org.hum.nettyproxy.adapter.http.model.HttpRequest;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.FullHttpRequest;
 
 /**
  * 首页：
@@ -17,11 +16,18 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * 
  * @author hudaming
  */
-public class NettySimpleServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
+public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) throws Exception {
-		System.out.println(msg.getHeaders());
+	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
+		String accessFile = msg.uri();
+		
+		// 1.定位文件
+		
+		// 2.判断文件类型，为response头做准备
+		
+		// 3.读取文件内容
+		
+		// 4.根据步骤2-3，拼Response
 	}
-
 }
