@@ -145,3 +145,17 @@
 2019-06-17 20:44:47,969-[TS] INFO main org.hum.nettyproxy.ServerRun - input_args=NettyProxyConfig(runMode=HttpSimpleProxy, port=3389, workerCnt=96, outsideProxyHost=null, outsideProxyPort=0, bindHttpServerPort=8000, TcpServerOptions=null, TcpServerChildOptions=null, TcpClientOptions=null)
 2019-06-17 20:44:48,877-[TS] INFO http-simple-prosy-boss-thread-1 org.hum.nettyproxy.adapter.http.simpleproxy.NettyHttpSimpleProxyServer - http-simple-proxy-server started, listening port: 3389
 2019-06-17 20:44:48,877-[TS] INFO http-simple-server-boss-thread-1 org.hum.nettyproxy.adapter.http.simpleserver.NettyHttpServer - http-simple-server started, listening port: 8000
+2019-06-17 20:50:20,216-[TS] INFO main org.hum.nettyproxy.common.core.NettyProxyConfigParser - parse arg success, key=runmode, value=1
+2019-06-17 20:50:20,218-[TS] INFO main org.hum.nettyproxy.common.core.NettyProxyConfigParser - parse arg success, key=port, value=3389
+2019-06-17 20:50:20,218-[TS] INFO main org.hum.nettyproxy.common.core.NettyProxyConfigParser - parse arg success, key=workercnt, value=96
+2019-06-17 20:50:20,218-[TS] INFO main org.hum.nettyproxy.common.core.NettyProxyConfigParser - parse arg success, key=http_server_port, value=8000
+2019-06-17 20:50:20,221-[TS] INFO main org.hum.nettyproxy.ServerRun - input_args=NettyProxyConfig(runMode=HttpSimpleProxy, port=3389, workerCnt=96, outsideProxyHost=null, outsideProxyPort=0, bindHttpServerPort=8000, TcpServerOptions=null, TcpServerChildOptions=null, TcpClientOptions=null)
+2019-06-17 20:50:21,120-[TS] INFO http-simple-server-boss-thread-1 org.hum.nettyproxy.adapter.http.simpleserver.NettyHttpServer - http-simple-server started, listening port: 8000
+2019-06-17 20:50:21,120-[TS] INFO http-simple-prosy-boss-thread-1 org.hum.nettyproxy.adapter.http.simpleproxy.NettyHttpSimpleProxyServer - http-simple-proxy-server started, listening port: 3389
+2019-06-17 20:52:03,739-[TS] INFO main org.hum.nettyproxy.common.core.NettyProxyConfigParser - parse arg success, key=runmode, value=1
+2019-06-17 20:52:03,741-[TS] INFO main org.hum.nettyproxy.common.core.NettyProxyConfigParser - parse arg success, key=port, value=3389
+2019-06-17 20:52:03,741-[TS] INFO main org.hum.nettyproxy.common.core.NettyProxyConfigParser - parse arg success, key=workercnt, value=96
+2019-06-17 20:52:03,741-[TS] INFO main org.hum.nettyproxy.common.core.NettyProxyConfigParser - parse arg success, key=http_server_port, value=8000
+2019-06-17 20:52:03,743-[TS] INFO main org.hum.nettyproxy.ServerRun - input_args=NettyProxyConfig(runMode=HttpSimpleProxy, port=3389, workerCnt=96, outsideProxyHost=null, outsideProxyPort=0, bindHttpServerPort=8000, TcpServerOptions=null, TcpServerChildOptions=null, TcpClientOptions=null)
+2019-06-17 20:52:04,637-[TS] INFO http-simple-prosy-boss-thread-1 org.hum.nettyproxy.adapter.http.simpleproxy.NettyHttpSimpleProxyServer - http-simple-proxy-server started, listening port: 3389
+2019-06-17 20:52:04,637-[TS] INFO http-simple-server-boss-thread-1 org.hum.nettyproxy.adapter.http.simpleserver.NettyHttpServer - http-simple-server started, listening port: 8000

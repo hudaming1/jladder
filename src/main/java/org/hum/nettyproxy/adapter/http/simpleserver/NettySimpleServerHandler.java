@@ -71,7 +71,7 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 
 			// 3.读取文件内容
 			ByteBuf byteBuf = ByteBufHelper.readFile(ctx.alloc().directBuffer(), file);
-
+			
 			// 4.根据步骤2-3，拼Response
 			writeAndFlush(ctx, HttpResponseStatus.OK, requestType, byteBuf);
 		} catch (Exception ce) {
