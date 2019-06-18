@@ -22,4 +22,8 @@ public class HttpRequest {
 	public boolean isHttps() {
 		return Constant.HTTPS_METHOD.equalsIgnoreCase(method);
 	}
+	
+	public String getUri() {
+		return line.split(" ")[1];
+	}
 }

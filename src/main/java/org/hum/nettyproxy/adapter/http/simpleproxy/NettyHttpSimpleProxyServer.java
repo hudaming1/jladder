@@ -54,13 +54,17 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 	}
 	
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
+		
+		private HttpAuthorityHandler authorityHandler = new HttpAuthorityHandler();
+		private HttpProxyProcessHandler httpProxyProcessHandler = new HttpProxyProcessHandler();
+		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addFirst(new NettyProxyMonitorHandler());
 //			Map<String, Interceptor> regxMap = new HashMap<String, NamespaceRobberHandler.Interceptor>();
 //			regxMap.put("nettyproxy.com", new NettyProxyComRobberHandler());
 //			ch.pipeline().addFirst(new NamespaceRobberHandler(regxMap));
-			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(new HttpProxyProcessHandler());
+			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(authorityHandler).addLast(httpProxyProcessHandler);
 		}
 	}
 }

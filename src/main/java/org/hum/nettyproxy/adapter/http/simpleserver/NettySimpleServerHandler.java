@@ -3,13 +3,12 @@ package org.hum.nettyproxy.adapter.http.simpleserver;
 import java.io.File;
 
 import org.hum.nettyproxy.adapter.http.simpleserver.enumtype.ContentTypeEnum;
-import org.hum.nettyproxy.common.util.ByteBufHelper;
+import org.hum.nettyproxy.common.util.ByteBufWebUtil;
 import org.hum.nettyproxy.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -35,49 +34,31 @@ import io.netty.handler.codec.http.HttpVersion;
 public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(NettySimpleServerHandler.class);
-	private static String WEB_ROOT;
-	// XXX 404和500的ByteBuf为什么不会被release掉呢？
-	private static ByteBuf _404ByteBuf;
-	private static ByteBuf _500ByteBuf;
-	
-	public NettySimpleServerHandler() {
-		try {
-			WEB_ROOT = NettySimpleServerHandler.class.getClassLoader().getResource("").toURI().getPath();
-			WEB_ROOT += "webapps";
-			
-			_404ByteBuf = ByteBufHelper.readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/404.html"));
-			_500ByteBuf = ByteBufHelper.readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/500.html"));
-		} catch (Exception e) {
-			WEB_ROOT = "";
-			logger.error("init netty-simple-http-server error, can't init web-root-path", e);
-		}
-	}
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
 		
 		// 1.定位文件
-		File file = new File(WEB_ROOT + msg.uri());
+		File file = new File(ByteBufWebUtil.getWebRoot() + msg.uri());
 		if (!file.exists()) {
 			// 返回404页面
-			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, _404ByteBuf);
+			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebUtil._404ByteBuf().retain());
 			return ;
 		}
 
 		try {
-
 			// 2.判断文件类型，为response头做准备
 			ContentTypeEnum requestType = ContentTypeEnum.get(StringUtil.subHttpUriSuffix(msg.uri()));
 
 			// 3.读取文件内容
-			ByteBuf byteBuf = ByteBufHelper.readFile(ctx.alloc().directBuffer(), file);
+			ByteBuf byteBuf = ByteBufWebUtil.readFile(ctx.alloc().directBuffer(), file);
 			
 			// 4.根据步骤2-3，拼Response
 			writeAndFlush(ctx, HttpResponseStatus.OK, requestType, byteBuf);
 		} catch (Exception ce) {
 			// 返回500页面
 			logger.error("http-server 500, req=" + msg, ce);
-			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, _500ByteBuf);
+			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebUtil._500ByteBuf());
 			return ;
 		}
 	}

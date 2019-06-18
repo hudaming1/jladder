@@ -2,7 +2,7 @@ package org.hum.nettyproxy.common.codec.http;
 
 import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.Constant;
-import org.hum.nettyproxy.common.util.ByteBufHelper;
+import org.hum.nettyproxy.common.util.ByteBufWebUtil;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,14 +23,14 @@ public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
     public HttpRequest parse(ByteBuf byteBuf) {
     	HttpRequest request = new HttpRequest();
     	// read request-line
-    	request.setLine(ByteBufHelper.readLine(byteBuf));
+    	request.setLine(ByteBufWebUtil.readLine(byteBuf));
     	
     	// parse to method
     	request.setMethod(request.getLine().split(" ")[0]);
     	
     	// read request-header
     	String line = null;
-    	while (!(line = ByteBufHelper.readLine(byteBuf)).equals("")) {
+    	while (!(line = ByteBufWebUtil.readLine(byteBuf)).equals("")) {
     		int splitIndex = line.indexOf(":");
     		
     		if (splitIndex <= 0) {
@@ -61,7 +61,7 @@ public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
     	
     	// read request-body
     	StringBuilder body = new StringBuilder();
-    	while (!(line = ByteBufHelper.readLine(byteBuf)).equals("")) {
+    	while (!(line = ByteBufWebUtil.readLine(byteBuf)).equals("")) {
     		body.append(line);
     	}
     	request.setBody(body.toString());

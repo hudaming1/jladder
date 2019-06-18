@@ -18,12 +18,14 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 /**
  * 普通HTTP/HTTPS代理类
  * @author hudaming
  */
+@Sharable
 public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(HttpProxyProcessHandler.class);

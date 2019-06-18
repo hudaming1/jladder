@@ -40,6 +40,11 @@ public class NettyProxyConfig {
 	 */
 	private Integer bindHttpServerPort;
 	/**
+	 * 开启权限校验
+	 * 启动参数样例：nettyproxy.enableauthority=1
+	 */
+	private Boolean enableAuthority;
+	/**
 	 *作为Server时的TCP选项
 	 */
 	private Map<String, String> TcpServerOptions;
