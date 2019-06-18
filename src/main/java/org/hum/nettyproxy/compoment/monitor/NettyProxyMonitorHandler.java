@@ -8,6 +8,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.channel.ChannelHandler.Sharable;
 
 /**
  * <pre>
@@ -16,6 +17,7 @@ import io.netty.channel.ChannelPromise;
  * </pre>
  * @author hudaming
  */
+@Sharable
 public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
 	
 	private static final Logger logger = LoggerFactory.getLogger(NettyProxyMonitorHandler.class);

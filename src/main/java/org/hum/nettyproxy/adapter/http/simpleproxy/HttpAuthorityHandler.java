@@ -21,8 +21,6 @@ public class HttpAuthorityHandler extends SimpleChannelInboundHandler<HttpReques
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) throws Exception {
 		
-		System.out.println(AuthManager);
-		
 		InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().localAddress(); 
 		// 如果是登录请求，则优先处理
 		if (msg.getUri().contains("/submit_login")) {

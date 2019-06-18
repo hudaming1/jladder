@@ -40,11 +40,12 @@ public class NettyHttpServer implements Runnable {
 		serverBootstrap.channel(NioServerSocketChannel.class);
 		serverBootstrap.group(bossGroup, workerGroup);
 		serverBootstrap.childHandler(new ChannelInitializer<Channel>() {
+			private final NettySimpleServerHandler nettySimpleServerHandler = new NettySimpleServerHandler();
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
 				ch.pipeline().addLast(new HttpServerCodec());
 				ch.pipeline().addLast(new HttpObjectAggregator(1024 * 1024));
-				ch.pipeline().addLast(new NettySimpleServerHandler());
+				ch.pipeline().addLast(nettySimpleServerHandler);
 			}
 		});
 		serverBootstrap.bind(config.getBindHttpServerPort()).addListener(new GenericFutureListener<Future<? super Void>>() {

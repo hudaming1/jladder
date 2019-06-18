@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -31,6 +32,7 @@ import io.netty.handler.codec.http.HttpVersion;
  * 
  * @author hudaming
  */
+@Sharable
 public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(NettySimpleServerHandler.class);
@@ -41,12 +43,8 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 		// 1.定位文件
 		File file = new File(ByteBufWebUtil.getWebRoot() + msg.uri());
 		if (!file.exists()) {
-			// 返回404页面
-			ByteBuf retain = ByteBufWebUtil._404ByteBuf().retain();
-			// TODO 到底要怎么处理？
-			retain.markWriterIndex();
-			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, retain);
-			retain.resetWriterIndex();
+			// 返回404页面 (TODO 有没有比copy更好的方案？)
+			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebUtil._404ByteBuf().copy());
 			return ;
 		}
 
@@ -62,7 +60,7 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 		} catch (Exception ce) {
 			// 返回500页面
 			logger.error("http-server 500, req=" + msg, ce);
-			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebUtil._500ByteBuf());
+			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebUtil._500ByteBuf().copy());
 			return ;
 		}
 	}

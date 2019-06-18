@@ -57,10 +57,12 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	}
 	
 	private static class HttpInsideChannelInitializer extends ChannelInitializer<Channel> {
+		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
+		private final HttpProxyEncryptHandler httpProxyEncryptHandler = new HttpProxyEncryptHandler();
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(new NettyProxyMonitorHandler());
-			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(new HttpProxyEncryptHandler());
+			ch.pipeline().addFirst(nettyProxyMonitorHandler);
+			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(httpProxyEncryptHandler);
 		}
 	}
 }

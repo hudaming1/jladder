@@ -59,9 +59,10 @@ public class NettySocksInsideProxyServer implements Runnable {
 	}
 	
 	private static class SocksInsideChannelInitializer extends ChannelInitializer<Channel> {
+		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(new NettyProxyMonitorHandler());
+			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			ch.pipeline().addLast(new SocksInitRequestDecoder());
 			ch.pipeline().addLast(new SocksMessageEncoder());
 			ch.pipeline().addLast(new SocksProxyProcessHandler());

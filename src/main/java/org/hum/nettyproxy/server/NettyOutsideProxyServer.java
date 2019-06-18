@@ -58,10 +58,12 @@ public class NettyOutsideProxyServer implements Runnable {
 	}
 	
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
+		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
+		private final NettyServerPipeChannelHandler nettyServerPipeChannelHandler = new NettyServerPipeChannelHandler();
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(new NettyProxyMonitorHandler());
-			ch.pipeline().addLast(new NettyProxyConnectMessageCodec.Decoder(), new NettyServerPipeChannelHandler());
+			ch.pipeline().addFirst(nettyProxyMonitorHandler);
+			ch.pipeline().addLast(new NettyProxyConnectMessageCodec.Decoder(), nettyServerPipeChannelHandler);
 		}
 	}
 }

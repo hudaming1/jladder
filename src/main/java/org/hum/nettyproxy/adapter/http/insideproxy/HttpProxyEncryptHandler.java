@@ -15,6 +15,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 /**
@@ -24,6 +25,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  * </pre>
  * @author hudaming
  */
+@Sharable
 public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
 	@Override
