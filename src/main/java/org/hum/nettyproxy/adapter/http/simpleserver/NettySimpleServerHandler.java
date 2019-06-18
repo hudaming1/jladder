@@ -42,7 +42,11 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 		File file = new File(ByteBufWebUtil.getWebRoot() + msg.uri());
 		if (!file.exists()) {
 			// 返回404页面
-			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebUtil._404ByteBuf().retain());
+			ByteBuf retain = ByteBufWebUtil._404ByteBuf().retain();
+			// TODO 到底要怎么处理？
+			retain.markWriterIndex();
+			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, retain);
+			retain.resetWriterIndex();
 			return ;
 		}
 
