@@ -52,8 +52,20 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 			// 2.判断文件类型，为response头做准备
 			ContentTypeEnum requestType = ContentTypeEnum.get(StringUtil.subHttpUriSuffix(msg.uri()));
 
-			// 3.读取文件内容
-			ByteBuf byteBuf = ByteBufWebUtil.readFile(ctx.alloc().directBuffer(), file);
+			ByteBuf byteBuf = null;
+			
+			if (requestType == ContentTypeEnum.HTML || requestType == ContentTypeEnum.HTM) {
+				// 3.读取文件内容，如果是网页格式，渲染一下变量
+				String webPageContent = ByteBufWebUtil.readFile2String(file);
+				// TODO 获取当前IP方法参照：https://www.cnblogs.com/ffaiss/p/9796633.html
+				webPageContent = webPageContent.replace("${host}", "http://localhost:8000");
+				byteBuf = ctx.alloc().directBuffer();
+				byteBuf.writeBytes(webPageContent.getBytes());
+			} else {
+				// 3.读取文件内容
+				byteBuf = ByteBufWebUtil.readFile(ctx.alloc().directBuffer(), file);
+			}
+			
 			
 			// 4.根据步骤2-3，拼Response
 			writeAndFlush(ctx, HttpResponseStatus.OK, requestType, byteBuf);

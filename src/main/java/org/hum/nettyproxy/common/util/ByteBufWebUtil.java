@@ -1,9 +1,12 @@
 package org.hum.nettyproxy.common.util;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import org.hum.nettyproxy.adapter.http.simpleserver.NettySimpleServerHandler;
 import org.slf4j.Logger;
@@ -61,7 +64,7 @@ public class ByteBufWebUtil {
 
 		return readFile(byteBuf, new File(WEB_ROOT + "/" + filePath));
 	}
-
+	
 	public static ByteBuf readFile(ByteBuf byteBuf, File file) throws IOException {
 		BufferedInputStream fileInputStream = null;
 		try {
@@ -74,6 +77,23 @@ public class ByteBufWebUtil {
 		} finally {
 			if (fileInputStream != null) {
 				fileInputStream.close();
+			}
+		}
+	}
+
+	public static String readFile2String(File file) throws FileNotFoundException, IOException {
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			String line = null;
+			StringBuilder sbuilder = new StringBuilder();
+			while ((line = br.readLine()) != null) {
+				sbuilder.append(line);
+			}
+			return sbuilder.toString();
+		} finally {
+			if (br != null) {
+				br.close();
 			}
 		}
 	}
