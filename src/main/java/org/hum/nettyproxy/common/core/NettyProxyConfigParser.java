@@ -17,6 +17,7 @@ public class NettyProxyConfigParser {
 	private static final String RUNMODE_KEY = "runmode";
 	private static final String PORT_KEY = "port";
 	private static final String HTTP_SERVER_PORT_KEY = "http_server_port";
+	private static final String HTTP_SERVER_URL_KEY = "http_server_url";
 	private static final String WORKER_CNT_KEY = "workercnt";
 	private static final String OUTSIDE_PROXY_HOST_KEY = "outside_proxy_host";
 	private static final String OUTSIDE_PROXY_PORT_KEY = "outside_proxy_port";
@@ -44,6 +45,11 @@ public class NettyProxyConfigParser {
 		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY)? parseInt(paramMap.get(WORKER_CNT_KEY), "param \"workercnt[" + paramMap.get(WORKER_CNT_KEY) + "]\" is invaild") : DEFAULT_WORKER_CNT);
 		if (paramMap.containsKey(HTTP_SERVER_PORT_KEY)) {
 			serverRunArgs.setBindHttpServerPort(parseInt(paramMap.get(HTTP_SERVER_PORT_KEY), "param \"http_server_port[" + paramMap.get(HTTP_SERVER_PORT_KEY) + "]\" is invaild"));
+		}
+		if (paramMap.containsKey(HTTP_SERVER_URL_KEY)) {
+			serverRunArgs.setBindHttpServerUrl(paramMap.get(HTTP_SERVER_URL_KEY));
+		} else if (serverRunArgs.getBindHttpServerPort() != null) {
+			serverRunArgs.setBindHttpServerUrl("http://" + NetUtil.getLocalHostLANAddress() + ":" + serverRunArgs.getBindHttpServerPort());
 		}
 		
 		if (runMode == RunModeEnum.HttpInsideServer || runMode == RunModeEnum.SocksInsideServer) { 
