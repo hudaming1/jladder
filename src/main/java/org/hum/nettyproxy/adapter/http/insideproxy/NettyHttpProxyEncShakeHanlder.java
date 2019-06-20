@@ -1,11 +1,11 @@
 package org.hum.nettyproxy.adapter.http.insideproxy;
 
-import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.codec.customer.DynamicLengthDecoder;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler.Encryptor;
+import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
 

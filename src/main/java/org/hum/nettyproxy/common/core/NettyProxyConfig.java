@@ -1,9 +1,11 @@
 package org.hum.nettyproxy.common.core;
 
+import java.util.List;
 import java.util.Map;
 
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NetUtil;
+import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx;
 
 import lombok.Data;
 
@@ -52,6 +54,11 @@ public class NettyProxyConfig {
 	 * 启动参数样例：nettyproxy.enableauthority=1
 	 */
 	private Boolean enableAuthority;
+	/**
+	 * 拦截规则
+	 * TODO 
+	 */
+	private List<InterceptorRegx> interceptorRegxList;
 	/**
 	 *作为Server时的TCP选项
 	 */

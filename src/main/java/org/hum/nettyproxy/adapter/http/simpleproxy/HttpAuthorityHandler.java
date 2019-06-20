@@ -3,7 +3,7 @@ package org.hum.nettyproxy.adapter.http.simpleproxy;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
-import org.hum.nettyproxy.adapter.http.model.HttpRequest;
+import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.common.util.ByteBufWebUtil;
 import org.hum.nettyproxy.common.util.HttpUtil;
 import org.hum.nettyproxy.compoment.auth.AuthManager;

@@ -6,6 +6,11 @@ import java.util.Map;
 
 public class HttpUtil {
 
+	/**
+	 * 将HTTP请求中的Body Form参数解析成Map
+	 * @param body
+	 * @return
+	 */
 	public static Map<String, String> parseBody2FormData(String body) {
 		if (body == null || body.trim().isEmpty()) {
 			return Collections.emptyMap();

@@ -1,11 +1,11 @@
 package org.hum.nettyproxy.adapter.http.simpleproxy;
 
-import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
+import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

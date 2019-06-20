@@ -1,7 +1,7 @@
 package org.hum.nettyproxy.common.codec.http;
 
-import org.hum.nettyproxy.adapter.http.model.HttpRequest;
 import org.hum.nettyproxy.common.Constant;
+import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.common.util.ByteBufWebUtil;
 
 import io.netty.buffer.ByteBuf;
@@ -17,10 +17,10 @@ public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     	ByteBuf byteBuf = (ByteBuf) msg;
-        ctx.fireChannelRead(parse(byteBuf));
+        ctx.fireChannelRead(decode(byteBuf));
     }
     
-    public HttpRequest parse(ByteBuf byteBuf) {
+    public static HttpRequest decode(ByteBuf byteBuf) {
     	HttpRequest request = new HttpRequest();
     	// read request-line
     	request.setLine(ByteBufWebUtil.readLine(byteBuf));

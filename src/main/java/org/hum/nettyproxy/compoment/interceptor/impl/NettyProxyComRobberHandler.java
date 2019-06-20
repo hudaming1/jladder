@@ -1,6 +1,6 @@
 package org.hum.nettyproxy.compoment.interceptor.impl;
 
-import org.hum.nettyproxy.compoment.interceptor.NamespaceRobberHandler.Interceptor;
+import org.hum.nettyproxy.compoment.interceptor.HttpRequestInterceptorHandler.Interceptor;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
