@@ -1,7 +1,7 @@
 package org.hum.nettyproxy.test;
 
-import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.model.HttpRequest;
+import org.hum.nettyproxy.common.util.HttpUtil;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -21,7 +21,7 @@ public class HttpRequestDeocderTest {
 		ByteBuf byteBuf = Unpooled.buffer();
 		byteBuf.writeBytes(param.getBytes());
 
-		HttpRequest request = new HttpRequestDecoder().decode(byteBuf);
+		HttpRequest request = HttpUtil.decode(byteBuf);
 		System.out.println(request);
 	}
 }

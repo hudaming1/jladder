@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.common.util;
+package org.hum.nettyproxy.common.helper;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class ByteBufWebUtil {
+public class ByteBufWebHelper {
 
-	private static final Logger logger = LoggerFactory.getLogger(ByteBufWebUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(ByteBufWebHelper.class);
 	private static final byte RETURN_LINE = 10;
 
 	public static String readLine(ByteBuf byteBuf) {
@@ -40,8 +40,8 @@ public class ByteBufWebUtil {
 			WEB_ROOT = NettySimpleServerHandler.class.getClassLoader().getResource("").toURI().getPath();
 			WEB_ROOT += "webapps";
 
-			_404ByteBuf = ByteBufWebUtil.readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/404.html"));
-			_500ByteBuf = ByteBufWebUtil.readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/500.html"));
+			_404ByteBuf = ByteBufWebHelper.readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/404.html"));
+			_500ByteBuf = ByteBufWebHelper.readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/500.html"));
 		} catch (Exception e) {
 			WEB_ROOT = "";
 			logger.error("init netty-simple-http-server error, can't init web-root-path", e);

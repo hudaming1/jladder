@@ -3,8 +3,8 @@ package org.hum.nettyproxy.adapter.http.simpleproxy;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
+import org.hum.nettyproxy.common.helper.ByteBufWebHelper;
 import org.hum.nettyproxy.common.model.HttpRequest;
-import org.hum.nettyproxy.common.util.ByteBufWebUtil;
 import org.hum.nettyproxy.common.util.HttpUtil;
 import org.hum.nettyproxy.compoment.auth.AuthManager;
 
@@ -26,16 +26,16 @@ public class HttpAuthorityHandler extends SimpleChannelInboundHandler<HttpReques
 		if (msg.getUri().contains("/submit_login")) {
 			Map<String, String> params = HttpUtil.parseBody2FormData(msg.getBody());
 			if (!AuthManager.login(socketAddr.getHostString(), params.get("name"), params.get("pass"))) {
-				ctx.writeAndFlush(ByteBufWebUtil.readFileFromWebapps(ctx.alloc().directBuffer(), "403.html")).addListener(ChannelFutureListener.CLOSE);
+				ctx.writeAndFlush(ByteBufWebHelper.readFileFromWebapps(ctx.alloc().directBuffer(), "403.html")).addListener(ChannelFutureListener.CLOSE);
 				return ;
 			}
-			ctx.writeAndFlush(ByteBufWebUtil.readFileFromWebapps(ctx.alloc().directBuffer(), "index.html")).addListener(ChannelFutureListener.CLOSE);
+			ctx.writeAndFlush(ByteBufWebHelper.readFileFromWebapps(ctx.alloc().directBuffer(), "index.html")).addListener(ChannelFutureListener.CLOSE);
 			return ;
 		}
 		
 		// 其他请求，则判断是否已登录
 		if (!AuthManager.isLogin(socketAddr.getHostString())) {
-			ctx.writeAndFlush(ByteBufWebUtil.readFileFromWebapps(ctx.alloc().directBuffer(), "login.html")).addListener(ChannelFutureListener.CLOSE);
+			ctx.writeAndFlush(ByteBufWebHelper.readFileFromWebapps(ctx.alloc().directBuffer(), "login.html")).addListener(ChannelFutureListener.CLOSE);
 			return ;
 		}
 		

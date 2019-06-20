@@ -159,3 +159,21 @@
 2019-06-17 20:52:03,743-[TS] INFO main org.hum.nettyproxy.ServerRun - input_args=NettyProxyConfig(runMode=HttpSimpleProxy, port=3389, workerCnt=96, outsideProxyHost=null, outsideProxyPort=0, bindHttpServerPort=8000, TcpServerOptions=null, TcpServerChildOptions=null, TcpClientOptions=null)
 2019-06-17 20:52:04,637-[TS] INFO http-simple-prosy-boss-thread-1 org.hum.nettyproxy.adapter.http.simpleproxy.NettyHttpSimpleProxyServer - http-simple-proxy-server started, listening port: 3389
 2019-06-17 20:52:04,637-[TS] INFO http-simple-server-boss-thread-1 org.hum.nettyproxy.adapter.http.simpleserver.NettyHttpServer - http-simple-server started, listening port: 8000
+2019-06-20 21:28:40,186-[TS] ERROR main org.hum.nettyproxy.common.util.ByteBufWebUtil - init netty-simple-http-server error, can't init web-root-path
+java.io.FileNotFoundException: E:\worksapce\github\netty-proxy\target\test-classes\webapps\404.html (系统找不到指定的路径。)
+	at java.io.FileInputStream.open0(Native Method)
+	at java.io.FileInputStream.open(FileInputStream.java:195)
+	at java.io.FileInputStream.<init>(FileInputStream.java:138)
+	at org.hum.nettyproxy.common.util.ByteBufWebUtil.readFile(ByteBufWebUtil.java:71)
+	at org.hum.nettyproxy.common.util.ByteBufWebUtil.<clinit>(ByteBufWebUtil.java:43)
+	at org.hum.nettyproxy.common.codec.http.HttpRequestDecoder.decode(HttpRequestDecoder.java:26)
+	at org.hum.nettyproxy.test.HttpRequestDeocderTest.main(HttpRequestDeocderTest.java:24)
+2019-06-20 21:28:52,151-[TS] ERROR main org.hum.nettyproxy.common.util.ByteBufWebUtil - init netty-simple-http-server error, can't init web-root-path
+java.io.FileNotFoundException: E:\worksapce\github\netty-proxy\target\test-classes\webapps\404.html (系统找不到指定的路径。)
+	at java.io.FileInputStream.open0(Native Method)
+	at java.io.FileInputStream.open(FileInputStream.java:195)
+	at java.io.FileInputStream.<init>(FileInputStream.java:138)
+	at org.hum.nettyproxy.common.util.ByteBufWebUtil.readFile(ByteBufWebUtil.java:71)
+	at org.hum.nettyproxy.common.util.ByteBufWebUtil.<clinit>(ByteBufWebUtil.java:43)
+	at org.hum.nettyproxy.common.codec.http.HttpRequestDecoder.decode(HttpRequestDecoder.java:26)
+	at org.hum.nettyproxy.test.HttpRequestDeocderTest.main(HttpRequestDeocderTest.java:24)

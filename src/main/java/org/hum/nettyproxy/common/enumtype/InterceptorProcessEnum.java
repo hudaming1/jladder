@@ -5,17 +5,18 @@ package org.hum.nettyproxy.common.enumtype;
  * 
  * @author huming
  */
-public enum InterceptorResponseEnum {
+public enum InterceptorProcessEnum {
 
 	Redirect (1, "重定向"),
 	Mock(2, "mock数据"),
 	Capture(3, "抓包"),
+	ModifyRequest(4, "修改请求"), // 例如修改某一项参数，或增加header之类的
 	;
 	
 	private int code;
 	private String desc;
 
-	InterceptorResponseEnum(int code, String desc) {
+	InterceptorProcessEnum(int code, String desc) {
 		this.code = code;
 		this.desc = desc;
 	}
@@ -28,11 +29,11 @@ public enum InterceptorResponseEnum {
 		return desc;
 	}
 
-	public static InterceptorResponseEnum getEnum(Integer code) {
+	public static InterceptorProcessEnum getEnum(Integer code) {
 		if (code == null) {
 			return null;
 		}
-		for (InterceptorResponseEnum respEnum : values()) {
+		for (InterceptorProcessEnum respEnum : values()) {
 			if (respEnum.code == code) {
 				return respEnum;
 			}
