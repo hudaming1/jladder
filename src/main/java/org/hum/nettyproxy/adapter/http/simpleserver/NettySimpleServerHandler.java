@@ -51,7 +51,8 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 
 		try {
 			// 2.判断文件类型，为response头做准备
-			ContentTypeEnum requestType = ContentTypeEnum.get(StringUtil.subHttpUriSuffix(msg.uri()));
+			String suffix = StringUtil.subHttpUriSuffix(msg.uri());
+			ContentTypeEnum requestType = ContentTypeEnum.get(suffix);
 
 			ByteBuf byteBuf = null;
 			
@@ -67,6 +68,9 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 				byteBuf = ByteBufWebUtil.readFile(ctx.alloc().directBuffer(), file);
 			}
 			
+			if (requestType == null) {
+				logger.warn("find undefined url_suffix=" + suffix);
+			}
 			
 			// 4.根据步骤2-3，拼Response
 			writeAndFlush(ctx, HttpResponseStatus.OK, requestType, byteBuf);
