@@ -1,7 +1,7 @@
 # netty-proxy
 基于Netty开发的Http/Socks代理服务器
 
-#### TODO 身份验证通过参数开启；http_simple_server对于请求行的非标准URI无法解析
+#### 继续扩展interceptor
 
 #### 待解决：
 > 1. [OK] 传输优化，斟酌一下到底在heap上分配还是在direct上分配
@@ -18,6 +18,7 @@
 > 12. 考虑开发身份验证功能（基于火狐开发插件，给所有请求的http头部增加身份标识；socks协议支持身份验证）（interceptor）
 > 13. 控制台功能，给Netty-Server增加Http服务器和SimpleServlet容器功能。（console）
 > 14. 身份验证：检测IP是否通过验证，未验证调到登录页
+> 15. 身份认证通过后，调回到上次访问页面
 
 
 #### 测试连接：
