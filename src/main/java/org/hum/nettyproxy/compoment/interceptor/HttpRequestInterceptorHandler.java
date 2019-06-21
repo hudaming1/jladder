@@ -2,13 +2,13 @@ package org.hum.nettyproxy.compoment.interceptor;
 
 import java.util.List;
 
+import org.hum.nettyproxy.common.helper.ByteBufWebHelper;
 import org.hum.nettyproxy.common.model.HttpRequest;
-import org.hum.nettyproxy.common.util.HttpUtil;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelHandler.Sharable;
 
 @Sharable
 public class HttpRequestInterceptorHandler extends ChannelInboundHandlerAdapter {
@@ -49,7 +49,7 @@ public class HttpRequestInterceptorHandler extends ChannelInboundHandlerAdapter 
     
     private HttpRequest decode(Object msg) {
     	//  解析HTTP协议
-    	return HttpUtil.decode((ByteBuf) msg);
+    	return ByteBufWebHelper.decode((ByteBuf) msg);
     }
     
 }

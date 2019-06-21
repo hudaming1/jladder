@@ -1,6 +1,6 @@
 package org.hum.nettyproxy.common.codec.http;
 
-import org.hum.nettyproxy.common.util.HttpUtil;
+import org.hum.nettyproxy.common.helper.ByteBufWebHelper;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,6 +15,6 @@ public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     	ByteBuf byteBuf = (ByteBuf) msg;
-        ctx.fireChannelRead(HttpUtil.decode(byteBuf));
+        ctx.fireChannelRead(ByteBufWebHelper.decode(byteBuf));
     }
 }

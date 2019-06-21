@@ -5,6 +5,7 @@ import java.io.File;
 import org.hum.nettyproxy.adapter.http.simpleserver.enumtype.ContentTypeEnum;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.helper.ByteBufWebHelper;
+import org.hum.nettyproxy.common.util.HttpUtil;
 import org.hum.nettyproxy.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
 		
 		// 1.定位文件
-		File file = new File(ByteBufWebHelper.getWebRoot() + msg.uri());
+		File file = new File(ByteBufWebHelper.getWebRoot() + HttpUtil.parse2RelativeFile(msg.uri()));
 		if (!file.exists()) {
 			// 返回404页面 (TODO 有没有比copy更好的方案？)
 			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebHelper._404ByteBuf().copy());
@@ -51,21 +52,21 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 
 		try {
 			// 2.判断文件类型，为response头做准备
-			String suffix = StringUtil.subHttpUriSuffix(msg.uri());
+			String suffix = StringUtil.subHttpUriSuffix(file.getName());
 			ContentTypeEnum requestType = ContentTypeEnum.get(suffix);
 
-			ByteBuf byteBuf = null;
+			ByteBuf byteBuf = ctx.alloc().directBuffer();
 			
 			if (requestType == ContentTypeEnum.HTML || requestType == ContentTypeEnum.HTM) {
+				
 				// 3.读取文件内容，如果是网页格式，渲染一下变量
-				String webPageContent = ByteBufWebHelper.readFile2String(file);
+				String webPageContent = renderTemplateVariables(ByteBufWebHelper.readFile2String(file));
+				
 				// 4.处理占位符，替换成对应url
-				webPageContent = webPageContent.replace("${host}", NettyProxyContext.getConfig().getBindHttpServerUrl());
-				byteBuf = ctx.alloc().directBuffer();
 				byteBuf.writeBytes(webPageContent.getBytes());
 			} else {
 				// 3.读取文件内容
-				byteBuf = ByteBufWebHelper.readFile(ctx.alloc().directBuffer(), file);
+				byteBuf = ByteBufWebHelper.readFile(byteBuf, file);
 			}
 			
 			if (requestType == null) {
@@ -80,6 +81,13 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebHelper._500ByteBuf().copy());
 			return ;
 		}
+	}
+	
+	private String renderTemplateVariables(String content) {
+		if (content == null || content.isEmpty()) {
+			return "";
+		}
+		return content.replace("${host}", NettyProxyContext.getConfig().getBindHttpServerUrl());
 	}
 
 	private void writeAndFlush(ChannelHandlerContext ctx, HttpResponseStatus status, ByteBuf byteBuf) {
