@@ -21,35 +21,33 @@ public class HttpRequestInterceptorHandler extends ChannelInboundHandlerAdapter 
     		ctx.fireChannelRead(msg);
     		return ;
     	}
-    	
-    	// 2.将msg解析成HttpRequest
-    	HttpRequest httpRequest = decode(msg);
-    	
-    	List<InterceptorWrapper> wrappers = InterceptorContext.getWrappers();
-    	
-    	for (InterceptorWrapper wrapper : wrappers) {
-    		if (wrapper.tryIntercept(httpRequest)) {
-    			// 拦截成功
-    			wrapper.doProcess(ctx, httpRequest);
-    			return ;
-    		}
-    	}
+
+		if (msg instanceof ByteBuf) {
+			// 2.将msg解析成HttpRequest
+			HttpRequest httpRequest = ByteBufWebHelper.decode((ByteBuf) msg);
+
+			List<InterceptorWrapper> wrappers = InterceptorContext.getWrappers();
+
+			for (InterceptorWrapper wrapper : wrappers) {
+				if (wrapper.tryIntercept(httpRequest)) {
+					// 拦截成功
+					wrapper.doProcess(ctx, httpRequest);
+					return;
+				}
+			}
+		}
     	
     	// 没有命中，对请求放行处理
     	ctx.fireChannelRead(msg);
     }
 
     private boolean isHttpProtocol(Object msg) {
-    	if (!(msg instanceof ByteBuf)) {
+    	if (msg instanceof HttpRequest) {
+    		return true;
+    	} else if (!(msg instanceof ByteBuf)) {
     		return false;
     	}
     	// TODO 判断是否是HTTP协议（目前都是，后续支持socks协议时，这里再完善吧）
     	return true;
     }
-    
-    private HttpRequest decode(Object msg) {
-    	//  解析HTTP协议
-    	return ByteBufWebHelper.decode((ByteBuf) msg);
-    }
-    
 }
