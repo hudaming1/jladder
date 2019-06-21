@@ -47,8 +47,8 @@ public class HttpRequest {
 		return sbuilder.toString();
 	}
 	
-	public ByteBuf toByteBuf() {
-		// TODO 待实现
-		return null;
+	public ByteBuf refreshByteBuf() {
+		byteBuf.clear().writeBytes(toString().getBytes());
+		return byteBuf;
 	}
 }

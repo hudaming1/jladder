@@ -8,7 +8,9 @@ import org.hum.nettyproxy.common.util.HttpUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelHandler.Sharable;
 
+@Sharable
 public class HttpRequestInterceptorHandler extends ChannelInboundHandlerAdapter {
 	
     @Override

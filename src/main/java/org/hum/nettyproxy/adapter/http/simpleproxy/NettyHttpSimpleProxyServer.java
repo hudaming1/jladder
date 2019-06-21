@@ -6,6 +6,7 @@ import org.hum.nettyproxy.common.core.NettyProxyConfig;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
+import org.hum.nettyproxy.compoment.interceptor.HttpRequestInterceptorHandler;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,27 +58,14 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 		
 		private HttpAuthorityHandler authorityHandler = new HttpAuthorityHandler();
 		private HttpProxyProcessHandler httpProxyProcessHandler = new HttpProxyProcessHandler();
+		private HttpRequestInterceptorHandler interceptor = new HttpRequestInterceptorHandler();
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(new NettyProxyMonitorHandler());
-			
-			// 是否开启HTTP请求劫持?
-			
-			// 1.劫持后根据请求host做重定向
-			
-			// 2.劫持后根据完整URL（包括参数）做重定向
-			
-			// 3.劫持后根据完整URL做Mock数据
-			
-			// 4.劫持后放行并进行抓包，但再结果返回时抓响应包，一同使用websocket推送客户端日志
-			
-			// 5.自定义扩展：改造HTTP Request
-			
-//			Map<String, Interceptor> regxMap = new HashMap<String, NamespaceRobberHandler.Interceptor>();
-//			regxMap.put("nettyproxy.com", new NettyProxyComRobberHandler());
-//			ch.pipeline().addFirst(new NamespaceRobberHandler(regxMap));
-			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(authorityHandler).addLast(httpProxyProcessHandler);
+			ch.pipeline().addFirst(new NettyProxyMonitorHandler()).addFirst(interceptor);
+			ch.pipeline().addLast(new HttpRequestDecoder()).
+			// addLast(authorityHandler).
+			addLast(httpProxyProcessHandler);
 		}
 	}
 }

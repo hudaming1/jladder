@@ -5,8 +5,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hum.nettyproxy.common.enumtype.InterceptorProcessEnum;
+import org.hum.nettyproxy.common.enumtype.InterceptorRequestEnum;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NetUtil;
+import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +21,12 @@ public class NettyProxyConfigParser {
 	private static final String PORT_KEY = "port";
 	private static final String HTTP_SERVER_PORT_KEY = "http_server_port";
 	private static final String HTTP_SERVER_URL_KEY = "http_server_url";
+	private static final String HTTP_INTERCEPT_REDIRECT_KEY = "intercept-redirect";
 	private static final String WORKER_CNT_KEY = "workercnt";
 	private static final String OUTSIDE_PROXY_HOST_KEY = "outside_proxy_host";
 	private static final String OUTSIDE_PROXY_PORT_KEY = "outside_proxy_port";
 	
+	private static final String ARROW_RIGHT = "->";
 	private static final int DETECTIVE_OUTSIDE_TIMEOUT = 8000; // 探测墙外服务器超时时间
 	private static final int DEFAULT_LISTENNING_PORT = 52996; // 默认监听端口
 	private static final int DEFAULT_WORKER_CNT = Runtime.getRuntime().availableProcessors() * 10; // 默认workerCount数量
@@ -50,6 +55,17 @@ public class NettyProxyConfigParser {
 			serverRunArgs.setBindHttpServerUrl(paramMap.get(HTTP_SERVER_URL_KEY));
 		} else if (serverRunArgs.getBindHttpServerPort() != null) {
 			serverRunArgs.setBindHttpServerUrl("http://" + NetUtil.getLocalHostLANAddress() + ":" + serverRunArgs.getBindHttpServerPort());
+		}
+		
+		if (paramMap.containsKey(HTTP_INTERCEPT_REDIRECT_KEY)) {
+			String value = paramMap.get(HTTP_INTERCEPT_REDIRECT_KEY);
+			if (!value.contains(ARROW_RIGHT)) {
+				throw new IllegalArgumentException("param \"intercept-redirect\" is invaild");
+			}
+			String[] val = value.split(ARROW_RIGHT);
+			String needInterceptHost = val[0];
+			String needRedirectHost = val[1];
+			serverRunArgs.addInterceptRegx(new InterceptorRegx(InterceptorRequestEnum.Host, needInterceptHost, InterceptorProcessEnum.Redirect, needRedirectHost));
 		}
 		
 		if (runMode == RunModeEnum.HttpInsideServer || runMode == RunModeEnum.SocksInsideServer) { 

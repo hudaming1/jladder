@@ -36,7 +36,7 @@ public class DefaultInterceptorWrapper implements InterceptorWrapper {
 	@Override
 	public void doProcess(ChannelHandlerContext ctx, HttpRequest httpRequest) {
 		if (processor == null) {
-			ctx.fireChannelRead(httpRequest);
+			ctx.fireChannelRead(httpRequest.getByteBuf());
 			return ;
 		}
 		processor.fireChannelRead(ctx, httpRequest);

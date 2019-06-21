@@ -1,6 +1,8 @@
 # netty-proxy
 基于Netty开发的Http/Socks代理服务器
 
+#### TODO 身份验证通过参数开启；http_simple_server对于请求行的非标准URI无法解析
+
 #### 待解决：
 > 1. [OK] 传输优化，斟酌一下到底在heap上分配还是在direct上分配
 > 2. 支持IPv6

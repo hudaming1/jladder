@@ -5,11 +5,14 @@ import java.util.Map.Entry;
 import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.compoment.interceptor.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.channel.ChannelHandlerContext;
 
 public class RedirectProcessor implements Processor {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(RedirectProcessor.class);
 	private String redirectHost;
 	
 	public RedirectProcessor() { }
@@ -25,10 +28,11 @@ public class RedirectProcessor implements Processor {
 			if (!Constant.HTTP_HOST_HEADER.equalsIgnoreCase(header.getKey())) {
 				continue;
 			}
+			String source = header.getValue();
 			header.setValue(redirectHost);
-			// TODO 还差一点实现
-			httpRequest.setByteBuf(httpRequest.toByteBuf());
+			httpRequest.refreshByteBuf();
+			logger.info("redirect {}->{}", source, redirectHost);
 		}
-		ctx.fireChannelRead(httpRequest);
+		ctx.fireChannelRead(httpRequest.getByteBuf());
 	}
 }

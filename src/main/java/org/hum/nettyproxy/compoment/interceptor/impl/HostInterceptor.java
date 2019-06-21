@@ -1,11 +1,14 @@
 package org.hum.nettyproxy.compoment.interceptor.impl;
 
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.compoment.interceptor.Interceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 域名拦截器（多个域名或IP，使用逗号分隔）
@@ -17,7 +20,8 @@ import org.hum.nettyproxy.compoment.interceptor.Interceptor;
  */
 public class HostInterceptor implements Interceptor{
 	
-	private Set<String> interceptorHost;
+	private static final Logger logger = LoggerFactory.getLogger(HostInterceptor.class);
+	private Set<String> interceptorHost = new HashSet<String>();
 	
 	public HostInterceptor() { }
 	
@@ -41,6 +45,7 @@ public class HostInterceptor implements Interceptor{
 			String requestHost = header.getValue();
 			// 目前只是精准匹配
 			if (interceptorHost.contains(requestHost)) {
+				logger.info("hit host[{}]", requestHost);
 				return true;
 			}
 		}

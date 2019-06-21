@@ -3,9 +3,13 @@ package org.hum.nettyproxy.compoment.interceptor.model;
 import org.hum.nettyproxy.common.enumtype.InterceptorRequestEnum;
 import org.hum.nettyproxy.common.enumtype.InterceptorProcessEnum;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class InterceptorRegx {
 
 	private InterceptorRequestEnum interceptorType;

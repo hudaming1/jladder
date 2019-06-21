@@ -1,5 +1,6 @@
 package org.hum.nettyproxy.common.core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +57,8 @@ public class NettyProxyConfig {
 	private Boolean enableAuthority;
 	/**
 	 * 拦截规则
-	 * TODO 
+	 * 1.通过参数直接配置，例如：nettyproxy.intercept-redirect=www.baidu.com->220.181.38.150
+	 * 2.通过文件读取，例如：nettyproxy.intercepptor_regx=interceptor_regx.cfg
 	 */
 	private List<InterceptorRegx> interceptorRegxList;
 	/**
@@ -72,10 +74,17 @@ public class NettyProxyConfig {
 	 */
 	private Map<String, String> TcpClientOptions;
 	
-	public NettyProxyConfig() { }
+	public NettyProxyConfig() { 
+		this.interceptorRegxList = new ArrayList<InterceptorRegx>();
+	}
 	
 	public NettyProxyConfig(RunModeEnum runMode, int port) {
 		this.runMode = runMode;
 		this.port = port;
+	}
+	
+	public NettyProxyConfig addInterceptRegx(InterceptorRegx interceptorRegx) {
+		interceptorRegxList.add(interceptorRegx);
+		return this;
 	}
 }
