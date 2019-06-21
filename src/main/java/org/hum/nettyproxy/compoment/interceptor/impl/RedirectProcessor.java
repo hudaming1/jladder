@@ -31,7 +31,7 @@ public class RedirectProcessor implements Processor {
 			String source = header.getValue();
 			// 替换请求行
 			if (httpRequest.getLine().contains(source)) {
-				httpRequest.getLine().replace(source, redirectHost);
+				httpRequest.setLine(httpRequest.getLine().replace(source, redirectHost));
 			}
 			// 替换请求头
 			header.setValue(redirectHost);

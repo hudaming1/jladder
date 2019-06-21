@@ -138,16 +138,22 @@ public class ByteBufHttpHelper {
 		byte[] leakHttpMethodBytes = new byte[7];
 		byteBuf.getBytes(0, leakHttpMethodBytes);
 		for(byte[] methodBytes : HttpMethodEnum.getByteArray()) {
-			int cursor = 0;
-			while (cursor < methodBytes.length) {
-				if (leakHttpMethodBytes[cursor] != methodBytes[cursor]) {
-					return false;
-				}
-				cursor ++ ;
+			if (isEquals(leakHttpMethodBytes, methodBytes)) {
+				return true;
 			}
-			return true;
 		}
     	return false;
+	}
+	
+	private static boolean isEquals(byte[] arr1, byte[] arr2) {
+		int cursor = 0;
+		while (cursor < arr2.length) {
+			if (arr1[cursor] != arr2[cursor]) {
+				return false;
+			}
+			cursor ++ ;
+		}
+		return true;
 	}
 
     /**
