@@ -1,6 +1,6 @@
 package org.hum.nettyproxy.test;
 
-import org.hum.nettyproxy.common.helper.ByteBufWebHelper;
+import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.model.HttpRequest;
 
 import io.netty.buffer.ByteBuf;
@@ -21,7 +21,9 @@ public class HttpRequestDeocderTest {
 		ByteBuf byteBuf = Unpooled.buffer();
 		byteBuf.writeBytes(param.getBytes());
 
-		HttpRequest request = ByteBufWebHelper.decode(byteBuf);
+		HttpRequest request = ByteBufHttpHelper.decode(byteBuf);
 		System.out.println(request);
+		
+		System.out.println(ByteBufHttpHelper.isHttpProtocol(byteBuf));
 	}
 }

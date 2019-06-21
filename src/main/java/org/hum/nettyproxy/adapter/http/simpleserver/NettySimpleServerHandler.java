@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.hum.nettyproxy.adapter.http.simpleserver.enumtype.ContentTypeEnum;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
-import org.hum.nettyproxy.common.helper.ByteBufWebHelper;
+import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.util.HttpUtil;
 import org.hum.nettyproxy.common.util.StringUtil;
 import org.slf4j.Logger;
@@ -43,10 +43,10 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
 		
 		// 1.定位文件
-		File file = new File(ByteBufWebHelper.getWebRoot() + HttpUtil.parse2RelativeFile(msg.uri()));
+		File file = new File(ByteBufHttpHelper.getWebRoot() + HttpUtil.parse2RelativeFile(msg.uri()));
 		if (!file.exists()) {
 			// 返回404页面 (TODO 有没有比copy更好的方案？)
-			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebHelper._404ByteBuf().copy());
+			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufHttpHelper._404ByteBuf().copy());
 			return ;
 		}
 
@@ -60,13 +60,13 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 			if (requestType == ContentTypeEnum.HTML || requestType == ContentTypeEnum.HTM) {
 				
 				// 3.读取文件内容，如果是网页格式，渲染一下变量
-				String webPageContent = renderTemplateVariables(ByteBufWebHelper.readFile2String(file));
+				String webPageContent = renderTemplateVariables(ByteBufHttpHelper.readFile2String(file));
 				
 				// 4.处理占位符，替换成对应url
 				byteBuf.writeBytes(webPageContent.getBytes());
 			} else {
 				// 3.读取文件内容
-				byteBuf = ByteBufWebHelper.readFile(byteBuf, file);
+				byteBuf = ByteBufHttpHelper.readFile(byteBuf, file);
 			}
 			
 			if (requestType == null) {
@@ -78,7 +78,7 @@ public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHt
 		} catch (Exception ce) {
 			// 返回500页面
 			logger.error("http-server 500, req=" + msg, ce);
-			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufWebHelper._500ByteBuf().copy());
+			writeAndFlush(ctx, HttpResponseStatus.NOT_FOUND, ByteBufHttpHelper._500ByteBuf().copy());
 			return ;
 		}
 	}

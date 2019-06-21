@@ -1,7 +1,9 @@
 package org.hum.nettyproxy.common.codec.http;
 
-import org.hum.nettyproxy.common.helper.ByteBufWebHelper;
+import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.model.HttpRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,14 +14,18 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * @author hudaming
  */
 public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
+	
+	private static final Logger logger = LoggerFactory.getLogger(HttpRequestDecoder.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     	ByteBuf byteBuf = (ByteBuf) msg;
-    	HttpRequest httpRequest = ByteBufWebHelper.decode(byteBuf);
-    	System.out.println("====================");
-    	System.out.println(httpRequest.toString());
-    	System.out.println("====================");
+    	HttpRequest httpRequest = ByteBufHttpHelper.decode(byteBuf);
+    	if (logger.isErrorEnabled()) {
+	    	logger.debug("========================================");
+	    	logger.debug(httpRequest.toString());
+	    	logger.debug("========================================");
+    	}
         ctx.fireChannelRead(httpRequest);
     }
 }

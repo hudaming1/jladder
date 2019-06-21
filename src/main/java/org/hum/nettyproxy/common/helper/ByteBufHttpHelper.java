@@ -8,8 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.hum.nettyproxy.adapter.http.simpleserver.NettySimpleServerHandler;
 import org.hum.nettyproxy.common.Constant;
+import org.hum.nettyproxy.common.enumtype.HttpMethodEnum;
 import org.hum.nettyproxy.common.model.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +17,13 @@ import org.slf4j.LoggerFactory;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class ByteBufWebHelper {
+/**
+ * ByteBuf&Http帮助类
+ * @author huming
+ */
+public class ByteBufHttpHelper {
 
-	private static final Logger logger = LoggerFactory.getLogger(ByteBufWebHelper.class);
+	private static final Logger logger = LoggerFactory.getLogger(ByteBufHttpHelper.class);
 	private static final byte RETURN_LINE = 10;
 	private static final byte[] _2_ReturnLine = (Constant.RETURN_LINE + Constant.RETURN_LINE).getBytes();
 
@@ -40,11 +44,11 @@ public class ByteBufWebHelper {
 
 	static {
 		try {
-			WEB_ROOT = NettySimpleServerHandler.class.getClassLoader().getResource("").toURI().getPath();
+			WEB_ROOT = ByteBufHttpHelper.class.getClassLoader().getResource("").toURI().getPath();
 			WEB_ROOT += "webapps";
 
-			_404ByteBuf = ByteBufWebHelper.readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/404.html"));
-			_500ByteBuf = ByteBufWebHelper.readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/500.html"));
+			_404ByteBuf = readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/404.html"));
+			_500ByteBuf = readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/500.html"));
 		} catch (Exception e) {
 			WEB_ROOT = "";
 			logger.error("init netty-simple-http-server error, can't init web-root-path", e);
@@ -68,6 +72,13 @@ public class ByteBufWebHelper {
 		return readFile(byteBuf, new File(WEB_ROOT + "/" + filePath));
 	}
 	
+	/**
+	 * 将file中的内容填充到byteBuf中
+	 * @param byteBuf
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
 	public static ByteBuf readFile(ByteBuf byteBuf, File file) throws IOException {
 		BufferedInputStream fileInputStream = null;
 		try {
@@ -84,6 +95,13 @@ public class ByteBufWebHelper {
 		}
 	}
 
+	/**
+	 * 读取文件（要求是文本文件）
+	 * @param file
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public static String readFile2String(File file) throws FileNotFoundException, IOException {
 		BufferedReader br = null;
 		try {
@@ -100,6 +118,37 @@ public class ByteBufWebHelper {
 			}
 		}
 	}
+	
+	/**
+	 * 来检测是否是http/https请求
+	 * <pre>
+		判断方式：通过读取前7个字节来确定是不是http协议
+	 * </pre>
+	 * @param byteBuf
+	 * @return
+	 */
+	public static boolean isHttpProtocol(Object msg) {
+		if (msg instanceof HttpRequest) {
+    		return true;
+    	} else if (!(msg instanceof ByteBuf)) {
+    		return false;
+    	}
+		ByteBuf byteBuf = (ByteBuf) msg;
+		// 我们只是简单通过前7个字节来判断是否是http协议（XXX 方法不算很准确，后续再优化 ）
+		byte[] leakHttpMethodBytes = new byte[7];
+		byteBuf.getBytes(0, leakHttpMethodBytes);
+		for(byte[] methodBytes : HttpMethodEnum.getByteArray()) {
+			int cursor = 0;
+			while (cursor < methodBytes.length) {
+				if (leakHttpMethodBytes[cursor] != methodBytes[cursor]) {
+					return false;
+				}
+				cursor ++ ;
+			}
+			return true;
+		}
+    	return false;
+	}
 
     /**
      * ByteBuf -> HttpRequest
@@ -113,14 +162,14 @@ public class ByteBufWebHelper {
     	try {
 	    	HttpRequest request = new HttpRequest();
 	    	// read request-line
-	    	request.setLine(ByteBufWebHelper.readLine(byteBuf));
+	    	request.setLine(readLine(byteBuf));
 	    	
 	    	// parse to method
 	    	request.setMethod(request.getLine().split(" ")[0]);
 	    	
 	    	// read request-header
 	    	String line = null;
-	    	while (!(line = ByteBufWebHelper.readLine(byteBuf)).equals("")) {
+	    	while (!(line = readLine(byteBuf)).equals("")) {
 	    		int splitIndex = line.indexOf(":");
 	    		
 	    		if (splitIndex <= 0) {
@@ -146,7 +195,7 @@ public class ByteBufWebHelper {
 	    	
 	    	// read request-body
 	    	StringBuilder body = new StringBuilder();
-	    	while (!(line = ByteBufWebHelper.readLine(byteBuf)).equals("")) {
+	    	while (!(line = readLine(byteBuf)).equals("")) {
 	    		body.append(line);
 	    	}
 	    	request.setBody(body.toString());
