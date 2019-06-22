@@ -51,6 +51,11 @@ public class NettyProxyConfig {
 	 */
 	private String bindHttpServerUrl;
 	/**
+	 * 网站根目录完整路径
+	 * 启动参数样例：nettyproxy.webroot=/home/huming/netty_http_server/webroot
+	 */
+	private String webroot;
+	/**
 	 * 开启权限校验
 	 * 启动参数样例：nettyproxy.enableauthority=1
 	 */

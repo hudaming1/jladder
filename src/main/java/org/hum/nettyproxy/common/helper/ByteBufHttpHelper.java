@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.hum.nettyproxy.common.Constant;
+import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.enumtype.HttpMethodEnum;
 import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.common.util.ByteUtil;
@@ -35,8 +36,12 @@ public class ByteBufHttpHelper {
 
 	static {
 		try {
-			WEB_ROOT = ByteBufHttpHelper.class.getClassLoader().getResource("").toURI().getPath();
-			WEB_ROOT += "webapps";
+			WEB_ROOT = NettyProxyContext.getConfig().getWebroot();
+			
+			if (WEB_ROOT == null || WEB_ROOT.isEmpty()) {
+				WEB_ROOT = ByteBufHttpHelper.class.getClassLoader().getResource("").toURI().getPath();
+				WEB_ROOT += "webapps";
+			}
 
 			_404ByteBuf = readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/404.html"));
 			_500ByteBuf = readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/500.html"));

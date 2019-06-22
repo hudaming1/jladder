@@ -11,6 +11,7 @@ import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
+import org.hum.nettyproxy.compoment.auth.HttpAuthorityHandler;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -31,6 +32,9 @@ import io.netty.handler.codec.socks.SocksCmdStatus;
 @Sharable
 public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksCmdRequest> {
 
+	private Boolean isEnableAuthority = NettyProxyContext.getConfig().getEnableAuthority();
+	private HttpAuthorityHandler authorityHandler = new HttpAuthorityHandler();
+	
 	@Override
 	protected void channelRead0(final ChannelHandlerContext browserCtx, final SocksCmdRequest msg) throws Exception {
 
@@ -43,6 +47,12 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 
 		if (msg.port() == Constant.DEFAULT_HTTPS_PORT) {
 			browserCtx.pipeline().remove(this);
+		}
+
+		if (isEnableAuthority != null && isEnableAuthority == true) {
+			browserCtx.pipeline().addLast(authorityHandler);
+			browserCtx.channel().writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, SocksAddressType.IPv4));
+			return ;
 		}
 		
 		Bootstrap bootstrap = new Bootstrap();

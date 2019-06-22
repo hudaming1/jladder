@@ -1,0 +1,5 @@
+1.身份认证通过后，调回到上次访问页面
+2.webapps也通过文件配置
+3.baidu的某些连接还是访问超慢news-bos.cdn.bcebos.com/mvideo/pcconf_2019.js?1561121933864
+4.采用配置文件方式扩展
+5.将netty-proxy作为第三包扩展

@@ -6,8 +6,8 @@ import org.hum.nettyproxy.common.core.NettyProxyConfig;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorManager;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
+import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +33,10 @@ public class NettySocksInsideProxyServer implements Runnable {
 
 	public NettySocksInsideProxyServer(NettyProxyConfig config) {
 		this.config = config;
-		serverBootstrap = new ServerBootstrap();
-		channelInitializer = new SocksInsideChannelInitializer();
 		nettyProxyMonitorManager = new NettyProxyMonitorManager();
 		NettyProxyContext.regist(config, nettyProxyMonitorManager);
+		serverBootstrap = new ServerBootstrap();
+		channelInitializer = new SocksInsideChannelInitializer();
 	}
 
 	@Override

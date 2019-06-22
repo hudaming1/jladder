@@ -31,9 +31,9 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 
 	public NettyHttpSimpleProxyServer(NettyProxyConfig config) {
 		this.config = config;
+		NettyProxyContext.regist(config);
 		serverBootstrap = new ServerBootstrap();
 		httpChannelInitializer = new HttpChannelInitializer();
-		NettyProxyContext.regist(config);
 	}
 	
 	@Override

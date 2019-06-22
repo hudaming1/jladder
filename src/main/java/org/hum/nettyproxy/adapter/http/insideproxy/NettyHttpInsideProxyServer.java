@@ -7,6 +7,7 @@ import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorManager;
+import org.hum.nettyproxy.compoment.auth.HttpAuthorityHandler;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +32,10 @@ public class NettyHttpInsideProxyServer implements Runnable {
 
 	public NettyHttpInsideProxyServer(NettyProxyConfig config) {
 		this.config = config;
-		serverBootstrap = new ServerBootstrap();
-		httpChannelInitializer = new HttpInsideChannelInitializer();
 		nettyProxyMonitorManager = new NettyProxyMonitorManager();
 		NettyProxyContext.regist(config, nettyProxyMonitorManager);
+		serverBootstrap = new ServerBootstrap();
+		httpChannelInitializer = new HttpInsideChannelInitializer();
 	}
 	
 	@Override
@@ -59,10 +60,17 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	private static class HttpInsideChannelInitializer extends ChannelInitializer<Channel> {
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		private final HttpProxyEncryptHandler httpProxyEncryptHandler = new HttpProxyEncryptHandler();
+		private Boolean isEnableAuthority = NettyProxyContext.getConfig().getEnableAuthority();
+		private HttpAuthorityHandler authorityHandler = new HttpAuthorityHandler();
+		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
-			ch.pipeline().addLast(new HttpRequestDecoder()).addLast(httpProxyEncryptHandler);
+			ch.pipeline().addLast(new HttpRequestDecoder());
+			if (isEnableAuthority != null && isEnableAuthority == true) {
+				ch.pipeline().addLast(authorityHandler);
+			}
+			ch.pipeline().addLast(httpProxyEncryptHandler);
 		}
 	}
 }
