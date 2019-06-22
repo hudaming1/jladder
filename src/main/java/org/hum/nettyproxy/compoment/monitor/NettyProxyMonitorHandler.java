@@ -24,13 +24,13 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-    	// print log
-    	logger.info("connected {} <-> {}", ctx.channel().localAddress(), ctx.channel().remoteAddress());
     	// increase connection count
     	NettyProxyMonitorManager monitor = NettyProxyContext.getMonitor();
     	if (monitor != null) {
     		monitor.increaseConnCount();
     	}
+    	// print log
+    	logger.info("connected {} <-> {}", ctx.channel().localAddress(), ctx.channel().remoteAddress());
         ctx.fireChannelRegistered();
     }
 	
@@ -50,13 +50,13 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	// print log
-    	logger.info("disconnected {} <-> {}", ctx.channel().localAddress(), ctx.channel().remoteAddress());
     	// decrease connection count
     	NettyProxyMonitorManager monitor = NettyProxyContext.getMonitor();
     	if (monitor != null) {
     		monitor.decreaseConnCount();
     	}
+    	// print log
+    	logger.info("disconnected {} <-> {}", ctx.channel().localAddress(), ctx.channel().remoteAddress());
         ctx.fireChannelInactive();
     }
 

@@ -34,9 +34,11 @@ public class HttpUtil {
 	
 	public static String parse2RelativeFile(String uri) {
 		if (uri.startsWith("http://")) {
-			return uri.replaceAll("http://.*/", "/");
+			return uri.replaceAll("http://.*?/", "/");
 		} else if (uri.startsWith("https://")) {
-			return uri.replaceAll("https://.*/", "/");
+			return uri.replaceAll("https://.*?/", "/");
+		} else if (!uri.contains("/")) {
+			return "/"; // HTTPS的Connect请求，URI是域名+端口，因此解析出URI为“/”
 		}
 		return uri;
 	}

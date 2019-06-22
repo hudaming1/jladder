@@ -10,6 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.channel.ChannelHandlerContext;
 
+/**
+ * 实现类似于DNS映射表的功能，但也可以对IP进行映射
+ * <pre>
+ *    XXX 这个类可否不依赖于Interceptor会更好一些
+ * </pre>
+ * @author hudaming
+ */
 public class RedirectProcessor implements Processor {
 
 	private static final Logger logger = LoggerFactory.getLogger(RedirectProcessor.class);

@@ -11,11 +11,13 @@ import java.io.InputStreamReader;
 import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.enumtype.HttpMethodEnum;
 import org.hum.nettyproxy.common.model.HttpRequest;
+import org.hum.nettyproxy.common.util.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * ByteBuf&Http帮助类
@@ -26,21 +28,10 @@ public class ByteBufHttpHelper {
 	private static final Logger logger = LoggerFactory.getLogger(ByteBufHttpHelper.class);
 	private static final byte RETURN_LINE = 10;
 	private static final byte[] _2_ReturnLine = (Constant.RETURN_LINE + Constant.RETURN_LINE).getBytes();
-
-	public static String readLine(ByteBuf byteBuf) {
-		StringBuilder sbuilder = new StringBuilder();
-
-		byte b = -1;
-		while (byteBuf.isReadable() && (b = byteBuf.readByte()) != RETURN_LINE) {
-			sbuilder.append((char) b);
-		}
-
-		return sbuilder.toString().trim();
-	}
-
 	private static String WEB_ROOT;
 	private static ByteBuf _404ByteBuf;
 	private static ByteBuf _500ByteBuf;
+	private static final byte[] _302 = ("HTTP/1.1 301 Moved Permanently" + Constant.RETURN_LINE + "Location:").getBytes();
 
 	static {
 		try {
@@ -67,8 +58,18 @@ public class ByteBufHttpHelper {
 		return _500ByteBuf;
 	}
 
-	public static ByteBuf readFileFromWebapps(ByteBuf byteBuf, String filePath) throws IOException {
+	public static String readLine(ByteBuf byteBuf) {
+		StringBuilder sbuilder = new StringBuilder();
 
+		byte b = -1;
+		while (byteBuf.isReadable() && (b = byteBuf.readByte()) != RETURN_LINE) {
+			sbuilder.append((char) b);
+		}
+
+		return sbuilder.toString().trim();
+	}
+
+	public static ByteBuf readFileFromWebapps(ByteBuf byteBuf, String filePath) throws IOException {
 		return readFile(byteBuf, new File(WEB_ROOT + "/" + filePath));
 	}
 	
@@ -138,22 +139,19 @@ public class ByteBufHttpHelper {
 		byte[] leakHttpMethodBytes = new byte[7];
 		byteBuf.getBytes(0, leakHttpMethodBytes);
 		for(byte[] methodBytes : HttpMethodEnum.getByteArray()) {
-			if (isEquals(leakHttpMethodBytes, methodBytes)) {
+			if (ByteUtil.isEquals(leakHttpMethodBytes, methodBytes)) {
 				return true;
 			}
 		}
     	return false;
 	}
 	
-	private static boolean isEquals(byte[] arr1, byte[] arr2) {
-		int cursor = 0;
-		while (cursor < arr2.length) {
-			if (arr1[cursor] != arr2[cursor]) {
-				return false;
-			}
-			cursor ++ ;
-		}
-		return true;
+	public static ByteBuf create302Response(ChannelHandlerContext ctx, String relocation) {
+		ByteBuf directBuffer = ctx.alloc().directBuffer();
+		directBuffer.writeBytes(_302);
+		directBuffer.writeBytes(relocation.getBytes());
+		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
+		return directBuffer;
 	}
 
     /**

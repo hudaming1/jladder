@@ -19,13 +19,17 @@ public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	ByteBuf byteBuf = (ByteBuf) msg;
-    	HttpRequest httpRequest = ByteBufHttpHelper.decode(byteBuf);
-    	if (logger.isErrorEnabled()) {
-	    	logger.debug("========================================");
-	    	logger.debug(httpRequest.toString());
-	    	logger.debug("========================================");
+    	if (msg instanceof ByteBuf) {
+	    	ByteBuf byteBuf = (ByteBuf) msg;
+	    	HttpRequest httpRequest = ByteBufHttpHelper.decode(byteBuf);
+	    	if (logger.isErrorEnabled()) {
+		    	logger.debug("========================================");
+		    	logger.debug(httpRequest.toString());
+		    	logger.debug("========================================");
+	    	}
+	        ctx.fireChannelRead(httpRequest);
+    	} else {
+    		ctx.fireChannelRead(msg);
     	}
-        ctx.fireChannelRead(httpRequest);
     }
 }

@@ -1,10 +1,13 @@
 package org.hum.nettyproxy.common.model;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.hum.nettyproxy.common.Constant;
+import org.hum.nettyproxy.common.util.HttpUtil;
 
 import io.netty.buffer.ByteBuf;
 import lombok.Data;
@@ -26,7 +29,12 @@ public class HttpRequest {
 	}
 	
 	public String getUri() {
-		return line.split(" ")[1];
+		String url = line.split(" ")[1];
+		return HttpUtil.parse2RelativeFile(url);
+	}
+	
+	public URL toUrl() throws MalformedURLException {
+		return new URL("HTTP", host, port, getUri());
 	}
 	
 	@Override
