@@ -44,6 +44,7 @@ public class RedirectProcessor implements Processor {
 			header.setValue(redirectHost);
 			httpRequest.refreshByteBuf();
 			logger.info("redirect {}->{}", source, redirectHost);
+			break;
 		}
 		ctx.fireChannelRead(httpRequest.getByteBuf());
 	}

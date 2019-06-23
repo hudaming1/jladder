@@ -57,7 +57,8 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 	}
 	
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
-		
+
+		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		private HttpProxyProcessHandler httpProxyProcessHandler = new HttpProxyProcessHandler();
 		private HttpRequestInterceptorHandler interceptor = new HttpRequestInterceptorHandler();
 		private Boolean isEnableAuthority = NettyProxyContext.getConfig().getEnableAuthority();
@@ -65,7 +66,7 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(new NettyProxyMonitorHandler());
+			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			ch.pipeline().addFirst(interceptor);
 			ch.pipeline().addLast(new HttpRequestDecoder());
 			if (isEnableAuthority != null && isEnableAuthority == true) {

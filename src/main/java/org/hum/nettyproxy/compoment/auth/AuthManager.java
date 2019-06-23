@@ -38,6 +38,8 @@ public class AuthManager {
 			if (serverUrl != null && serverPort != null) {
 				urlWhiteList.add(new URL("HTTP", serverUrl, serverPort, "*"));
 			}
+			// 本机做proxy时，clientIp相当于管理员，允许登录
+			userWhileList.put("0:0:0:0:0:0:0:1", System.currentTimeMillis());
 		} catch (Exception e) {
 			logger.error("init url_white_list error", e);
 		}
