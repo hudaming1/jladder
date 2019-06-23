@@ -1,0 +1,2 @@
+nohup java -jar netty-proxy-1.0.0.jar nettyproxy.enableauthority=1 nettyproxy.runmode=11 nettyproxy.port=51996 nettyproxy.outside_proxy_host='47.75.102.227' nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=8 nettyproxy.http_server_port=80 nettyproxy.http_server_url='http://hudaming.com' nettyproxy.intercept-redirect='hudaming.com->39.96.83.46' nettyproxy.webroot='/home/huming/http-inside-server/webroot'&
+tail -f nohup.out
