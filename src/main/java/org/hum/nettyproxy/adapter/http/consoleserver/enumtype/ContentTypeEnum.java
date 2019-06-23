@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.adapter.http.simpleserver.enumtype;
+package org.hum.nettyproxy.adapter.http.consoleserver.enumtype;
 
 /**
  * ContentType对照表

@@ -1,8 +1,8 @@
-package org.hum.nettyproxy.adapter.http.simpleserver;
+package org.hum.nettyproxy.adapter.http.consoleserver;
 
 import java.io.File;
 
-import org.hum.nettyproxy.adapter.http.simpleserver.enumtype.ContentTypeEnum;
+import org.hum.nettyproxy.adapter.http.consoleserver.enumtype.ContentTypeEnum;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.util.HttpUtil;
@@ -35,9 +35,9 @@ import io.netty.handler.codec.http.HttpVersion;
  * @author hudaming
  */
 @Sharable
-public class NettySimpleServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class NettyConsoleServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-	private static final Logger logger = LoggerFactory.getLogger(NettySimpleServerHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(NettyConsoleServerHandler.class);
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {

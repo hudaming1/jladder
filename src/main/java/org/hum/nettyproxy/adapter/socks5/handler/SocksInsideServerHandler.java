@@ -11,7 +11,8 @@ import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.compoment.auth.HttpAuthorityHandler;
+import org.hum.nettyproxy.compoment.auth.AuthManager;
+import org.hum.nettyproxy.compoment.auth.HttpAuthorityCheckHandler;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -33,7 +34,7 @@ import io.netty.handler.codec.socks.SocksCmdStatus;
 public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksCmdRequest> {
 
 	private Boolean isEnableAuthority = NettyProxyContext.getConfig().getEnableAuthority();
-	private HttpAuthorityHandler authorityHandler = new HttpAuthorityHandler();
+	private HttpAuthorityCheckHandler authorityHandler = new HttpAuthorityCheckHandler(AuthManager.getInstance());
 	
 	@Override
 	protected void channelRead0(final ChannelHandlerContext browserCtx, final SocksCmdRequest msg) throws Exception {
@@ -49,11 +50,12 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 			browserCtx.pipeline().remove(this);
 		}
 
-		if (isEnableAuthority != null && isEnableAuthority == true) {
-			browserCtx.pipeline().addLast(authorityHandler);
-			browserCtx.channel().writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, SocksAddressType.IPv4));
-			return ;
-		}
+		// 如果开启了权限校验 TODO
+//		if (isEnableAuthority != null && isEnableAuthority == true) {
+//			browserCtx.pipeline().addLast(authorityHandler);
+//			browserCtx.channel().writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, SocksAddressType.IPv4));
+//			return ;
+//		}
 		
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.group(browserCtx.channel().eventLoop());

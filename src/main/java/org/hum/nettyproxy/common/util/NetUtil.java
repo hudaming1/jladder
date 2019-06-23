@@ -33,7 +33,7 @@ public class NetUtil {
 			}
 		}
 	}
-
+	
 	private static InetAddress _getLocalHostLANAddress() throws UnknownHostException {
 		try {
 			InetAddress candidateAddress = null;

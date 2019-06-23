@@ -7,7 +7,8 @@ import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorManager;
-import org.hum.nettyproxy.compoment.auth.HttpAuthorityHandler;
+import org.hum.nettyproxy.compoment.auth.AuthManager;
+import org.hum.nettyproxy.compoment.auth.HttpAuthorityCheckHandler;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class NettyHttpInsideProxyServer implements Runnable {
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		private final HttpProxyEncryptHandler httpProxyEncryptHandler = new HttpProxyEncryptHandler();
 		private Boolean isEnableAuthority = NettyProxyContext.getConfig().getEnableAuthority();
-		private HttpAuthorityHandler authorityHandler = new HttpAuthorityHandler();
+		private HttpAuthorityCheckHandler authorityHandler = new HttpAuthorityCheckHandler(AuthManager.getInstance());
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {

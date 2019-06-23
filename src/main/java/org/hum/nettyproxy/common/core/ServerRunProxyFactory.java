@@ -4,9 +4,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.hum.nettyproxy.ServerRun.Starter;
+import org.hum.nettyproxy.adapter.http.consoleserver.NettyHttpConsoleServer;
 import org.hum.nettyproxy.adapter.http.insideproxy.NettyHttpInsideProxyServer;
 import org.hum.nettyproxy.adapter.http.simpleproxy.NettyHttpSimpleProxyServer;
-import org.hum.nettyproxy.adapter.http.simpleserver.NettyHttpServer;
 import org.hum.nettyproxy.adapter.socks5.NettySocksInsideProxyServer;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
@@ -44,7 +44,7 @@ abstract class AbstractNettyPorxyStarter implements Starter {
 		}
 		
 		if (config.getBindHttpServerPort() != null && config.getBindHttpServerPort() > 0) {
-			ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyHttpServer(config));
+			ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyHttpConsoleServer(config));
 		}
 		
 		_start(config);
