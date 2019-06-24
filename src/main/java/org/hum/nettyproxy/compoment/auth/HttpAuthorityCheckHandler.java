@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.model.HttpRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
@@ -23,7 +25,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  */
 @Sharable
 public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(HttpAuthorityCheckHandler.class);
 	private AuthManager authManager;
 	
 	public HttpAuthorityCheckHandler(AuthManager authManager) {
@@ -33,7 +36,8 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-		InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().localAddress(); 
+		InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().remoteAddress(); 
+		logger.info("auth addr=" + socketAddr.getHostString());
 		
 		// 如果已经登录，则权限handler可以放行请求
  		if (authManager.isLogin(socketAddr.getHostString())) {

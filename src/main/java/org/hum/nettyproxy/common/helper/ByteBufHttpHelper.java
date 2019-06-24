@@ -32,7 +32,7 @@ public class ByteBufHttpHelper {
 	private static String WEB_ROOT;
 	private static ByteBuf _404ByteBuf;
 	private static ByteBuf _500ByteBuf;
-	private static final byte[] _302 = ("HTTP/1.1 301 Moved Permanently" + Constant.RETURN_LINE + "Location:").getBytes();
+	private static final byte[] _302 = ("HTTP/1.1 302 Found" + Constant.RETURN_LINE + "Location:").getBytes();
 
 	static {
 		try {
@@ -155,6 +155,7 @@ public class ByteBufHttpHelper {
 		ByteBuf directBuffer = ctx.alloc().directBuffer();
 		directBuffer.writeBytes(_302);
 		directBuffer.writeBytes(relocation.getBytes());
+		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
 		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
 		return directBuffer;
 	}

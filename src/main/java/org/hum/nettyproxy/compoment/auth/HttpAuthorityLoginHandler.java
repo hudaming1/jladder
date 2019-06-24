@@ -7,6 +7,8 @@ import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.common.util.HttpUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
@@ -15,6 +17,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public class HttpAuthorityLoginHandler extends ChannelInboundHandlerAdapter {
 
+	private static final Logger logger = LoggerFactory.getLogger(HttpAuthorityLoginHandler.class);
 	private static final String SUBMIT_LOGIN_URI = "/login";
 	private AuthManager authManager;
 	
@@ -25,7 +28,8 @@ public class HttpAuthorityLoginHandler extends ChannelInboundHandlerAdapter {
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-		InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().localAddress(); 
+		InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().remoteAddress(); 
+		logger.info("auth addr=" + socketAddr.getHostString());
 
 		HttpRequest httpReq = null;
 		if (msg instanceof HttpRequest) {

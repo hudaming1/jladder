@@ -31,7 +31,7 @@ public class HttpAuthorityLoginHandler extends NettyHttpUriHandler {
 	@Override
 	public void process(ChannelHandlerContext ctx, FullHttpRequest req) {
 		try {
-			InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().localAddress(); 
+			InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().remoteAddress(); 
 			byte[] bytes = new byte[req.content().readableBytes()];
 			req.content().readBytes(bytes);
 			Map<String, String> params = HttpUtil.parseBody2FormData(new String(bytes));
