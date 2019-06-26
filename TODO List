@@ -1,5 +1,7 @@
 待解决问题：
-1.302不支持不支持chrome浏览器(目前我返回的好多Response是非标准http，后面需要加上状态码和头)
+1.302不支持不支持chrome浏览器(目前我返回的好多Response是非标准http，后面需要加上状态码和头)  
+    https://groups.google.com/forum/#!msg/jasig-cas-user/TWaFzCEVTyk/V0bcMxxdfpsJ
+    Chrome对于返回的响应头过于严格？（the HTTP  protocol requires an empty line tailing the headers and the filter  apparently does not send one.）
 2.身份认证获取的ip地址还是有问题
 
 1.考虑了一下，insideserver需要判断如果是访问局域网时，不要进行外网转发了，直接连接即可

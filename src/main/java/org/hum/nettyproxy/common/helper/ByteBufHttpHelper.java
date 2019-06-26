@@ -32,8 +32,7 @@ public class ByteBufHttpHelper {
 	private static String WEB_ROOT;
 	private static ByteBuf _404ByteBuf;
 	private static ByteBuf _500ByteBuf;
-	private static final byte[] _307 = ("HTTP/1.1 307 TemporaryRedirect" + Constant.RETURN_LINE + "Content-Length:0" + 
-			Constant.RETURN_LINE + "Connection: close" + Constant.RETURN_LINE + "Location:").getBytes();
+	private static final byte[] _307 = ("HTTP/1.1 307 TemporaryRedirect" + Constant.RETURN_LINE  + " Location : ").getBytes();
 
 	static {
 		try {
