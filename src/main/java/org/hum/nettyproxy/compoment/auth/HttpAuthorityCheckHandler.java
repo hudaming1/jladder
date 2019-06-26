@@ -63,14 +63,23 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		} else {
 			httpReq = ByteBufHttpHelper.decode((ByteBuf) msg);
 		}
-		
+		System.out.println(httpReq.toUrl());
 		// 如果没有登录的，但请求URL在白名单中，则也放行
 		if (authManager.isUrlInWhilteList(httpReq.toUrl())) {
 			ctx.fireChannelRead(msg);
 			return ;
 		}
 		
+		
+//		String _307 = "HTTP/1.1 307 TemporaryRedirect\r\n"
+//		+ "Location:" + NettyProxyContext.getConfig().getBindHttpServerUrl() + "/login.html" + "\r\n"
+//		+ "\r\n";
+//		System.out.println(_307);
+//		ByteBuf buffer = ctx.alloc().buffer();
+//		buffer.writeBytes(_307.getBytes());
+		
+		
 		// 走到这里的请求，是既没有登录，也是没有在白名单中，则重定向到登录页面
-		 ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, (new StringBuilder()).append(NettyProxyContext.getConfig().getBindHttpServerUrl()).append("/login.html").toString())).addListener(ChannelFutureListener.CLOSE);
+		ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, NettyProxyContext.getConfig().getBindHttpServerUrl() + "/login.html")).addListener(ChannelFutureListener.CLOSE);
 	}
 }

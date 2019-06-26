@@ -38,8 +38,10 @@ public class AuthManager {
 			if (serverUrl != null && serverPort != null) {
 				urlWhiteList.add(new URL("HTTP", serverUrl, serverPort, "*"));
 			}
+			urlWhiteList.add(new URL("HTTP", "127.0.0.1", -1, "*"));
 			// 本机做proxy时，clientIp相当于管理员，允许登录
 			userWhileList.put("0:0:0:0:0:0:0:1", System.currentTimeMillis());
+			// userWhileList.put("127.0.0.1", System.currentTimeMillis());
 		} catch (Exception e) {
 			logger.error("init url_white_list error", e);
 		}
@@ -61,7 +63,7 @@ public class AuthManager {
 		for (URL _url : urlWhiteList) {
 			if (url.equals(_url)) {
 				return true;
-			} else if ("*".equals(_url.getFile()) && _url.getProtocol().equalsIgnoreCase(url.getProtocol()) && _url.getHost().equalsIgnoreCase(url.getHost()) || _url.getPort() == url.getPort()) {
+			} else if (_url.getHost().equals(url.getHost()) ) {
 				return true;
 			}
 		}
