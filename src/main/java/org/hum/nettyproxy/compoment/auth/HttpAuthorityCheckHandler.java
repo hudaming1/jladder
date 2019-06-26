@@ -13,7 +13,12 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 
 /**
  * TODO 改造成通用一些的Handler，channelRead0不要直接接HttpRequest参数，改为Object
@@ -66,6 +71,6 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		}
 		
 		// 走到这里的请求，是既没有登录，也是没有在白名单中，则重定向到登录页面
-		ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, (new StringBuilder()).append(NettyProxyContext.getConfig().getBindHttpServerUrl()).append("/login.html").toString())).addListener(ChannelFutureListener.CLOSE);
+		 ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, (new StringBuilder()).append(NettyProxyContext.getConfig().getBindHttpServerUrl()).append("/login.html").toString())).addListener(ChannelFutureListener.CLOSE);
 	}
 }

@@ -57,17 +57,15 @@ public class HttpServerTest {
 	    	HttpRequest req = ByteBufHttpHelper.decode((ByteBuf) msg);
 	    	System.out.println(req);
 
-			ctx.pipeline().addFirst(new HttpResponseEncoder());
-			// 走到这里的请求，是既没有登录，也是没有在白名单中，则重定向到登录页面
-			writeAndFlush(ctx, HttpResponseStatus.OK, ContentTypeEnum.HTML, ByteBufHttpHelper.readFileFromWebapps(ctx.alloc().directBuffer(), "403.html"));
+//	    	String resp = "HTTP/1.1 200 \r\n Content-type:text/html \r\n\r\n <h1>Hello HttpServer</h1> \r\n";
+	    	String resp = "HTTP/1.1 307 Internal Redirect\r\n"
+					+ "Location:https://www.baidu.com/\r\n"
+					+ "Non-Authoritative-Reason:HSTS\r\n"
+					+ "\r\n";
+	    	
+	    	ByteBuf buffer = ctx.alloc().buffer();
+	    	buffer.writeBytes(resp.getBytes());
+	    	ctx.channel().writeAndFlush(buffer).addListener(ChannelFutureListener.CLOSE);
 	    }
-
-		private void writeAndFlush(ChannelHandlerContext ctx, HttpResponseStatus status, ContentTypeEnum requestType, ByteBuf byteBuf) {
-			FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, byteBuf);
-			if (requestType != null) {
-				response.headers().set(HttpHeaderNames.CONTENT_TYPE, requestType.getContentType() + "; charset=UTF-8");
-			}
-			ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-		}
 	}
 }

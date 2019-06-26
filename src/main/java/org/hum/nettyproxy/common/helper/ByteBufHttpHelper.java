@@ -32,7 +32,7 @@ public class ByteBufHttpHelper {
 	private static String WEB_ROOT;
 	private static ByteBuf _404ByteBuf;
 	private static ByteBuf _500ByteBuf;
-	private static final byte[] _307 = ("HTTP/1.1 307 TemporaryRedirect" + Constant.RETURN_LINE  + " Location : ").getBytes();
+	private static final byte[] _307 = ("HTTP/1.1 302 TemporaryRedirect\r\n Location : ").getBytes();
 
 	static {
 		try {
@@ -156,6 +156,8 @@ public class ByteBufHttpHelper {
 		directBuffer.writeBytes(_307);
 		directBuffer.writeBytes(relocation.getBytes());
 		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
+		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
+		System.out.println("123");
 		return directBuffer;
 	}
 
