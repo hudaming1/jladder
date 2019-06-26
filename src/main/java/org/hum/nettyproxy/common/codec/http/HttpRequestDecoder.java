@@ -22,7 +22,7 @@ public class HttpRequestDecoder extends ChannelInboundHandlerAdapter {
     	if (msg instanceof ByteBuf) {
 	    	ByteBuf byteBuf = (ByteBuf) msg;
 	    	HttpRequest httpRequest = ByteBufHttpHelper.decode(byteBuf);
-	    	if (logger.isErrorEnabled()) {
+	    	if (logger.isDebugEnabled()) {
 		    	logger.debug("========================================");
 		    	logger.debug(httpRequest.toString());
 		    	logger.debug("========================================");

@@ -32,7 +32,11 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequest req) throws Exception {
 
 		if (req.getHost() == null || req.getHost().isEmpty()) {
-			browserCtx.close();
+			/**
+			 * 这里不要close，否则用Chrome访问news.baidu.com会导致EmptyResponse
+			 * 在调试时发现，decode第一个请求正常，但第二个请求则不是一个正常的http请求，此时disscard比close更有利于后面处理
+			 */
+			// browserCtx.close(); 
 			return;
 		}
 		
