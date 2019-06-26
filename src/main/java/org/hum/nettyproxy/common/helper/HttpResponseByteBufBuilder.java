@@ -10,19 +10,19 @@ import io.netty.buffer.ByteBuf;
  * TODO 
  * @author huming
  */
-public class ByteBufBuilder {
+public class HttpResponseByteBufBuilder {
 
 	private ByteBuf byteBuf;
 	
-	public ByteBufBuilder(ByteBuf byteBuf) {
+	public HttpResponseByteBufBuilder(ByteBuf byteBuf) {
 		this.byteBuf = byteBuf;
 	}
 
-	public ByteBufBuilder readFile(File file) throws FileNotFoundException, IOException {
+	public HttpResponseByteBufBuilder readFile(File file) throws FileNotFoundException, IOException {
 		return this;
 	}
 	
-	public ByteBufBuilder replace(String src, String target) {
+	public HttpResponseByteBufBuilder replace(String src, String target) {
 		return this;
 	}
 	
