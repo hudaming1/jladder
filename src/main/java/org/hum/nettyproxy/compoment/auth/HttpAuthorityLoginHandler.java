@@ -48,7 +48,7 @@ public class HttpAuthorityLoginHandler extends ChannelInboundHandlerAdapter {
 			}
 			// 登录成功
 			String indexUrl = NettyProxyContext.getConfig().getBindHttpServerUrl() + "/index.html";
-			ctx.channel().writeAndFlush(ByteBufHttpHelper.create302Response(ctx, indexUrl)).addListener(ChannelFutureListener.CLOSE);
+			ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, indexUrl)).addListener(ChannelFutureListener.CLOSE);
 			return ;
 		}
 		

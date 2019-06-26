@@ -42,7 +42,7 @@ public class HttpAuthorityLoginHandler extends NettyHttpUriHandler {
 			}
 			// 登录成功
 			String indexUrl = NettyProxyContext.getConfig().getBindHttpServerUrl() + "/index.html";
-			ctx.pipeline().firstContext().writeAndFlush(ByteBufHttpHelper.create302Response(ctx, indexUrl)).addListener(ChannelFutureListener.CLOSE);
+			ctx.pipeline().firstContext().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, indexUrl)).addListener(ChannelFutureListener.CLOSE);
 			return ;
 		} catch (Exception ce) {
 			ctx.channel().close();

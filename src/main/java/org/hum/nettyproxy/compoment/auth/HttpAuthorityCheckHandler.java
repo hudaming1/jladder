@@ -47,7 +47,7 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 
 		// 如果没有登录，且还不是http协议，则直接让其跳转
 		if (!ByteBufHttpHelper.isHttpProtocol(msg)) {
-			ctx.channel().writeAndFlush(ByteBufHttpHelper.create302Response(ctx, NettyProxyContext.getConfig().getBindHttpServerUrl() + "/login.html")).addListener(ChannelFutureListener.CLOSE);
+			ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, NettyProxyContext.getConfig().getBindHttpServerUrl() + "/login.html")).addListener(ChannelFutureListener.CLOSE);
 			return ;
 		}
 
@@ -65,6 +65,7 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		}
 		
 		// 走到这里的请求，是既没有登录，也是没有在白名单中，则重定向到登录页面
-		ctx.channel().writeAndFlush(ByteBufHttpHelper.create302Response(ctx, NettyProxyContext.getConfig().getBindHttpServerUrl() + "/login.html")).addListener(ChannelFutureListener.CLOSE);
+		// ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, NettyProxyContext.getConfig().getBindHttpServerUrl() + "/login.html")).addListener(ChannelFutureListener.CLOSE);
+		ctx.channel().writeAndFlush(ByteBufHttpHelper.readFileFromWebapps(ctx.alloc().directBuffer(), "403.html")).addListener(ChannelFutureListener.CLOSE);
 	}
 }

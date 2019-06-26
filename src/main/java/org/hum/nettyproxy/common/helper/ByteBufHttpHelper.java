@@ -32,7 +32,8 @@ public class ByteBufHttpHelper {
 	private static String WEB_ROOT;
 	private static ByteBuf _404ByteBuf;
 	private static ByteBuf _500ByteBuf;
-	private static final byte[] _302 = ("HTTP/1.1 302 Found" + Constant.RETURN_LINE + "Location:").getBytes();
+	private static final byte[] _307 = ("HTTP/1.1 307 TemporaryRedirect" + Constant.RETURN_LINE + "Content-Length:0" + 
+			Constant.RETURN_LINE + "Connection: close" + Constant.RETURN_LINE + "Location:").getBytes();
 
 	static {
 		try {
@@ -151,9 +152,9 @@ public class ByteBufHttpHelper {
     	return false;
 	}
 	
-	public static ByteBuf create302Response(ChannelHandlerContext ctx, String relocation) {
+	public static ByteBuf create307Response(ChannelHandlerContext ctx, String relocation) {
 		ByteBuf directBuffer = ctx.alloc().directBuffer();
-		directBuffer.writeBytes(_302);
+		directBuffer.writeBytes(_307);
 		directBuffer.writeBytes(relocation.getBytes());
 		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
 		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
