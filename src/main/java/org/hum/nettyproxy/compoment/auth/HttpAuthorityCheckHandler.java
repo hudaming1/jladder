@@ -2,7 +2,6 @@ package org.hum.nettyproxy.compoment.auth;
 
 import java.net.InetSocketAddress;
 
-import org.hum.nettyproxy.adapter.http.consoleserver.enumtype.ContentTypeEnum;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.model.HttpRequest;
@@ -14,12 +13,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 
 /**
  * TODO 改造成通用一些的Handler，channelRead0不要直接接HttpRequest参数，改为Object
@@ -71,18 +65,7 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 			return ;
 		}
 		
-		ctx.pipeline().addFirst(new HttpResponseEncoder());
 		// 走到这里的请求，是既没有登录，也是没有在白名单中，则重定向到登录页面
-		writeAndFlush(ctx, HttpResponseStatus.OK, ContentTypeEnum.HTML, ByteBufHttpHelper.readFileFromWebapps(ctx.alloc().directBuffer(), "403.html"));
-		System.out.println("response encode");
-		// ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, NettyProxyContext.getConfig().getBindHttpServerUrl() + "/login.html")).addListener(ChannelFutureListener.CLOSE);
-	}
-	
-	private void writeAndFlush(ChannelHandlerContext ctx, HttpResponseStatus status, ContentTypeEnum requestType, ByteBuf byteBuf) {
-		FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, byteBuf);
-		if (requestType != null) {
-			response.headers().set(HttpHeaderNames.CONTENT_TYPE, requestType.getContentType() + "; charset=UTF-8");
-		}
-		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+		ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, (new StringBuilder()).append(NettyProxyContext.getConfig().getBindHttpServerUrl()).append("/login.html").toString())).addListener(ChannelFutureListener.CLOSE);
 	}
 }

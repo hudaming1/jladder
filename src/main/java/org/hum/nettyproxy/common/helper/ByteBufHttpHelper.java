@@ -157,7 +157,6 @@ public class ByteBufHttpHelper {
 		directBuffer.writeBytes(_307);
 		directBuffer.writeBytes(relocation.getBytes());
 		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
-		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
 		return directBuffer;
 	}
 
