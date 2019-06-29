@@ -31,7 +31,7 @@ public class HttpAuthorityLoginHandler extends NettyHttpUriHandler {
 	@Override
 	public void process(ChannelHandlerContext ctx, FullHttpRequest req) {
 		try {
-			InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().remoteAddress(); 
+			InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().localAddress(); 
 			byte[] bytes = new byte[req.content().readableBytes()];
 			req.content().readBytes(bytes);
 			Map<String, String> params = HttpUtil.parseBody2FormData(new String(bytes));
@@ -42,7 +42,8 @@ public class HttpAuthorityLoginHandler extends NettyHttpUriHandler {
 			}
 			// 登录成功
 			String indexUrl = NettyProxyContext.getConfig().getBindHttpServerUrl() + "/index.html";
-			ctx.pipeline().firstContext().writeAndFlush(ByteBufHttpHelper.create307Response(ctx, indexUrl)).addListener(ChannelFutureListener.CLOSE);
+			ctx.pipeline().firstContext().writeAndFlush(ByteBufHttpHelper.create307Response(ctx.alloc().directBuffer(), indexUrl)).addListener(ChannelFutureListener.CLOSE);
+			logger.info("login success:" + socketAddr.getHostString());
 			return ;
 		} catch (Exception ce) {
 			ctx.channel().close();

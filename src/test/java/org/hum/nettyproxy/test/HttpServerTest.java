@@ -38,7 +38,7 @@ public class HttpServerTest {
 				ch.pipeline().addLast(new TestInboundChannelHandler());
 			}
 		});
-		serverBootstrap.bind(9999).addListener(new GenericFutureListener<Future<? super Void>>() {
+		serverBootstrap.bind(51996).addListener(new GenericFutureListener<Future<? super Void>>() {
 			@Override
 			public void operationComplete(Future<? super Void> future) throws Exception {
 				NettyProxyConfig nettyProxyConfig = new NettyProxyConfig();
@@ -58,12 +58,11 @@ public class HttpServerTest {
 	    	System.out.println(req);
 
 //	    	String resp = "HTTP/1.1 200 \r\n Content-type:text/html \r\n\r\n <h1>Hello HttpServer</h1> \r\n";
-	    	String resp = "HTTP/1.1 307 Internal Redirect\r\n"
-					+ "Location:https://www.baidu.com/\r\n"
-					+ "Non-Authoritative-Reason:HSTS\r\n"
+	    	String resp = "HTTP/1.1 302 TemporaryRedirect\r\n"
+					+ "Location:http://www.sssss.com/\r\n"
 					+ "\r\n";
-	    	
 	    	ByteBuf buffer = ctx.alloc().buffer();
+//	    	buffer = ByteBufHttpHelper.create307Response(buffer, "http://www.sssss.com");
 	    	buffer.writeBytes(resp.getBytes());
 	    	ctx.channel().writeAndFlush(buffer).addListener(ChannelFutureListener.CLOSE);
 	    }

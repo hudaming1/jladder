@@ -38,10 +38,11 @@ public class AuthManager {
 			if (serverUrl != null && serverPort != null) {
 				urlWhiteList.add(new URL("HTTP", serverUrl, serverPort, "*"));
 			}
+			// url白名单
 			urlWhiteList.add(new URL("HTTP", "127.0.0.1", -1, "*"));
-			// 本机做proxy时，clientIp相当于管理员，允许登录
-			userWhileList.put("0:0:0:0:0:0:0:1", System.currentTimeMillis());
-			// userWhileList.put("127.0.0.1", System.currentTimeMillis());
+			// 访问者白名单：本机做proxy时，clientIp相当于管理员，允许登录
+//			userWhileList.put("0:0:0:0:0:0:0:1", System.currentTimeMillis()); // ipv6 
+//			userWhileList.put("127.0.0.1", System.currentTimeMillis()); // ipv4
 		} catch (Exception e) {
 			logger.error("init url_white_list error", e);
 		}

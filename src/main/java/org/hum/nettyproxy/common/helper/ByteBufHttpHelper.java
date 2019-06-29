@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * ByteBuf&Http帮助类
@@ -32,7 +31,11 @@ public class ByteBufHttpHelper {
 	private static String WEB_ROOT;
 	private static ByteBuf _404ByteBuf;
 	private static ByteBuf _500ByteBuf;
-	private static final byte[] _307 = ("HTTP/1.1 307 TemporaryRedirect\r\nLocation : ").getBytes();
+	/**
+	 * 关于浏览器代理模式下的307重定向：
+	 *    Chrome和Firefox的要求都比较严格，甚至连一个空格都不能多
+	 */
+	private static final byte[] _307 = ("HTTP/1.1 307 TemporaryRedirect" + Constant.RETURN_LINE + "Location:").getBytes();
 
 	static {
 		try {
@@ -151,12 +154,11 @@ public class ByteBufHttpHelper {
     	return false;
 	}
 	
-	public static ByteBuf create307Response(ChannelHandlerContext ctx, String relocation) {
-		ByteBuf directBuffer = ctx.alloc().directBuffer();
+	public static ByteBuf create307Response(ByteBuf directBuffer, String relocation) {
 		directBuffer.writeBytes(_307);
 		directBuffer.writeBytes(relocation.getBytes());
-		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
-		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes());
+		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes()); // end of header
+		directBuffer.writeBytes(Constant.RETURN_LINE.getBytes()); // end of http-response
 		return directBuffer;
 	}
 
