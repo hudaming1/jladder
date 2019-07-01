@@ -21,19 +21,26 @@ public class HttpRequestInterceptorHandler extends ChannelInboundHandlerAdapter 
     		ctx.fireChannelRead(msg);
     		return ;
     	}
+    	
+    	HttpRequest httpRequest = null;
 
+    	// 2.将msg解析成HttpRequest
 		if (msg instanceof ByteBuf) {
-			// 2.将msg解析成HttpRequest
-			HttpRequest httpRequest = ByteBufHttpHelper.decode((ByteBuf) msg);
+			httpRequest = ByteBufHttpHelper.decode((ByteBuf) msg);
+		} else if (msg instanceof HttpRequest) {
+			httpRequest = (HttpRequest) msg;
+		} else {
+	    	// 无法解析的协议，放行到后面
+	    	ctx.fireChannelRead(msg);
+		}
 
-			List<InterceptorWrapper> wrappers = InterceptorContext.getWrappers();
+		List<InterceptorWrapper> wrappers = InterceptorContext.getWrappers();
 
-			for (InterceptorWrapper wrapper : wrappers) {
-				if (wrapper.tryIntercept(httpRequest)) {
-					// 拦截成功
-					wrapper.doProcess(ctx, httpRequest);
-					return;
-				}
+		for (InterceptorWrapper wrapper : wrappers) {
+			if (wrapper.tryIntercept(httpRequest)) {
+				// 拦截成功
+				wrapper.doProcess(ctx, httpRequest);
+				return;
 			}
 		}
     	
