@@ -30,6 +30,15 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 /**
  * An HTTP server that sends back the content of the received HTTP request in a
  * pretty plaintext form.
+ * 
+ * Windows generator cert by java-keytool
+ * 1. 以jks格式生成服务器端包含Public key和Private Key的keystore文件，keypass与storepass务必要一样，因为在tomcat server.xml中只配置一个password.
+ * 	"C:\Program Files\Java\jdk1.8.0_131\bin\keytool" -genkey -alias server -keystore serverKeystore.jks -keypass 123456 -storepass 123456 -keyalg RSA  -keysize 512 -validity 365 -v -dname "CN = W03GCA01A,O = ABC BANK,DC = Server Https,DC = ABC,OU = Firefly Technology And Operation"
+ * 2.从keystore中导出别名为server的服务端证书.
+ * 	"C:\Program Files\Java\jdk1.8.0_131\bin\keytool" -export -alias server -keystore serverKeystore.jks -storepass 123456 -file server.cer
+ * 3.将server.cer导入客户端的信任证书库clientTruststore.jks。
+ * 	"C:\Program Files\Java\jdk1.8.0_131\bin\keytool" -import -alias trustServer -file server.cer -keystore clientTruststore.jks -storepass 123456
+ * 参考：https://firefly.iteye.com/blog/667196
  */
 public final class HttpHelloWorldServer {
 
