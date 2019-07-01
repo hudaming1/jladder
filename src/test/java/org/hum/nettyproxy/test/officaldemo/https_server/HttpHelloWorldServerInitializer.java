@@ -37,14 +37,15 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
     @Override
     public void initChannel(SocketChannel ch) {
 		ChannelPipeline p = ch.pipeline();
-		p.addLast(new ChannelInboundHandlerAdapter() {
-			@Override
-			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-				ctx.pipeline().remove(this);
-				ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
-				System.out.println("connected");
-			}
-		});
+		// 如果需要https代理，则开启这个handler
+//		p.addLast(new ChannelInboundHandlerAdapter() {
+//			@Override
+//			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//				ctx.pipeline().remove(this);
+//				ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
+//				System.out.println("connected");
+//			}
+//		});
         p.addLast("sslHandler", new SslHandler(HttpSslContextFactory.createSSLEngine()));
 //        if (sslCtx != null) {
 //            p.addLast(new ChannelInboundHandlerAdapter() {

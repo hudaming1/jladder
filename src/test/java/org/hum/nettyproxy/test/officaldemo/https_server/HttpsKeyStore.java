@@ -26,7 +26,7 @@ public class HttpsKeyStore {
 }
 
 class Arguments {
-	public static String keystorePath = "D:/test.keystore";
+	public static String keystorePath = "/tmp/gcert/server/server.p12";
 	public static String certificatePassword = "123456";
 	public static String keystorePassword = "123456";
 }
