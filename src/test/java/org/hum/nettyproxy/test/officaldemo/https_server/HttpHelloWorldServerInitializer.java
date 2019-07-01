@@ -15,6 +15,9 @@
  */
 package org.hum.nettyproxy.test.officaldemo.https_server;
 
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -25,6 +28,7 @@ import io.netty.handler.ssl.SslContext;
 public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;
+	public static final String ConnectedLine = "HTTP/1.1 200 Connection established\r\n\r\n";
 
     public HttpHelloWorldServerInitializer(SslContext sslCtx) {
         this.sslCtx = sslCtx;
@@ -34,6 +38,14 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
     public void initChannel(SocketChannel ch) {
         ChannelPipeline p = ch.pipeline();
         if (sslCtx != null) {
+            p.addLast(new ChannelInboundHandlerAdapter() {
+                @Override
+                public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                    ctx.pipeline().remove(this);
+                    ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
+                    System.out.println("connected");
+                }
+            });
             p.addLast(sslCtx.newHandler(ch.alloc()));
         }
         p.addLast(new HttpServerCodec());
