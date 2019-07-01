@@ -28,44 +28,56 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 /**
- * An HTTP server that sends back the content of the received HTTP request
- * in a pretty plaintext form.
+ * An HTTP server that sends back the content of the received HTTP request in a
+ * pretty plaintext form.
+ * 
+ * Windows generator cert by java-keytool
+ * 1. 以jks格式生成服务器端包含Public key和Private Key的keystore文件，keypass与storepass务必要一样，因为在tomcat server.xml中只配置一个password.
+ * 	"C:\Program Files\Java\jdk1.8.0_131\bin\keytool" -genkey -alias server -keystore serverKeystore.jks -keypass 123456 -storepass 123456 -keyalg RSA  -keysize 512 -validity 365 -v -dname "CN = W03GCA01A,O = ABC BANK,DC = Server Https,DC = ABC,OU = Firefly Technology And Operation"
+ * 2.从keystore中导出别名为server的服务端证书.
+ * 	"C:\Program Files\Java\jdk1.8.0_131\bin\keytool" -export -alias server -keystore serverKeystore.jks -storepass 123456 -file server.cer
+ * 3.将server.cer导入客户端的信任证书库clientTruststore.jks。
+ * 	"C:\Program Files\Java\jdk1.8.0_131\bin\keytool" -import -alias trustServer -file server.cer -keystore clientTruststore.jks -storepass 123456
+ * 参考：
+ * 	https://firefly.iteye.com/blog/667196
+ * 	Tomcat安装证书：https://www.jianshu.com/p/a493a6380c23
+ * 
+ * 
  */
 public final class HttpHelloWorldServer {
 
-    static final boolean SSL = true;
-    static final int PORT = Integer.parseInt(System.getProperty("port", SSL? "8443" : "8080"));
+	static final boolean SSL = true;
+	static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "51996" : "8080"));
+	
+	public static void main(String[] args) throws Exception {
+		// Configure SSL.
+		final SslContext sslCtx;
+		if (SSL) {
+			SelfSignedCertificate ssc = new SelfSignedCertificate();
+			sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+		} else {
+			sslCtx = null;
+		}
 
-    public static void main(String[] args) throws Exception {
-        // Configure SSL.
-        final SslContext sslCtx;
-        if (SSL) {
-            SelfSignedCertificate ssc = new SelfSignedCertificate();
-            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
-        } else {
-            sslCtx = null;
-        }
+		// Configure the server.
+		EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+		EventLoopGroup workerGroup = new NioEventLoopGroup();
+		try {
+			ServerBootstrap b = new ServerBootstrap();
+			b.option(ChannelOption.SO_BACKLOG, 1024);
+			b.group(bossGroup, workerGroup)
+				.channel(NioServerSocketChannel.class)
+				.handler(new LoggingHandler(LogLevel.INFO))
+				.childHandler(new HttpHelloWorldServerInitializer(sslCtx));
 
-        // Configure the server.
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.option(ChannelOption.SO_BACKLOG, 1024);
-            b.group(bossGroup, workerGroup)
-             .channel(NioServerSocketChannel.class)
-             .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new HttpHelloWorldServerInitializer(sslCtx));
+			Channel ch = b.bind(PORT).sync().channel();
 
-            Channel ch = b.bind(PORT).sync().channel();
+			System.err.println("Open your web browser and navigate to " + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
 
-            System.err.println("Open your web browser and navigate to " +
-                    (SSL? "https" : "http") + "://127.0.0.1:" + PORT + '/');
-
-            ch.closeFuture().sync();
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
-    }
+			ch.closeFuture().sync();
+		} finally {
+			bossGroup.shutdownGracefully();
+			workerGroup.shutdownGracefully();
+		}
+	}
 }
