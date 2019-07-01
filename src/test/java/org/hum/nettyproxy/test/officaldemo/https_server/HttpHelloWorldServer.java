@@ -38,13 +38,17 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
  * 	"C:\Program Files\Java\jdk1.8.0_131\bin\keytool" -export -alias server -keystore serverKeystore.jks -storepass 123456 -file server.cer
  * 3.将server.cer导入客户端的信任证书库clientTruststore.jks。
  * 	"C:\Program Files\Java\jdk1.8.0_131\bin\keytool" -import -alias trustServer -file server.cer -keystore clientTruststore.jks -storepass 123456
- * 参考：https://firefly.iteye.com/blog/667196
+ * 参考：
+ * 	https://firefly.iteye.com/blog/667196
+ * 	Tomcat安装证书：https://www.jianshu.com/p/a493a6380c23
+ * 
+ * 
  */
 public final class HttpHelloWorldServer {
 
 	static final boolean SSL = true;
-	static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "8080"));
-
+	static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "51996" : "8080"));
+	
 	public static void main(String[] args) throws Exception {
 		// Configure SSL.
 		final SslContext sslCtx;

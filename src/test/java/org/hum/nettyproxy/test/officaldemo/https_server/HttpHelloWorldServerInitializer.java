@@ -22,8 +22,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslHandler;
 
 public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -36,20 +36,29 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
 
     @Override
     public void initChannel(SocketChannel ch) {
-        ChannelPipeline p = ch.pipeline();
-        if (sslCtx != null) {
-            p.addLast(new ChannelInboundHandlerAdapter() {
-                @Override
-                public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                    ctx.pipeline().remove(this);
-                    ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
-                    System.out.println("connected");
-                }
-            });
-            p.addLast(sslCtx.newHandler(ch.alloc()));
-        }
+		ChannelPipeline p = ch.pipeline();
+		p.addLast(new ChannelInboundHandlerAdapter() {
+			@Override
+			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+				ctx.pipeline().remove(this);
+				ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
+				System.out.println("connected");
+			}
+		});
+        p.addLast("sslHandler", new SslHandler(HttpSslContextFactory.createSSLEngine()));
+//        if (sslCtx != null) {
+//            p.addLast(new ChannelInboundHandlerAdapter() {
+//                @Override
+//                public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//                    ctx.pipeline().remove(this);
+//                    ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
+//                    System.out.println("connected");
+//                }
+//            });
+//            p.addLast(sslCtx.newHandler(ch.alloc()));
+//        }
         p.addLast(new HttpServerCodec());
-        p.addLast(new HttpServerExpectContinueHandler());
+//        p.addLast(new HttpServerExpectContinueHandler());
         p.addLast(new HttpHelloWorldServerHandler());
     }
 }
