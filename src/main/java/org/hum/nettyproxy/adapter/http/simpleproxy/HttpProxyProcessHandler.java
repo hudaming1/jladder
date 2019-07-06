@@ -36,6 +36,9 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 		if (req.getHost() == null || req.getHost().isEmpty()) {
 			return ;
 		}
+
+		// 转发前记录真实IP，防止转发中丢失源IP地址
+		req.buildHeader("x-forwarded-for", localCtx.channel().remoteAddress().toString()).refreshByteBuf();
 		
 		// 建立远端转发连接（远端收到响应后，一律转发给本地）
 		Forward forward = new Forward(localCtx, req.getHost(), req.getPort());

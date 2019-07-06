@@ -37,6 +37,11 @@ public class HttpRequest {
 		return new URL("HTTP", host, port, getUri());
 	}
 	
+	public HttpRequest buildHeader(String header, String value) {
+		headers.put(header, value);
+		return this;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sbuilder = new StringBuilder();

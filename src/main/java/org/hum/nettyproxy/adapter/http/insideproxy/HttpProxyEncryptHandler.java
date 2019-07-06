@@ -40,6 +40,9 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 			return;
 		}
 		
+		// 转发前记录真实IP，防止转发中丢失源IP地址
+		req.buildHeader("x-forwarded-for", browserCtx.channel().remoteAddress().toString()).refreshByteBuf();
+		
 		NettyProxyConfig config = NettyProxyContext.getConfig();
 		
 		if (req.isHttps()) {
