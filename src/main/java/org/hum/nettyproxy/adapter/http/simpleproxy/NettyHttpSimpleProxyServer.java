@@ -1,5 +1,7 @@
 package org.hum.nettyproxy.adapter.http.simpleproxy;
 
+import org.hum.nettyproxy.adapter.http.capture.HttpCaptureInboundHandler;
+import org.hum.nettyproxy.adapter.http.capture.outter.HttpCaptureLogPrinter;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.core.NettyProxyConfig;
@@ -63,6 +65,7 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 		private HttpRequestInterceptorHandler interceptor = new HttpRequestInterceptorHandler();
 		private Boolean isEnableAuthority = NettyProxyContext.getConfig().getEnableAuthority();
 		private HttpAuthorityCheckHandler authorityHandler = new HttpAuthorityCheckHandler(AuthManager.getInstance());
+		private HttpCaptureInboundHandler httpCaptureInboundHandler = new HttpCaptureInboundHandler(new HttpCaptureLogPrinter());
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
@@ -71,6 +74,7 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 				ch.pipeline().addLast(authorityHandler);
 			}
 			ch.pipeline().addLast(new HttpRequestDecoder());
+			ch.pipeline().addLast(httpCaptureInboundHandler);
 			ch.pipeline().addFirst(interceptor);
 			ch.pipeline().addLast(httpProxyProcessHandler);
 		}

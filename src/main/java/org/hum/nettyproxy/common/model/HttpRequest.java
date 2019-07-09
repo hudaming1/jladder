@@ -1,5 +1,6 @@
 package org.hum.nettyproxy.common.model;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -8,13 +9,19 @@ import java.util.Map.Entry;
 
 import org.hum.nettyproxy.common.Constant;
 import org.hum.nettyproxy.common.util.HttpUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import lombok.Data;
 
 @Data
-public class HttpRequest {
+public class HttpRequest implements Serializable {
 
+	private static final long serialVersionUID = 657622757435056385L;
+
+	private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
+	
 	private ByteBuf byteBuf;
 	private String line;
 	private Map<String, String> headers = new HashMap<String, String>();
@@ -28,8 +35,21 @@ public class HttpRequest {
 		return Constant.HTTPS_METHOD.equalsIgnoreCase(method);
 	}
 	
+	public String getProtocol() {
+		return isHttps() ? "https" : "http";
+	}
+	
 	public String getUri() {
-		String url = line.split(" ")[1];
+		if (line == null) {
+			logger.warn("cann't parse request-uri, request-line is null");
+			return "unknown uri";
+		}
+		String[] lineSplit = line.split(" ");
+		if (lineSplit.length < 2) {
+			logger.warn("cann't parse request-uri, request-line is [{}]", line);
+			return "unknown uri";
+		}
+		String url = lineSplit[1];
 		return HttpUtil.parse2RelativeFile(url);
 	}
 	
