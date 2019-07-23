@@ -10,6 +10,8 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseDecoder;
 
 @Sharable
 public class HttpCaptureInboundHandler extends ChannelDuplexHandler {
@@ -38,10 +40,12 @@ public class HttpCaptureInboundHandler extends ChannelDuplexHandler {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
     	HttpRequest httpRequest = RequestVar.get();
-    	if (httpRequest != null) {
+    	if (httpRequest != null && msg instanceof DefaultFullHttpResponse) {
 	    	ThreadPool.execute(new Runnable() {
 				@Override
 				public void run() {
+					DefaultFullHttpResponse resp = (DefaultFullHttpResponse) msg;
+					System.out.println(resp);
 					httpCapturePrinter.flush(httpRequest, null);
 				}
 	    	});
