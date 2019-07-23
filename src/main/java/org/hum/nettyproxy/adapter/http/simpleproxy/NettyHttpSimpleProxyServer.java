@@ -20,7 +20,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
@@ -75,7 +74,7 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 				ch.pipeline().addLast(authorityHandler);
 			}
 			ch.pipeline().addLast(new HttpRequestDecoder());
-			ch.pipeline().addLast(httpCaptureInboundHandler);
+			ch.pipeline().addLast("capture", httpCaptureInboundHandler);
 			ch.pipeline().addFirst(interceptor);
 			ch.pipeline().addLast(httpProxyProcessHandler);
 		}

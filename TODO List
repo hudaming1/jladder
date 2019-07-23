@@ -1,9 +1,8 @@
 待解决问题：
 
+last：HttpCaptureInboundHandler line 55  (对Netty返回的HttpResponse还需要进一步处理)
+
 1.抓包已经能抓到请求的HTTP的请求，但Response暂时还不支持，需要将ByteBuf做解析（HTTPS的后续支持）
-
-
-
 2.身份认证通过后，调回到上次访问页面
 3.采用配置文件方式扩展
 4.将netty-proxy作为第三包扩展
