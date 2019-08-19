@@ -20,7 +20,7 @@ public class HttpCaptureInboundHandler extends ChannelDuplexHandler {
 	private final ThreadLocal<HttpRequest> RequestVar = new ThreadLocal<HttpRequest>();
 	
 	private HttpCapturePrinter httpCapturePrinter;
-	private HttpResponseDecoder httpResponseDecoder = new HttpResponseDecoder();
+	private static final HttpResponseDecoder httpResponseDecoder = new HttpResponseDecoder();
 	private static final ThreadPoolExecutor ThreadPool = new ThreadPoolExecutor(1, 4, 1, TimeUnit.MINUTES, new LinkedBlockingDeque<Runnable>(10000)); // 抓个包还能挤压1W吗
 	
 	public HttpCaptureInboundHandler(HttpCapturePrinter httpCapturePrinter) {
@@ -43,20 +43,23 @@ public class HttpCaptureInboundHandler extends ChannelDuplexHandler {
     	HttpRequest httpRequest = RequestVar.get();
     	
     	if (httpRequest != null && msg instanceof ByteBuf) {
-
-        	ByteBuf byteBuf = (ByteBuf) msg;
-        	/**
-        	 * 1.这里我没有自己实现Response的解码，而是直接套用了Netty自带组件
-        	 * 2.关于解码返回，有2种情况（目前这么设计原因还不清楚，为什么有的响应只有HttpContent）
-        	 * 3.关于Netty在解码HttpResponse时，只是针对行、和头做了解析，响应内容仍然存在byteBuf中，因此需要打印响应内容，需要自行解析byteBuf
-        	 */
-        	HttpResponse response = httpResponseDecoder.decode(byteBuf);
-        	byteBuf.resetReaderIndex();
-        	
+    		// 这里的byteBuf可能存在并发，因此先确保同步copy出一个byteBufCopy
+        	ByteBuf byteBufCopy = ((ByteBuf) msg).copy();
 	    	ThreadPool.execute(new Runnable() {
 				@Override
 				public void run() {
-					 httpCapturePrinter.flush(httpRequest, response);
+		        	HttpResponse response;
+					try {
+			        	/**
+			        	 * 1.这里我没有自己实现Response的解码，而是直接套用了Netty自带组件
+			        	 * 2.关于解码返回，有2种情况（目前这么设计原因还不清楚，为什么有的响应只有HttpContent，是因为Chunked原因吗）
+			        	 * 3.关于Netty在解码HttpResponse时，只是针对行、和头做了解析，响应内容仍然存在byteBuf中，因此需要打印响应内容，需要自行解析byteBuf
+			        	 */
+						response = httpResponseDecoder.decode(byteBufCopy);
+						httpCapturePrinter.flush(httpRequest, response);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 	    	});
     		RequestVar.remove();

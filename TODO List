@@ -1,8 +1,9 @@
 待解决问题：
 
-last：HttpCaptureInboundHandler line 55  (对Netty返回的HttpResponse还需要进一步处理)
+通过byteBuf.copy方式，确保capture和proxy相互隔离，互不影响，但目前capture时，HttpResponseDecoder.java:42报错
 
 1.抓包已经能抓到请求的HTTP的请求，但Response暂时还不支持，需要将ByteBuf做解析（HTTPS的后续支持）
+2.翻墙HTTP认证时，采用种Cookie的方式进行鉴权
 2.身份认证通过后，调回到上次访问页面
 3.采用配置文件方式扩展
 4.将netty-proxy作为第三包扩展
