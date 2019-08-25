@@ -14,13 +14,15 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.LastHttpContent;
 
 @Sharable
 public class HttpCaptureInboundHandler extends ChannelDuplexHandler {
 	
-	private final ThreadLocal<HttpRequest> RequestVar = new ThreadLocal<HttpRequest>();
+	private final ThreadLocal<CaptureRecord> CaptureRecordVar = new ThreadLocal<CaptureRecord>();
 	
 	private final Logger logger = LoggerFactory.getLogger(HttpCaptureInboundHandler.class);
 	private HttpCapturePrinter httpCapturePrinter;
@@ -34,7 +36,7 @@ public class HttpCaptureInboundHandler extends ChannelDuplexHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     	if (msg instanceof HttpRequest) {
-    		RequestVar.set((HttpRequest) msg);
+    		CaptureRecordVar.set(new CaptureRecord((HttpRequest) msg));
     		ctx.fireChannelRead(msg);
     		return ;
     	} 
@@ -42,37 +44,40 @@ public class HttpCaptureInboundHandler extends ChannelDuplexHandler {
         ctx.fireChannelRead(msg);
     }
     
-    /**
-     * 这里接到的msg，你会发现由于chunked响应，会导致一个Response报文，会被拆分成多个Msg传入，因此需要做特殊解析。
-     */
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-    	
+		CaptureRecord captureRec = CaptureRecordVar.get();
+		
+		if (msg instanceof HttpResponse || msg instanceof HttpContent) {
+        	if (ctx.pipeline().get(HttpResponseEncoder.class) == null) {
+        		ctx.pipeline().addBefore("capture", "httpResponseEncoder", new HttpResponseEncoder());
+        	}
+		}
+		
     	if (msg instanceof HttpResponse) {
-        	HttpRequest httpRequest = RequestVar.get();
-    		ctx.pipeline().addBefore("capture", "httpResponseEncoder", new HttpResponseEncoder());
+    		captureRec.setResponse(httpResponseConverter.decode((HttpResponse) msg));
+    	} else if (msg instanceof HttpContent) {
+    		captureRec.getResponse().getContent().add(((HttpContent) msg).content().copy());
+    	}
+    	
+    	if (msg instanceof LastHttpContent) {
     		ThreadPool.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
-			        	/**
-			        	 * 1.这里我没有自己实现Response的解码，而是直接套用了Netty自带组件
-			        	 * 2.关于解码返回，有2种情况（目前这么设计原因还不清楚，为什么有的响应只有HttpContent，是因为Chunked原因吗）
-			        	 * 3.关于Netty在解码HttpResponse时，只是针对行、和头做了解析，响应内容仍然存在byteBuf中，因此需要打印响应内容，需要自行解析byteBuf
-			        	 */
-						 httpCapturePrinter.flush(httpRequest, httpResponseConverter.decode((HttpResponse) msg));
+						 httpCapturePrinter.flush(captureRec.getRequest(), captureRec.getResponse());
 					} catch (Exception e) {
 						try {
-							logger.error("url=" + httpRequest.toUrl().toString(), e);
+							logger.error("url=" + captureRec.getRequest().toUrl().toString(), e);
 						} catch (MalformedURLException e1) {
 							e1.printStackTrace();
 						}
 					}
 				}
 	    	});
-    		RequestVar.remove();
+    		CaptureRecordVar.remove();
     	}
     	
-        ctx.write(msg, promise);
+        ctx.writeAndFlush(msg, promise);
     }
 }

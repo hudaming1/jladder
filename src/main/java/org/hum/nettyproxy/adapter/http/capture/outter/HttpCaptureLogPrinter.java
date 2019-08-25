@@ -15,6 +15,6 @@ public class HttpCaptureLogPrinter implements HttpCapturePrinter {
 	@Override
 	public void flush(HttpRequest request, HttpResponse response) {
 		String url = request.getProtocol() + "://" + request.getHeaders().get("Host") + request.getUri();
-		System.out.println(String.format(outStringTemplate, url, (response == null ? 0 : response.getCode()), (response == null? null : response.toContent())));
+		System.out.println(String.format(outStringTemplate, url, (response == null ? 0 : response.getCode()), (response == null? null : response.toUtfText())));
 	}
 }

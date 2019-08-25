@@ -9,7 +9,6 @@ import io.netty.handler.codec.http.HttpResponse;
 public class HttpResponseConverter {
 	
 	public org.hum.nettyproxy.common.model.HttpResponse decode(HttpResponse response) throws Exception {
-		System.out.println(response.getClass().getName());
 		if (response instanceof DefaultHttpResponse) {
     		DefaultHttpResponse resp = (DefaultHttpResponse) response;
     		org.hum.nettyproxy.common.model.HttpResponse decResponse = new org.hum.nettyproxy.common.model.HttpResponse();
