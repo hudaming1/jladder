@@ -20,6 +20,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.HttpResponseDecoder;
 
 /**
  * 普通HTTP/HTTPS代理类
@@ -89,7 +90,7 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 			bootStrap.handler(new ChannelInitializer<Channel>() {
 				@Override
 				protected void initChannel(Channel ch) throws Exception {
-					ch.pipeline().addLast(new ForwardHandler(ctx.channel()), new InactiveHandler(ctx.channel()));
+					ch.pipeline().addLast(new HttpResponseDecoder(), new ForwardHandler(ctx.channel()), new InactiveHandler(ctx.channel()));
 				}
 			});
 		}
