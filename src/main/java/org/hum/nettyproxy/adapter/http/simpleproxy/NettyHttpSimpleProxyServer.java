@@ -4,8 +4,8 @@ import org.hum.nettyproxy.adapter.http.capture.HttpCaptureInboundHandler;
 import org.hum.nettyproxy.adapter.http.capture.outter.HttpCaptureLogPrinter;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
-import org.hum.nettyproxy.common.core.NettyProxyConfig;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
+import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
 import org.hum.nettyproxy.compoment.auth.AuthManager;
@@ -69,13 +69,13 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(nettyProxyMonitorHandler);
-			if (isEnableAuthority != null && isEnableAuthority == true) {
-				ch.pipeline().addLast(authorityHandler);
-			}
+//			ch.pipeline().addFirst(nettyProxyMonitorHandler);
+//			if (isEnableAuthority != null && isEnableAuthority == true) {
+//				ch.pipeline().addLast(authorityHandler);
+//			}
 			ch.pipeline().addLast(new HttpRequestDecoder());
-			ch.pipeline().addLast("capture", httpCaptureInboundHandler);
-			ch.pipeline().addFirst(interceptor);
+//			ch.pipeline().addLast("capture", httpCaptureInboundHandler);
+//			ch.pipeline().addFirst(interceptor);
 			ch.pipeline().addLast(httpProxyProcessHandler);
 		}
 	}

@@ -9,6 +9,7 @@ import org.hum.nettyproxy.adapter.http.insideproxy.NettyHttpInsideProxyServer;
 import org.hum.nettyproxy.adapter.http.simpleproxy.NettyHttpSimpleProxyServer;
 import org.hum.nettyproxy.adapter.socks5.NettySocksInsideProxyServer;
 import org.hum.nettyproxy.common.NamedThreadFactory;
+import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.server.NettyOutsideProxyServer;
 

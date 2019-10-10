@@ -2,7 +2,7 @@ package org.hum.nettyproxy.common.util;
 
 import java.util.Map.Entry;
 
-import org.hum.nettyproxy.common.core.NettyProxyConfig;
+import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

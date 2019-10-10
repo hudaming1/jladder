@@ -2,6 +2,7 @@ package org.hum.nettyproxy.common.core;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorManager;
 

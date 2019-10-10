@@ -20,9 +20,9 @@ public class SocketHttpsServer {
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) {
-		String ksName = "herong.jks";
-		char ksPass[] = "HerongJKS".toCharArray();
-		char ctPass[] = "My1stKey".toCharArray();
+		String ksName = "d:/keystore.p12";
+		char ksPass[] = "111111".toCharArray();
+		char ctPass[] = "111111".toCharArray();
 		try {
 			// Setup the socket address
 			// InetSocketAddress address = new InetSocketAddress(InetAddress.getLocalHost(),
@@ -53,7 +53,7 @@ public class SocketHttpsServer {
 
 			BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream()));
 
-			String m = r.readLine();
+			// String m = r.readLine();
 
 			w.write("HTTP/1.0 200 OK");
 			w.newLine();

@@ -90,7 +90,9 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 			bootStrap.handler(new ChannelInitializer<Channel>() {
 				@Override
 				protected void initChannel(Channel ch) throws Exception {
-					ch.pipeline().addLast(new HttpResponseDecoder(), new ForwardHandler(ctx.channel()), new InactiveHandler(ctx.channel()));
+					// 如果没有开启capture模式，则不要解析Response
+					ch.pipeline().addLast(new HttpResponseDecoder());
+					ch.pipeline().addLast(new ForwardHandler(ctx.channel()), new InactiveHandler(ctx.channel()));
 				}
 			});
 		}

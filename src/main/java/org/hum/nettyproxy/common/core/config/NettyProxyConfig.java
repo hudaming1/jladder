@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.common.core;
+package org.hum.nettyproxy.common.core.config;
 
 import java.util.ArrayList;
 import java.util.List;

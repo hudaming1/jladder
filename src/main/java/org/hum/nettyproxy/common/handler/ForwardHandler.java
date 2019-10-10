@@ -25,6 +25,7 @@ public class ForwardHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext remoteCtx, Object msg) throws Exception {
     	// forward response
+    	System.out.println("afdasdfasfasfdsa====" + msg);
     	if (channel.isActive()) {
     		this.channel.writeAndFlush(msg);
     	}
