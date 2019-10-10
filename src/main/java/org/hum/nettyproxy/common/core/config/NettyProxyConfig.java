@@ -59,7 +59,7 @@ public class NettyProxyConfig {
 	 * 开启权限校验
 	 * 启动参数样例：nettyproxy.enableauthority=1
 	 */
-	private Boolean enableAuthority;
+	private Boolean enableAuthority = false;
 	/**
 	 * 拦截规则
 	 * 1.通过参数直接配置，例如：nettyproxy.intercept-redirect=www.baidu.com->220.181.38.150
@@ -78,6 +78,10 @@ public class NettyProxyConfig {
 	 * 作为Client时的TCP选项
 	 */
 	private Map<String, String> TcpClientOptions;
+	/**
+	 * 是否开启了抓包模式
+	 */
+	private Boolean enableCapture = false;
 	
 	public NettyProxyConfig() { 
 		this.interceptorRegxList = new ArrayList<InterceptorRegx>();

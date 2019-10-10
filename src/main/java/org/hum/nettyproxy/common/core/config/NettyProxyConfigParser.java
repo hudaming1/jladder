@@ -13,6 +13,10 @@ import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 针对命令行做解析
+ * @author huming
+ */
 public class NettyProxyConfigParser {
 
 	private static final Logger logger = LoggerFactory.getLogger(NettyProxyConfigParser.class);

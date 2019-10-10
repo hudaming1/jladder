@@ -63,19 +63,24 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		private HttpProxyProcessHandler httpProxyProcessHandler = new HttpProxyProcessHandler();
 		private HttpRequestInterceptorHandler interceptor = new HttpRequestInterceptorHandler();
-		private Boolean isEnableAuthority = NettyProxyContext.getConfig().getEnableAuthority();
 		private HttpAuthorityCheckHandler authorityHandler = new HttpAuthorityCheckHandler(AuthManager.getInstance());
 		private HttpCaptureInboundHandler httpCaptureInboundHandler = new HttpCaptureInboundHandler(new HttpCaptureLogPrinter());
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-//			ch.pipeline().addFirst(nettyProxyMonitorHandler);
-//			if (isEnableAuthority != null && isEnableAuthority == true) {
-//				ch.pipeline().addLast(authorityHandler);
-//			}
+			NettyProxyConfig config = NettyProxyContext.getConfig();
+			Boolean isEnableAuthority = config.getEnableAuthority();
+			Boolean isEnableCapture = config.getEnableCapture();
+			
+			ch.pipeline().addFirst(nettyProxyMonitorHandler);
+			if (isEnableAuthority != null && isEnableAuthority == true) {
+				ch.pipeline().addLast(authorityHandler);
+			}
 			ch.pipeline().addLast(new HttpRequestDecoder());
-//			ch.pipeline().addLast("capture", httpCaptureInboundHandler);
-//			ch.pipeline().addFirst(interceptor);
+			if (isEnableCapture != null && isEnableCapture) {
+				ch.pipeline().addLast("capture", httpCaptureInboundHandler);
+				ch.pipeline().addFirst(interceptor);
+			}
 			ch.pipeline().addLast(httpProxyProcessHandler);
 		}
 	}
