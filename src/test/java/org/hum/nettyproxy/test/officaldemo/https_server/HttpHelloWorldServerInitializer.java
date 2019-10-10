@@ -22,13 +22,14 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 
 public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;
-	public static final String ConnectedLine = "HTTP/1.1 200 Connection established\r\n\r\n";
+    private static final String ConnectedLine = "HTTP/1.1 200 Connection established\r\n\r\n";
 
     public HttpHelloWorldServerInitializer(SslContext sslCtx) {
         this.sslCtx = sslCtx;
@@ -37,29 +38,36 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
     @Override
     public void initChannel(SocketChannel ch) {
 		ChannelPipeline p = ch.pipeline();
-		// 如果需要https代理，则开启这个handler
-//		p.addLast(new ChannelInboundHandlerAdapter() {
-//			@Override
-//			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//				ctx.pipeline().remove(this);
-//				ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
-//				System.out.println("connected");
-//			}
-//		});
+		
+		// 如果需要https代理，则开启这个handler(如果不用https代理，则需要注释以下代码)
+		p.addLast(new ChannelInboundHandlerAdapter() {
+			@Override
+			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+				ctx.pipeline().remove(this);
+				ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
+				System.out.println("connected1");
+			}
+		});
+		
+		// 如果不用https代理，则需要注释以下代码
         p.addLast("sslHandler", new SslHandler(HttpSslContextFactory.createSSLEngine()));
-//        if (sslCtx != null) {
-//            p.addLast(new ChannelInboundHandlerAdapter() {
-//                @Override
-//                public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//                    ctx.pipeline().remove(this);
-//                    ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
-//                    System.out.println("connected");
-//                }
-//            });
-//            p.addLast(sslCtx.newHandler(ch.alloc()));
-//        }
+        if (sslCtx != null) {
+            p.addLast(new ChannelInboundHandlerAdapter() {
+                @Override
+                public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                    ctx.pipeline().remove(this);
+                    ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
+                    System.out.println("connected2");
+                }
+            });
+            p.addLast(sslCtx.newHandler(ch.alloc()));
+        }
+        
         p.addLast(new HttpServerCodec());
-//        p.addLast(new HttpServerExpectContinueHandler());
+
+		// 如果不用https代理，则需要注释以下代码
+        p.addLast(new HttpServerExpectContinueHandler());
+        
         p.addLast(new HttpHelloWorldServerHandler());
     }
 }
