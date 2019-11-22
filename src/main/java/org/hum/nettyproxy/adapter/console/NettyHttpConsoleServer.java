@@ -1,6 +1,6 @@
-package org.hum.nettyproxy.adapter.http.consoleserver;
+package org.hum.nettyproxy.adapter.console;
 
-import org.hum.nettyproxy.adapter.http.consoleserver.handler.HttpAuthorityLoginHandler;
+import org.hum.nettyproxy.adapter.console.handler.HttpAuthorityLoginHandler;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
@@ -55,7 +55,7 @@ public class NettyHttpConsoleServer implements Runnable {
 				ch.pipeline().addLast(nettyConsoleServerHandler);
 			}
 		});
-		serverBootstrap.bind(config.getBindHttpServerPort()).addListener(new GenericFutureListener<Future<? super Void>>() {
+		serverBootstrap.bind(config.getConsolePort()).addListener(new GenericFutureListener<Future<? super Void>>() {
 			@Override
 			public void operationComplete(Future<? super Void> future) throws Exception {
 				logger.info("http-console-server started, listening port: " + config.getBindHttpServerPort());

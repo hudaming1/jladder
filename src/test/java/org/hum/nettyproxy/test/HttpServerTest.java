@@ -1,6 +1,6 @@
 package org.hum.nettyproxy.test;
 
-import org.hum.nettyproxy.adapter.http.consoleserver.enumtype.ContentTypeEnum;
+import org.hum.nettyproxy.adapter.console.enumtype.ContentTypeEnum;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;

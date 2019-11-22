@@ -22,6 +22,10 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
+/**
+ * 翻墙双服务器，墙内服务器（HTTP协议）
+ * @author hudaming
+ */
 public class NettyHttpInsideProxyServer implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(NettyHttpInsideProxyServer.class);

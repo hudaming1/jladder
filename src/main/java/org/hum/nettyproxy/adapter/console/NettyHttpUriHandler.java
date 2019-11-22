@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.adapter.http.consoleserver;
+package org.hum.nettyproxy.adapter.console;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.server.handler;
+package org.hum.nettyproxy.adapter.outside.handler;
 
 import org.hum.nettyproxy.common.codec.customer.DynamicLengthDecoder;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;

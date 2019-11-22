@@ -1,5 +1,6 @@
-package org.hum.nettyproxy.server;
+package org.hum.nettyproxy.adapter.outside;
 
+import org.hum.nettyproxy.adapter.outside.handler.NettyServerPipeChannelHandler;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
@@ -8,7 +9,6 @@ import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorManager;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
-import org.hum.nettyproxy.server.handler.NettyServerPipeChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +20,10 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
+/**
+ * 翻墙双服务器（墙外服务器）
+ * @author hudaming
+ */
 public class NettyOutsideProxyServer implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(NettyOutsideProxyServer.class);

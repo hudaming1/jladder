@@ -1,9 +1,9 @@
-package org.hum.nettyproxy.adapter.http.consoleserver.handler;
+package org.hum.nettyproxy.adapter.console.handler;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
 
-import org.hum.nettyproxy.adapter.http.consoleserver.NettyHttpUriHandler;
+import org.hum.nettyproxy.adapter.console.NettyHttpUriHandler;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.util.HttpUtil;

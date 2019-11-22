@@ -23,6 +23,10 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
+/**
+ * SimpleProxy -> 单服务器翻墙，只将sourceServer请求forward到targetServer
+ * @author hudaming
+ */
 public class NettyHttpSimpleProxyServer implements Runnable  {
 
 	private static final Logger logger = LoggerFactory.getLogger(NettyHttpSimpleProxyServer.class);

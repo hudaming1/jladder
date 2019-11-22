@@ -21,6 +21,10 @@ import io.netty.handler.codec.socks.SocksMessageEncoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
+/**
+ * 翻墙双服务器，墙内服务器（SOCKS_5协议）
+ * @author hudaming
+ */
 public class NettySocksInsideProxyServer implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(NettySocksInsideProxyServer.class);

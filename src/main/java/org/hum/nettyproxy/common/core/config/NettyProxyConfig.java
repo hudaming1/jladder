@@ -24,6 +24,11 @@ public class NettyProxyConfig {
 	 */
 	private int port;
 	/**
+	 * 控制台端口
+	 * 启动参数样例：nettyproxy.consoleport=5431
+	 */
+	private Integer consolePort;
+	/**
 	 * Netty中worker线程数量
 	 * 启动参数样例：nettyproxy.workercnt=80
 	 */

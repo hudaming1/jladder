@@ -23,6 +23,7 @@ public class NettyProxyConfigParser {
 	private static final String NETTY_PROXY_ARGS_PREFIX = "nettyproxy.";
 	private static final String RUNMODE_KEY = "runmode";
 	private static final String PORT_KEY = "port";
+	private static final String CONSOLE_PORT_KEY = "consoleport";
 	private static final String HTTP_SERVER_PORT_KEY = "http_server_port";
 	private static final String HTTP_SERVER_URL_KEY = "http_server_url";
 	private static final String ENABLE_AUTHORITY_KEY = "enableauthority";
@@ -53,6 +54,7 @@ public class NettyProxyConfigParser {
 		NettyProxyConfig serverRunArgs = new NettyProxyConfig();
 		serverRunArgs.setRunMode(runMode);
 		serverRunArgs.setPort(parseInt(paramMap.get(PORT_KEY), "param \"port [" + paramMap.get(PORT_KEY) + "]\" is invaild"));
+		serverRunArgs.setConsolePort(parseInt(paramMap.get(CONSOLE_PORT_KEY), "param \"consoleport [" + paramMap.get(CONSOLE_PORT_KEY) + "]\" is invaild"));
 		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY)? parseInt(paramMap.get(WORKER_CNT_KEY), "param \"workercnt[" + paramMap.get(WORKER_CNT_KEY) + "]\" is invaild") : DEFAULT_WORKER_CNT);
 		serverRunArgs.setEnableAuthority(paramMap.containsKey(ENABLE_AUTHORITY_KEY));
 		serverRunArgs.setWebroot(paramMap.get(WEB_ROOT));

@@ -1,8 +1,8 @@
-package org.hum.nettyproxy.adapter.http.consoleserver;
+package org.hum.nettyproxy.adapter.console;
 
 import java.io.File;
 
-import org.hum.nettyproxy.adapter.http.consoleserver.enumtype.ContentTypeEnum;
+import org.hum.nettyproxy.adapter.console.enumtype.ContentTypeEnum;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.util.HttpUtil;
