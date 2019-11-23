@@ -22,6 +22,7 @@ public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		// ByteBuf directBuffer = ctx.alloc().directBuffer();
 		try {
 			if (pipeChannel.isActive()) {
 				ByteBuf bytebuff = (ByteBuf) msg;
@@ -29,6 +30,7 @@ public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 					byte[] arr = new byte[bytebuff.readableBytes()];
 					bytebuff.getBytes(0, arr);
 					try {
+						// 目前猜测是ctx.alloc().directBuffer()泄露
 						pipeChannel.writeAndFlush(Encryptor.encrypt(ctx.alloc().directBuffer(), arr));
 					} catch (Exception e) {
 						logger.error("encoding error", e);
@@ -37,6 +39,7 @@ public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 			}
 		} finally {
 			ReferenceCountUtil.release(msg);
+			// ReferenceCountUtil.release(directBuffer);
 		}
 	}
 	
