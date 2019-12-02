@@ -44,11 +44,12 @@ abstract class AbstractNettyPorxyStarter implements Starter {
 			throw new IllegalArgumentException("config mustn't be null");
 		}
 		
-		if (config.getBindHttpServerPort() != null && config.getBindHttpServerPort() > 0) {
+		_start(config);
+		
+		// 启动控制台
+		if (config.getConsolePort() != null) {
 			ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyHttpConsoleServer(config));
 		}
-		
-		_start(config);
 	}
 	
 	public abstract void _start(NettyProxyConfig config);

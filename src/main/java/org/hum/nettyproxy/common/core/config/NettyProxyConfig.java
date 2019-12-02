@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
-import org.hum.nettyproxy.common.util.NetUtil;
 import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx;
 
 import lombok.Data;
@@ -43,18 +42,6 @@ public class NettyProxyConfig {
 	 * 启动参数样例：nettyproxy.outside_proxy_port=5432
 	 */
 	private int outsideProxyPort;
-	/**
-	 * 启动HttpServer服务器，并开放端口
-	 * 启动参数样例：nettyproxy.httpserver=80
-	 */
-	private Integer bindHttpServerPort;
-	/**
-	 * 绑定HttpServerUrl路径：在对html模板渲染时，替换${host}占位符使用。
-	 * 启动参数样例：nettyproxy.httpserverurl=http://39.96.83.46:80
-	 * 当渲染html模板时，发现没有配置该参数时，程序回调用 {@link NetUtil.getLocalHostLANAddress}
-	 * 方法获得占位HOST
-	 */
-	private String bindHttpServerUrl;
 	/**
 	 * 网站根目录完整路径
 	 * 启动参数样例：nettyproxy.webroot=/home/huming/netty_http_server/webroot

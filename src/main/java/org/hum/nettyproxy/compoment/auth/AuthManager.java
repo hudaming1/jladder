@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,11 +32,11 @@ public class AuthManager {
 	
 	private AuthManager() {
 		try {
-			Integer serverPort = NettyProxyContext.getConfig().getBindHttpServerPort();
-			String serverUrl = NettyProxyContext.getConfig().getBindHttpServerUrl();
-			if (serverUrl != null && serverPort != null) {
-				urlWhiteList.add(new URL("HTTP", serverUrl, serverPort, "*"));
-			}
+//			Integer serverPort = NettyProxyContext.getConfig().getBindHttpServerPort();
+//			String serverUrl = NettyProxyContext.getConfig().getBindHttpServerUrl();
+//			if (serverUrl != null && serverPort != null) {
+//				urlWhiteList.add(new URL("HTTP", serverUrl, serverPort, "*"));
+//			}
 			// url白名单
 			urlWhiteList.add(new URL("HTTP", "127.0.0.1", -1, "*"));
 			// 访问者白名单：本机做proxy时，clientIp相当于管理员，允许登录

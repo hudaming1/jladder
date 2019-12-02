@@ -58,7 +58,7 @@ public class NettyHttpConsoleServer implements Runnable {
 		serverBootstrap.bind(config.getConsolePort()).addListener(new GenericFutureListener<Future<? super Void>>() {
 			@Override
 			public void operationComplete(Future<? super Void> future) throws Exception {
-				logger.info("http-console-server started, listening port: " + config.getBindHttpServerPort());
+				logger.info("http-console-server started, listening port: " + config.getConsolePort());
 			}
 		});
 	}

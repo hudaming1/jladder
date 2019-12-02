@@ -3,7 +3,6 @@ package org.hum.nettyproxy.adapter.console;
 import java.io.File;
 
 import org.hum.nettyproxy.adapter.console.enumtype.ContentTypeEnum;
-import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.util.HttpUtil;
 import org.hum.nettyproxy.common.util.StringUtil;
@@ -58,12 +57,8 @@ public class NettyConsoleServerHandler extends SimpleChannelInboundHandler<FullH
 			ByteBuf byteBuf = ctx.alloc().directBuffer();
 			
 			if (requestType == ContentTypeEnum.HTML || requestType == ContentTypeEnum.HTM) {
-				
-				// 3.读取文件内容，如果是网页格式，渲染一下变量
-				String webPageContent = renderTemplateVariables(ByteBufHttpHelper.readFile2String(file));
-				
-				// 4.处理占位符，替换成对应url
-				byteBuf.writeBytes(webPageContent.getBytes());
+				// 3.读取文件内容，如果是网页格式，渲染一下变量（暂时删除变量）
+				byteBuf.writeBytes(ByteBufHttpHelper.readFile2String(file).getBytes());
 			} else {
 				// 3.读取文件内容
 				byteBuf = ByteBufHttpHelper.readFile(byteBuf, file);
@@ -83,13 +78,6 @@ public class NettyConsoleServerHandler extends SimpleChannelInboundHandler<FullH
 		}
 	}
 	
-	private String renderTemplateVariables(String content) {
-		if (content == null || content.isEmpty()) {
-			return "";
-		}
-		return content.replace("${host}", NettyProxyContext.getConfig().getBindHttpServerUrl());
-	}
-
 	private void writeAndFlush(ChannelHandlerContext ctx, HttpResponseStatus status, ByteBuf byteBuf) {
 		writeAndFlush(ctx, status, ContentTypeEnum.HTML, byteBuf);
 	}

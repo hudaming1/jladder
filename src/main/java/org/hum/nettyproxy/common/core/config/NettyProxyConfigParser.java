@@ -24,8 +24,6 @@ public class NettyProxyConfigParser {
 	private static final String RUNMODE_KEY = "runmode";
 	private static final String PORT_KEY = "port";
 	private static final String CONSOLE_PORT_KEY = "consoleport";
-	private static final String HTTP_SERVER_PORT_KEY = "http_server_port";
-	private static final String HTTP_SERVER_URL_KEY = "http_server_url";
 	private static final String ENABLE_AUTHORITY_KEY = "enableauthority";
 	private static final String HTTP_INTERCEPT_REDIRECT_KEY = "intercept-redirect";
 	private static final String WORKER_CNT_KEY = "workercnt";
@@ -58,14 +56,6 @@ public class NettyProxyConfigParser {
 		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY)? parseInt(paramMap.get(WORKER_CNT_KEY), "param \"workercnt[" + paramMap.get(WORKER_CNT_KEY) + "]\" is invaild") : DEFAULT_WORKER_CNT);
 		serverRunArgs.setEnableAuthority(paramMap.containsKey(ENABLE_AUTHORITY_KEY));
 		serverRunArgs.setWebroot(paramMap.get(WEB_ROOT));
-		if (paramMap.containsKey(HTTP_SERVER_PORT_KEY)) {
-			serverRunArgs.setBindHttpServerPort(parseInt(paramMap.get(HTTP_SERVER_PORT_KEY), "param \"http_server_port[" + paramMap.get(HTTP_SERVER_PORT_KEY) + "]\" is invaild"));
-		}
-		if (paramMap.containsKey(HTTP_SERVER_URL_KEY)) {
-			serverRunArgs.setBindHttpServerUrl(paramMap.get(HTTP_SERVER_URL_KEY));
-		} else if (serverRunArgs.getBindHttpServerPort() != null) {
-			serverRunArgs.setBindHttpServerUrl("http://" + NetUtil.getLocalHostLANAddress() + ":" + serverRunArgs.getBindHttpServerPort());
-		}
 		
 		if (paramMap.containsKey(HTTP_INTERCEPT_REDIRECT_KEY)) {
 			String value = paramMap.get(HTTP_INTERCEPT_REDIRECT_KEY);

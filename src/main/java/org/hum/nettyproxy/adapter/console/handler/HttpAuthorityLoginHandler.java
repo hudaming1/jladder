@@ -4,7 +4,6 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 
 import org.hum.nettyproxy.adapter.console.NettyHttpUriHandler;
-import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.util.HttpUtil;
 import org.hum.nettyproxy.compoment.auth.AuthManager;
@@ -41,7 +40,7 @@ public class HttpAuthorityLoginHandler extends NettyHttpUriHandler {
 				return ;
 			}
 			// 登录成功
-			String indexUrl = NettyProxyContext.getConfig().getBindHttpServerUrl() + "/index.html";
+			String indexUrl = "/index.html";
 			ctx.pipeline().firstContext().writeAndFlush(ByteBufHttpHelper.create307Response(ctx.alloc().directBuffer(), indexUrl)).addListener(ChannelFutureListener.CLOSE);
 			logger.info("login success:" + socketAddr.getHostString());
 			return ;
