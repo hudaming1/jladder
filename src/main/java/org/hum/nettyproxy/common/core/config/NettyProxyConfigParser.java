@@ -52,8 +52,8 @@ public class NettyProxyConfigParser {
 		NettyProxyConfig serverRunArgs = new NettyProxyConfig();
 		serverRunArgs.setRunMode(runMode);
 		serverRunArgs.setPort(parseInt(paramMap.get(PORT_KEY), "param \"port [" + paramMap.get(PORT_KEY) + "]\" is invaild"));
-		serverRunArgs.setConsolePort(parseInt(paramMap.get(CONSOLE_PORT_KEY), "param \"consoleport [" + paramMap.get(CONSOLE_PORT_KEY) + "]\" is invaild"));
-		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY)? parseInt(paramMap.get(WORKER_CNT_KEY), "param \"workercnt[" + paramMap.get(WORKER_CNT_KEY) + "]\" is invaild") : DEFAULT_WORKER_CNT);
+		serverRunArgs.setConsolePort(paramMap.containsKey(CONSOLE_PORT_KEY) ? parseInt(paramMap.get(CONSOLE_PORT_KEY), "param \"consoleport [" + paramMap.get(CONSOLE_PORT_KEY) + "]\" is invaild") : null);
+		serverRunArgs.setWorkerCnt(paramMap.containsKey(WORKER_CNT_KEY) ? parseInt(paramMap.get(WORKER_CNT_KEY), "param \"workercnt[" + paramMap.get(WORKER_CNT_KEY) + "]\" is invaild") : DEFAULT_WORKER_CNT);
 		serverRunArgs.setEnableAuthority(paramMap.containsKey(ENABLE_AUTHORITY_KEY));
 		serverRunArgs.setWebroot(paramMap.get(WEB_ROOT));
 		
@@ -73,8 +73,19 @@ public class NettyProxyConfigParser {
 			if (outsideProxyHost == null || outsideProxyHost.isEmpty()) {
 				throw new IllegalArgumentException("param \"outside_proxy_host\" is invaild");
 			}
+			
+			int outsideProxyPort = 0;
+			if (outsideProxyHost.indexOf(":") >= 0) {
+				// 兼容outsideProxyHost格式为#ip:#port
+				String[] hostAndPortArr = outsideProxyHost.split(":");
+				outsideProxyHost = hostAndPortArr[0];
+				outsideProxyPort = parseInt(hostAndPortArr[1], "param \"outside_proxy_port[" + hostAndPortArr[1] + "]\" is invaild");
+			} else {
+				outsideProxyPort = parseInt(paramMap.get(OUTSIDE_PROXY_PORT_KEY), "param \"outside_proxy_port[" + paramMap.get(OUTSIDE_PROXY_PORT_KEY) + "]\" is invaild");
+			}
+			
 			serverRunArgs.setOutsideProxyHost(outsideProxyHost);
-			serverRunArgs.setOutsideProxyPort(parseInt(paramMap.get(OUTSIDE_PROXY_PORT_KEY), "param \"outside_proxy_port[" + paramMap.get(OUTSIDE_PROXY_PORT_KEY) + "]\" is invaild"));
+			serverRunArgs.setOutsideProxyPort(outsideProxyPort);
 			
 			logger.info("now checking outside_proxy[{}{}] is reachable...", serverRunArgs.getOutsideProxyHost(), serverRunArgs.getOutsideProxyPort());
 			// 检测Proxy是否可达

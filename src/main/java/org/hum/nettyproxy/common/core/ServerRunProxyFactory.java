@@ -47,7 +47,7 @@ abstract class AbstractNettyPorxyStarter implements Starter {
 		_start(config);
 		
 		// 启动控制台
-		if (config.getConsolePort() != null) {
+		if (config.getConsolePort() != null && config.getConsolePort() > 0) {
 			ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyHttpConsoleServer(config));
 		}
 	}

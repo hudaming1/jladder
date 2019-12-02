@@ -72,7 +72,7 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		}
 		
 		// 走到这里的请求，是既没有登录，也是没有在白名单中，则重定向到登录页面
-		ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx.alloc().directBuffer(), "/login.html")).addListener(ChannelFutureListener.CLOSE);
+		ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx.alloc().directBuffer(), "http://localhost/login.html")).addListener(ChannelFutureListener.CLOSE);
 		logger.info("please login, url=" + httpReq.toUrl() + ", ip_addr=" + socketAddr.getHostString());
 	}
 }

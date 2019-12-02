@@ -48,7 +48,7 @@ public class NettyProxyConfig {
 	 */
 	private String webroot;
 	/**
-	 * 开启权限校验
+	 * 开启权限校验（只针对runMode=11/12做鉴权）
 	 * 启动参数样例：nettyproxy.enableauthority=1
 	 */
 	private Boolean enableAuthority = false;
