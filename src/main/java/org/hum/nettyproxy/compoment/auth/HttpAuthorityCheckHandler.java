@@ -95,7 +95,7 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		}
 		
 		// 2.尝试登录
-		if (authManager.login(userIden, formData.get("name"), formData.get("password"))) {
+		if (authManager.login(userIden, formData.get("name"), formData.get("pass"))) {
 			// 登录成功 -> 调到成功页
 			// 
 			logger.info("login success, userIden=" + userIden);
@@ -109,10 +109,13 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 	}
 	
 	private String convert2ClientIden(ChannelHandlerContext ctx, HttpRequest request) {
-		String userAgent = request.getHeaders().get("user-agent");
+		String userAgent = request.getHeaders().get("User-Agent");
 		if (userAgent == null || userAgent.isEmpty()) {
 			return null;
 		}
-		return MD5Util.MD5(ctx.channel().remoteAddress().toString() + "@" + userAgent);
+		// TODO 后面将标识放到ctx.channel().attr
+		String remoteAddr = ctx.channel().remoteAddress().toString();
+		String ip = remoteAddr.substring(1, remoteAddr.indexOf(":"));
+		return MD5Util.MD5(ip + "@" + userAgent);
 	}
 }

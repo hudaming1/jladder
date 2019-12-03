@@ -8,6 +8,7 @@ public enum HttpMethodEnum {
 	DELETE("delete".getBytes(), "DELETE".getBytes()), 
 	HEAD("head".getBytes(), "HEAD".getBytes()), 
 	OPTIONS("options".getBytes(), "OPTIONS".getBytes()), 
+	CONNECT("connect".getBytes(), "CONNECT".getBytes()), 
 	;
 	
 	private byte[] upper;
@@ -20,7 +21,7 @@ public enum HttpMethodEnum {
 	
 	private static byte[][] byteArr;
 	static {
-		byteArr = new byte[14][];
+		byteArr = new byte[HttpMethodEnum.values().length * 2][];
 		int i = 0;
 		for(HttpMethodEnum methodEnum : values()) {
 			byteArr[i] = methodEnum.lower;
