@@ -22,7 +22,11 @@ public class AuthManager {
 	private static final Logger logger = LoggerFactory.getLogger(AuthManager.class);
 
 	private Set<URL> urlWhiteList = new HashSet<URL>();
-	private Map<String, Object> userWhileList = new HashMap<>();
+	/**
+	 * 用户白名单
+	 * key->客户端用户身份唯一标识；value-登录时间
+	 */
+	private Map<String, Object> userWhileList = new HashMap<>(); 
 	private static final AuthManager authManager = new AuthManager();
 	
 	// XXX 待改进
@@ -47,9 +51,9 @@ public class AuthManager {
 		}
 	}
 
-	public boolean login(String ipaddress, String name, String password) {
+	public boolean login(String clientIden, String name, String password) {
 		if ("hudaming".equals(name) && "123456".equals(password)) {
-			userWhileList.put(ipaddress, System.currentTimeMillis());
+			userWhileList.put(clientIden, System.currentTimeMillis());
 			return true;
 		}
 		return false;

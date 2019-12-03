@@ -1,11 +1,14 @@
 package org.hum.nettyproxy.compoment.auth;
 
 import java.io.File;
-import java.net.InetSocketAddress;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Map;
 
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.common.util.HttpUtil;
+import org.hum.nettyproxy.common.util.MD5Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,15 +41,8 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
-		InetSocketAddress socketAddr = (InetSocketAddress) ctx.channel().localAddress(); 
 		
-		// 如果已经登录，则权限handler可以放行请求
- 		if (authManager.isLogin(socketAddr.getHostString())) {
- 			logger.info("ip has logined, ip_addr=" + socketAddr.getHostString());
-			ctx.fireChannelRead(msg);
-			return ;
-		}
+		logger.info("client enter, clientIp=" + ctx.channel().remoteAddress().toString() + ", ServerIp=" + ctx.channel().localAddress().toString());
 
 		// 如果没有登录，且还不是http协议，则直接让其跳转
 		if (!ByteBufHttpHelper.isHttpProtocol(msg)) {
@@ -60,6 +56,12 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 			httpReq = (HttpRequest) msg;
 		} else {
 			httpReq = ByteBufHttpHelper.decode((ByteBuf) msg);
+		}
+
+		// 如果已经登录，则权限handler可以放行请求
+ 		if (authManager.isLogin(convert2ClientIden(ctx, httpReq))) {
+			ctx.fireChannelRead(msg);
+			return ;
 		}
 		
 		// 如果是登录请求，则放行给后面的Handler处理（实际由HttpAuthorityLoginHandler处理）
@@ -79,10 +81,38 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		byteBuf.writeBytes(ByteBufHttpHelper.readFile2String(new File(ByteBufHttpHelper.getWebRoot() + HttpUtil.parse2RelativeFile("/login.html"))).getBytes());
 		// 走到这里的请求，是既没有登录，也是没有在白名单中，则重定向到登录页面
 		ctx.channel().writeAndFlush(byteBuf).addListener(ChannelFutureListener.CLOSE);
-		logger.info("please login, url=" + httpReq.toUrl() + ", ip_addr=" + socketAddr.getHostString());
+		logger.info("please login, url=" + httpReq.toUrl());
 	}
 	
-	private void validate(ChannelHandlerContext ctx, HttpRequest request) {
+	private void validate(ChannelHandlerContext ctx, HttpRequest request) throws FileNotFoundException, IOException {
+		// 1.获得登录参数
+		Map<String, String> formData = HttpUtil.parseBody2FormData(request.getBody());
+		String userIden = convert2ClientIden(ctx, request);
 		
+		if (userIden == null) {
+			// 返回403 告知no-user-agent
+			logger.warn("no user-agent");
+		}
+		
+		// 2.尝试登录
+		if (authManager.login(userIden, formData.get("name"), formData.get("password"))) {
+			// 登录成功 -> 调到成功页
+			// 
+			logger.info("login success, userIden=" + userIden);
+			ByteBuf byteBuf = ctx.alloc().directBuffer();
+			byteBuf.writeBytes(ByteBufHttpHelper.readFile2String(new File(ByteBufHttpHelper.getWebRoot() + HttpUtil.parse2RelativeFile("/success.html"))).getBytes());
+			ctx.channel().writeAndFlush(byteBuf).addListener(ChannelFutureListener.CLOSE);			
+		} else {
+			// 返回 HTTP 401
+			logger.warn("account or passsword invaild");
+		}
+	}
+	
+	private String convert2ClientIden(ChannelHandlerContext ctx, HttpRequest request) {
+		String userAgent = request.getHeaders().get("user-agent");
+		if (userAgent == null || userAgent.isEmpty()) {
+			return null;
+		}
+		return MD5Util.MD5(ctx.channel().remoteAddress().toString() + "@" + userAgent);
 	}
 }
