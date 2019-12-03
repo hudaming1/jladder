@@ -205,6 +205,8 @@ public class ByteBufHttpHelper {
 	    		}
 	    	}
 	    	
+	    	// TODO POST请求使用Content-Length作为标准
+	    	
 	    	// read request-body
 	    	StringBuilder body = new StringBuilder();
 	    	while (!(line = readLine(byteBuf)).equals("")) {

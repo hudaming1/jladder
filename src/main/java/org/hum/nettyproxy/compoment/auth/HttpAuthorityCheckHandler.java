@@ -97,14 +97,13 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		// 2.尝试登录
 		if (authManager.login(userIden, formData.get("name"), formData.get("pass"))) {
 			// 登录成功 -> 调到成功页
-			// 
 			logger.info("login success, userIden=" + userIden);
 			ByteBuf byteBuf = ctx.alloc().directBuffer();
 			byteBuf.writeBytes(ByteBufHttpHelper.readFile2String(new File(ByteBufHttpHelper.getWebRoot() + HttpUtil.parse2RelativeFile("/success.html"))).getBytes());
 			ctx.channel().writeAndFlush(byteBuf).addListener(ChannelFutureListener.CLOSE);			
 		} else {
 			// 返回 HTTP 401
-			logger.warn("account or passsword invaild");
+			logger.warn("account or passsword invaild, userIden=" + userIden + ", formData=" + formData + ", request=" + request.toString());
 		}
 	}
 	
@@ -114,8 +113,9 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 			return null;
 		}
 		// TODO 后面将标识放到ctx.channel().attr
+		// TODO 思路还是有问题，当访问HTTPS协议时，我还是拿不到header里的useragent，因此ip+useragent方案失败
 		String remoteAddr = ctx.channel().remoteAddress().toString();
 		String ip = remoteAddr.substring(1, remoteAddr.indexOf(":"));
-		return MD5Util.MD5(ip + "@" + userAgent);
+		return MD5Util.MD5(ip);
 	}
 }
