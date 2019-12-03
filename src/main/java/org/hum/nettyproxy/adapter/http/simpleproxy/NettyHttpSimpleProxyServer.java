@@ -78,7 +78,7 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 			
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			if (isEnableAuthority != null && isEnableAuthority == true) {
-				ch.pipeline().addLast(authorityHandler);
+				ch.pipeline().addLast(HttpAuthorityCheckHandler.NAME, authorityHandler);
 			}
 			ch.pipeline().addLast(new HttpRequestDecoder());
 			if (isEnableCapture != null && isEnableCapture) {

@@ -75,7 +75,7 @@ public class NettyHttpInsideProxyServer implements Runnable {
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			if (isEnableAuthority != null && isEnableAuthority == true) {
-				ch.pipeline().addLast(authorityHandler);
+				ch.pipeline().addLast(HttpAuthorityCheckHandler.NAME, authorityHandler);
 				ch.pipeline().addLast(localAreaHandler);
 			}
 			ch.pipeline().addLast(new HttpRequestDecoder());

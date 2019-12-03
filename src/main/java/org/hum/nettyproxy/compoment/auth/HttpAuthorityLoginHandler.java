@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.adapter.console.handler;
+package org.hum.nettyproxy.compoment.auth;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -6,7 +6,6 @@ import java.util.Map;
 import org.hum.nettyproxy.adapter.console.NettyHttpUriHandler;
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.util.HttpUtil;
-import org.hum.nettyproxy.compoment.auth.AuthManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +17,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 @Sharable
 public class HttpAuthorityLoginHandler extends NettyHttpUriHandler {
 
+	public static final String NAME = "HTTPAUTHORITYLOGINHANDLER";
 	private static final Logger logger = LoggerFactory.getLogger(HttpAuthorityLoginHandler.class);
 	private final static String uri = "/login/submit";
 	private final AuthManager authManager;

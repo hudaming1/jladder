@@ -1,9 +1,11 @@
 package org.hum.nettyproxy.compoment.auth;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
 import org.hum.nettyproxy.common.model.HttpRequest;
+import org.hum.nettyproxy.common.util.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 @Sharable
 public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 
+	public static final String NAME = "HTTPAUTHORITYCHECKHANDLER";
 	private static final Logger logger = LoggerFactory.getLogger(HttpAuthorityCheckHandler.class);
 	private static final String SUBMIT_LOGIN_URI = "/login/submit";
 	private AuthManager authManager;
@@ -47,6 +50,7 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 
 		// 如果没有登录，且还不是http协议，则直接让其跳转
 		if (!ByteBufHttpHelper.isHttpProtocol(msg)) {
+			logger.info("unknow protocol");
 			ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx.alloc().directBuffer(), "/login.html")).addListener(ChannelFutureListener.CLOSE);
 			return ;
 		}
@@ -60,7 +64,7 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		
 		// 如果是登录请求，则放行给后面的Handler处理（实际由HttpAuthorityLoginHandler处理）
 		if (httpReq.getUri().contains(SUBMIT_LOGIN_URI)) {
-			ctx.fireChannelRead(msg);
+			validate(ctx, httpReq);
 			return ;
 		}
 		
@@ -70,9 +74,15 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 			ctx.fireChannelRead(msg);
 			return ;
 		}
-		
+
+		ByteBuf byteBuf = ctx.alloc().directBuffer();
+		byteBuf.writeBytes(ByteBufHttpHelper.readFile2String(new File(ByteBufHttpHelper.getWebRoot() + HttpUtil.parse2RelativeFile("/login.html"))).getBytes());
 		// 走到这里的请求，是既没有登录，也是没有在白名单中，则重定向到登录页面
-		ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx.alloc().directBuffer(), "http://localhost/login.html")).addListener(ChannelFutureListener.CLOSE);
+		ctx.channel().writeAndFlush(byteBuf).addListener(ChannelFutureListener.CLOSE);
 		logger.info("please login, url=" + httpReq.toUrl() + ", ip_addr=" + socketAddr.getHostString());
+	}
+	
+	private void validate(ChannelHandlerContext ctx, HttpRequest request) {
+		
 	}
 }

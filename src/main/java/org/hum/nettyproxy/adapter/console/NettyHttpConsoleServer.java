@@ -1,10 +1,10 @@
 package org.hum.nettyproxy.adapter.console;
 
-import org.hum.nettyproxy.adapter.console.handler.HttpAuthorityLoginHandler;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
 import org.hum.nettyproxy.compoment.auth.AuthManager;
+import org.hum.nettyproxy.compoment.auth.HttpAuthorityLoginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

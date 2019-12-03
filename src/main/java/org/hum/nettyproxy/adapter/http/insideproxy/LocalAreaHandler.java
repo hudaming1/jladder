@@ -19,7 +19,7 @@ public class LocalAreaHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) throws Exception {
-		// 如果目标机器在局域网内，则不要转发到outside了，那样会找不到的。。。
+		// TODO 判断是否是内网IP，毕竟如果目标机器在局域网内，则不要转发到outside了，那样会找不到的。。。
 		if ("127.0.0.1".equals(msg.getHost())) {
 			ctx.pipeline().addLast(new HttpProxyProcessHandler());
 			ctx.pipeline().remove(HttpProxyEncryptHandler.class);

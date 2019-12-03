@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.handler.codec.socks.SocksAuthResponse;
 import io.netty.handler.codec.socks.SocksAuthScheme;
 import io.netty.handler.codec.socks.SocksAuthStatus;
@@ -14,6 +15,7 @@ import io.netty.handler.codec.socks.SocksCmdType;
 import io.netty.handler.codec.socks.SocksInitResponse;
 import io.netty.handler.codec.socks.SocksRequest;
 
+@Sharable
 public class SocksProxyProcessHandler extends SimpleChannelInboundHandler<SocksRequest>{
 
 	private static final Logger logger = LoggerFactory.getLogger(SocksProxyProcessHandler.class);

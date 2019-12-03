@@ -48,7 +48,7 @@ public class NettyProxyConfig {
 	 */
 	private String webroot;
 	/**
-	 * 开启权限校验（只针对runMode=11/12做鉴权）
+	 * 开启权限校验（只针对runMode=11即HttpInsideProxy做鉴权，socks鉴权找不到唯一身份标识，只能在建立连接时通过协议自身授权验证）
 	 * 启动参数样例：nettyproxy.enableauthority=1
 	 */
 	private Boolean enableAuthority = false;
