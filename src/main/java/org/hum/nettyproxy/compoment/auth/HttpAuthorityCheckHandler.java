@@ -44,10 +44,10 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		
 		logger.info("client enter, clientIp=" + ctx.channel().remoteAddress().toString() + ", ServerIp=" + ctx.channel().localAddress().toString());
 
-		// 如果没有登录，且还不是http协议，则直接让其跳转
-		if (!ByteBufHttpHelper.isHttpProtocol(msg)) {
-			logger.info("unknow protocol");
-			ctx.channel().writeAndFlush(ByteBufHttpHelper.create307Response(ctx.alloc().directBuffer(), "/login.html")).addListener(ChannelFutureListener.CLOSE);
+
+		// 如果已经登录，则权限handler可以放行请求
+ 		if (authManager.isLogin(convert2ClientIden(ctx))) {
+			ctx.fireChannelRead(msg);
 			return ;
 		}
 
@@ -56,12 +56,6 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 			httpReq = (HttpRequest) msg;
 		} else {
 			httpReq = ByteBufHttpHelper.decode((ByteBuf) msg);
-		}
-
-		// 如果已经登录，则权限handler可以放行请求
- 		if (authManager.isLogin(convert2ClientIden(ctx, httpReq))) {
-			ctx.fireChannelRead(msg);
-			return ;
 		}
 		
 		// 如果是登录请求，则放行给后面的Handler处理（实际由HttpAuthorityLoginHandler处理）
@@ -87,7 +81,7 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 	private void validate(ChannelHandlerContext ctx, HttpRequest request) throws FileNotFoundException, IOException {
 		// 1.获得登录参数
 		Map<String, String> formData = HttpUtil.parseBody2FormData(request.getBody());
-		String userIden = convert2ClientIden(ctx, request);
+		String userIden = convert2ClientIden(ctx);
 		
 		if (userIden == null) {
 			// 返回403 告知no-user-agent
@@ -107,11 +101,7 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		}
 	}
 	
-	private String convert2ClientIden(ChannelHandlerContext ctx, HttpRequest request) {
-		String userAgent = request.getHeaders().get("User-Agent");
-		if (userAgent == null || userAgent.isEmpty()) {
-			return null;
-		}
+	private String convert2ClientIden(ChannelHandlerContext ctx) {
 		// TODO 后面将标识放到ctx.channel().attr
 		// TODO 思路还是有问题，当访问HTTPS协议时，我还是拿不到header里的useragent，因此ip+useragent方案失败
 		String remoteAddr = ctx.channel().remoteAddress().toString();

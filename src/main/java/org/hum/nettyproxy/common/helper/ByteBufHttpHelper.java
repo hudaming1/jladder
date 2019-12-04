@@ -205,13 +205,22 @@ public class ByteBufHttpHelper {
 	    		}
 	    	}
 	    	
-	    	// TODO POST请求使用Content-Length作为标准
-	    	
+	    	// POST请求使用Content-Length作为标准
 	    	// read request-body
 	    	StringBuilder body = new StringBuilder();
-	    	while (!(line = readLine(byteBuf)).equals("")) {
-	    		body.append(line);
+	    	if (request.getHeaders().containsKey("Content-Length")) {
+	    		String contentLength = request.getHeaders().get("Content-Length");
+	    		if (!"0".equals(contentLength)) {
+	    			byte[] bodyBytes = new byte[Integer.parseInt(contentLength)];
+	    			byteBuf.readBytes(bodyBytes);
+	    			body = new StringBuilder(new String(bodyBytes));
+	    		}
+	    	} else {
+		    	while (!(line = readLine(byteBuf)).equals("")) {
+		    		body.append(line);
+		    	}
 	    	}
+	    	
 	    	request.setBody(body.toString());
 	    	
 	    	// reference ByteBuf
