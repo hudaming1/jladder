@@ -35,7 +35,7 @@ public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.fireExceptionCaught(cause);
         log.error("", cause);
-        if (ctx.channel().isOpen()) {
+        if (ctx.channel().isActive()) {
         	ctx.channel().close();
         }
     }
