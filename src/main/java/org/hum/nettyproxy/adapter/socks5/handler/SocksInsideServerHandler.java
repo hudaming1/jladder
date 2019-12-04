@@ -27,7 +27,9 @@ import io.netty.handler.codec.socks.SocksAddressType;
 import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.handler.codec.socks.SocksCmdResponse;
 import io.netty.handler.codec.socks.SocksCmdStatus;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Sharable
 public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksCmdRequest> {
 
@@ -76,6 +78,15 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 			}
 		});
 	}
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.fireExceptionCaught(cause);
+        log.error("", cause);
+        if (ctx.channel().isOpen()) {
+        	ctx.channel().close();
+        }
+    }
 	
 	private static class PrepareConnectChannelHandler extends ChannelInboundHandlerAdapter {
 		
@@ -85,6 +96,15 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 			this.browserCtx = browserCtx;
 			this.req = req;
 		}
+
+	    @Override
+	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+	        ctx.fireExceptionCaught(cause);
+	        log.error("", cause);
+	        if (ctx.channel().isOpen()) {
+	        	ctx.channel().close();
+	        }
+	    }
 
 		@Override
 	    public void channelRead(ChannelHandlerContext outsideProxyCtx, Object msg) throws Exception {

@@ -3,6 +3,7 @@ package org.hum.nettyproxy.compoment.auth;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Map;
 
 import org.hum.nettyproxy.common.helper.ByteBufHttpHelper;
@@ -42,7 +43,8 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		
-		logger.info("client enter, clientIp=" + ctx.channel().remoteAddress().toString() + ", ServerIp=" + ctx.channel().localAddress().toString());
+		InetSocketAddress ipSocket = (InetSocketAddress)ctx.channel().remoteAddress();
+		logger.info("client enter, clientIp=" + ipSocket.getAddress().getHostAddress() + ", ServerIp=" + ctx.channel().localAddress().toString());
 
 
 		// 如果已经登录，则权限handler可以放行请求
@@ -101,11 +103,12 @@ public class HttpAuthorityCheckHandler extends ChannelInboundHandlerAdapter {
 		}
 	}
 	
+	// 当访问HTTPS协议时，我还是拿不到header里的useragent，因此ip+useragent方案失败
 	private String convert2ClientIden(ChannelHandlerContext ctx) {
 		// TODO 后面将标识放到ctx.channel().attr
-		// TODO 思路还是有问题，当访问HTTPS协议时，我还是拿不到header里的useragent，因此ip+useragent方案失败
-		String remoteAddr = ctx.channel().remoteAddress().toString();
-		String ip = remoteAddr.substring(1, remoteAddr.indexOf(":"));
+		InetSocketAddress ipSocket = (InetSocketAddress)ctx.channel().remoteAddress();
+		// String remoteAddr = ctx.channel().remoteAddress().toString();
+		String ip = ipSocket.getAddress().getHostAddress();
 		return MD5Util.MD5(ip);
 	}
 }

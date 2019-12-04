@@ -9,7 +9,9 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(EncryptPipeChannelHandler.class);
@@ -42,6 +44,15 @@ public class EncryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 			// ReferenceCountUtil.release(directBuffer);
 		}
 	}
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.fireExceptionCaught(cause);
+        log.error("", cause);
+        if (ctx.channel().isOpen()) {
+        	ctx.channel().close();
+        }
+    }
 	
 	public static class Encryptor {
 		public static ByteBuf encrypt(ByteBuf byteBuf, byte[] bytes) {

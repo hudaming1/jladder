@@ -22,7 +22,9 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Sharable
 public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<NettyProxyConnectMessage> {
 
@@ -70,4 +72,13 @@ public class NettyServerPipeChannelHandler extends SimpleChannelInboundHandler<N
 			}
 		});
 	}
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.fireExceptionCaught(cause);
+        log.error("", cause);
+        if (ctx.channel().isOpen()) {
+        	ctx.channel().close();
+        }
+    }
 }
