@@ -34,8 +34,8 @@ public class ForwardHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ctx.fireExceptionCaught(cause);
-        log.error("", cause);
+        // ctx.fireExceptionCaught(cause);
+        // log.error("", cause);
         if (ctx.channel().isActive()) {
         	ctx.channel().close();
         }
