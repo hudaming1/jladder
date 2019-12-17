@@ -9,9 +9,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class DecryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 
 	private Channel pipeChannel;
@@ -44,8 +42,6 @@ public class DecryptPipeChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        // ctx.fireExceptionCaught(cause);
-        // log.error("", cause);
         if (ctx.channel().isActive()) {
         	ctx.channel().close();
         }

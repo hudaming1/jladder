@@ -5,22 +5,20 @@ import org.hum.nettyproxy.common.codec.customer.DynamicLengthDecoder;
 import org.hum.nettyproxy.common.codec.customer.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.nettyproxy.common.handler.DecryptPipeChannelHandler;
 import org.hum.nettyproxy.common.handler.EncryptPipeChannelHandler.Encryptor;
-import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.common.handler.ForwardHandler;
 import org.hum.nettyproxy.common.handler.InactiveHandler;
+import org.hum.nettyproxy.common.model.HttpRequest;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 配合HttpProxyEncryptHandler处理
  * @author hudaming
  */
-@Slf4j
 public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter {
 
 	private Channel browserChannel;
@@ -33,8 +31,6 @@ public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter 
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        // ctx.fireExceptionCaught(cause);
-        // log.error("", cause);
         if (ctx.channel().isActive()) {
         	ctx.channel().close();
         }

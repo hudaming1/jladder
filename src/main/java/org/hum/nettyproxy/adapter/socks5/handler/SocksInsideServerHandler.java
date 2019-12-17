@@ -27,9 +27,7 @@ import io.netty.handler.codec.socks.SocksAddressType;
 import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.handler.codec.socks.SocksCmdResponse;
 import io.netty.handler.codec.socks.SocksCmdStatus;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Sharable
 public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksCmdRequest> {
 
@@ -81,8 +79,6 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        // ctx.fireExceptionCaught(cause);
-        // log.error("", cause);
         if (ctx.channel().isActive()) {
         	ctx.channel().close();
         }
@@ -100,7 +96,6 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 	    @Override
 	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 	        ctx.fireExceptionCaught(cause);
-	        // log.error("", cause);
 	        if (ctx.channel().isActive()) {
 	        	ctx.channel().close();
 	        }

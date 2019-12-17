@@ -15,19 +15,17 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpResponseDecoder;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 普通HTTP/HTTPS代理类
  * @author hudaming
  */
-@Slf4j
 @Sharable
 public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
@@ -80,8 +78,6 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        // ctx.fireExceptionCaught(cause);
-        // log.error("", cause);
         if (ctx.channel().isActive()) {
         	ctx.channel().close();
         }

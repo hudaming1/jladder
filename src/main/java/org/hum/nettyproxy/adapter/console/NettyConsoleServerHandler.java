@@ -20,7 +20,6 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 首页：
@@ -34,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author hudaming
  */
-@Slf4j
 @Sharable
 public class NettyConsoleServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
@@ -82,8 +80,6 @@ public class NettyConsoleServerHandler extends SimpleChannelInboundHandler<FullH
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        // ctx.fireExceptionCaught(cause);
-        // log.error("", cause);
         if (ctx.channel().isActive()) {
         	ctx.channel().close();
         }

@@ -18,9 +18,9 @@ public class ServerRun {
 	 * @param args
 	 * <pre>
 	 *  墙内服务器(http-inside-server)启动命令:
-	 *    nettyproxy.runmode=11 nettyproxy.port=51996 nettyproxy.outside_proxy_host=localhost nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=96
+	 *    nettyproxy.runmode=11 nettyproxy.port=51996 nettyproxy.outside_proxy_host=47.75.102.227 nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=96
 	 *  墙内服务器(socks-inside-server)启动命令:
-	 *    nettyproxy.runmode=12 nettyproxy.port=52996 nettyproxy.outside_proxy_host=localhost nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=96
+	 *    nettyproxy.runmode=12 nettyproxy.port=52996 nettyproxy.outside_proxy_host=47.75.102.227 nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=96
 	 *  墙外服务器(outside-server)启动命令:
 	 *    nettyproxy.runmode=100 nettyproxy.port=5432 nettyproxy.workercnt=96
 	 *	HTTP转发服务器(http-simple-server)启动命令:
