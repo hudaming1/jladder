@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hum.nettyproxy.common.core.NettyProxyContext;
-import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx;
+import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx2;
 
 public class InterceptorContext {
 	
@@ -12,9 +12,9 @@ public class InterceptorContext {
 	
 	static {
 		wrapper = new ArrayList<InterceptorWrapper>();
-		List<InterceptorRegx> interceptorRegxList = NettyProxyContext.getConfig().getInterceptorRegxList();
+		List<InterceptorRegx2> interceptorRegxList = NettyProxyContext.getConfig().getInterceptorRegxList();
 		// init interceptor-wrapper
-		for (InterceptorRegx interceptorRegx : interceptorRegxList) {
+		for (InterceptorRegx2 interceptorRegx : interceptorRegxList) {
 			wrapper.add(new DefaultInterceptorWrapper(interceptorRegx));
 		}
 	}

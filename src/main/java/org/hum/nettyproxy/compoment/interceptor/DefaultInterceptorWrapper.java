@@ -1,7 +1,7 @@
 package org.hum.nettyproxy.compoment.interceptor;
 
 import org.hum.nettyproxy.common.model.HttpRequest;
-import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx;
+import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,14 +11,14 @@ public class DefaultInterceptorWrapper implements InterceptorWrapper {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultInterceptorWrapper.class);
 	
-	private InterceptorRegx interceptorRegx;
+	private InterceptorRegx2 interceptorRegx;
 	private Interceptor interceptor;
 	private Processor processor;
 	
 	public DefaultInterceptorWrapper() {
 	}
 	
-	public DefaultInterceptorWrapper(InterceptorRegx interceptorRegx) {
+	public DefaultInterceptorWrapper(InterceptorRegx2 interceptorRegx) {
 		this.interceptorRegx = interceptorRegx;
 		this.interceptor = InterceptorTypeFactory.get(interceptorRegx.getInterceptorType(), interceptorRegx.getInterceptorValue());
 		this.processor = InterceptorTypeFactory.get(interceptorRegx.getProcessType(), interceptorRegx.getProcessValue());

@@ -1,5 +1,11 @@
 package org.hum.nettyproxy;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.hum.nettyproxy.common.core.ServerRunProxyFactory;
 import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
 import org.hum.nettyproxy.common.core.config.NettyProxyConfigParser;
@@ -26,8 +32,10 @@ public class ServerRun {
 	 *	HTTP转发服务器(http-simple-server)启动命令:
 	 *     nettyproxy.runmode=1 nettyproxy.port=3389 nettyproxy.workercnt=96 nettyproxy.http_server_port=80
 	 * </pre> 
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException, IOException {
 //		args = "nettyproxy.runmode=100 nettyproxy.port=5432 nettyproxy.workercnt=96".split(" ");
 //		args = "nettyproxy.enableauthority=1 nettyproxy.runmode=11 nettyproxy.port=51996 nettyproxy.outside_proxy_host=47.75.102.227 nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=8 nettyproxy.http_server_port=80 nettyproxy.http_server_url=http://hudaming.com nettyproxy.intercept-redirect=hudaming.com->39.96.83.46".split(" ");
 //		args = "nettyproxy.enableauthority=1 nettyproxy.runmode=12 nettyproxy.port=52996 nettyproxy.outside_proxy_host=47.75.102.227 nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=96 nettyproxy.http_server_port=80 nettyproxy.http_server_url=http://127.0.0.1:80".split(" ");
@@ -36,7 +44,9 @@ public class ServerRun {
 //		args = "nettyproxy.enableauthority=1 nettyproxy.runmode=11 nettyproxy.port=51996 nettyproxy.outside_proxy_host=localhost nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=8 nettyproxy.http_server_port=80 nettyproxy.http_server_url=http://hudaming.com nettyproxy.intercept-redirect=hudaming.com->127.0.0.1".split(" ");
 //		args = "nettyproxy.runmode=12 nettyproxy.port=52996 nettyproxy.outside_proxy_host=47.75.102.227:5432 nettyproxy.consoleport=80".split(" ");
 //		args = "nettyproxy.runmode=11 nettyproxy.port=51996 nettyproxy.outside_proxy_host=47.75.102.227:5432 nettyproxy.consoleport=80 nettyproxy.enableauthority=1".split(" ");
-		NettyProxyConfig serverRunArg = NettyProxyConfigParser.toServerRunArg(args);
+//		args = "nettyproxy.runmode=1 nettyproxy.port=52007 nettyproxy.interceptor=1 nettyproxy.interceptor.regx=[\"update header.host = 'localhost:8080' where header.host= '129.28.193.172:8080'\", \"update header.host = 'localhost:8080' where header.host= '129.28.193.172:8080'\"]".split("nettyproxy.");	
+//		args = "nettyproxy={runmode:1, port:52007}".split(" ");
+		NettyProxyConfig serverRunArg = NettyProxyConfigParser.loadConfigFile(ServerRun.class.getResource("/nettyproxy.properties").getFile());
 		logger.info("input_args=" + serverRunArg);
 		ServerRunProxyFactory.create(serverRunArg.getRunMode()).start(serverRunArg);
 	}

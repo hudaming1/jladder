@@ -1,7 +1,5 @@
 package org.hum.nettyproxy.adapter.http.simpleproxy;
 
-import org.hum.nettyproxy.adapter.http.capture.HttpCaptureInboundHandler;
-import org.hum.nettyproxy.adapter.http.capture.outter.HttpCaptureLogPrinter;
 import org.hum.nettyproxy.common.NamedThreadFactory;
 import org.hum.nettyproxy.common.codec.http.HttpRequestDecoder;
 import org.hum.nettyproxy.common.core.NettyProxyContext;
@@ -10,7 +8,6 @@ import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
 import org.hum.nettyproxy.compoment.auth.AuthManager;
 import org.hum.nettyproxy.compoment.auth.HttpAuthorityCheckHandler;
-import org.hum.nettyproxy.compoment.interceptor.HttpRequestInterceptorHandler;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,25 +63,18 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		private HttpProxyProcessHandler httpProxyProcessHandler = new HttpProxyProcessHandler();
-		private HttpRequestInterceptorHandler interceptor = new HttpRequestInterceptorHandler();
 		private HttpAuthorityCheckHandler authorityHandler = new HttpAuthorityCheckHandler(AuthManager.getInstance());
-		private HttpCaptureInboundHandler httpCaptureInboundHandler = new HttpCaptureInboundHandler(new HttpCaptureLogPrinter());
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
 			NettyProxyConfig config = NettyProxyContext.getConfig();
 			Boolean isEnableAuthority = config.getEnableAuthority();
-			Boolean isEnableCapture = config.getEnableCapture();
 			
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			if (isEnableAuthority != null && isEnableAuthority == true) {
 				ch.pipeline().addLast(HttpAuthorityCheckHandler.NAME, authorityHandler);
 			}
 			ch.pipeline().addLast(new HttpRequestDecoder());
-			if (isEnableCapture != null && isEnableCapture) {
-				ch.pipeline().addLast("capture", httpCaptureInboundHandler);
-				ch.pipeline().addFirst(interceptor);
-			}
 			ch.pipeline().addLast(httpProxyProcessHandler);
 		}
 	}

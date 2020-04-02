@@ -30,7 +30,7 @@ public class HttpRequestInterceptorHandler extends ChannelInboundHandlerAdapter 
 		} else if (msg instanceof HttpRequest) {
 			httpRequest = (HttpRequest) msg;
 		} else {
-	    	// 无法解析的协议，放行到后面
+	    	// 无法解析的协议，放行到后面 (TODO HTTPS涉及证书加密，目前无法解析)
 	    	ctx.fireChannelRead(msg);
 		}
 
