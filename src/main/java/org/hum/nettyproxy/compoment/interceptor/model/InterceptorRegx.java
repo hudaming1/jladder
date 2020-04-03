@@ -2,6 +2,8 @@ package org.hum.nettyproxy.compoment.interceptor.model;
 
 import java.util.List;
 
+import org.hum.nettyproxy.compoment.interceptor.enumtype.ActionTypeEnum;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class InterceptorRegx  {
 
+	// Replace/Update/Print/Add/Delete
+	private ActionTypeEnum actionType;
 	// 匹配(暂时只能支持单一条件匹配)
 	private List<RegxMatch> match;
 	// 动作
@@ -35,8 +39,8 @@ public class InterceptorRegx  {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class RegxAction {
-		// Replace/Update/Print/Add/Delete
-		private Object actionType;
+		// Line/Header/Body
+		private String key;
 		// value
 		private String value;
 	}

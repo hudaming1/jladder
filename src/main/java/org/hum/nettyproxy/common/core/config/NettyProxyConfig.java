@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
-import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx2;
+import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx;
 
 import lombok.Data;
 
@@ -56,10 +56,10 @@ public class NettyProxyConfig {
 	 * 1.通过参数直接配置，例如：nettyproxy.intercept-redirect=www.baidu.com->220.181.38.150
 	 * 2.通过文件读取，例如：nettyproxy.intercepptor_regx=interceptor_regx.cfg
 	 */
-	private List<InterceptorRegx2> interceptorRegxList;
+	private List<InterceptorRegx> interceptorRegxList;
 	
 	public NettyProxyConfig() { 
-		this.interceptorRegxList = new ArrayList<InterceptorRegx2>();
+		this.interceptorRegxList = new ArrayList<InterceptorRegx>();
 	}
 	
 	public NettyProxyConfig(RunModeEnum runMode, int port) {
@@ -67,7 +67,7 @@ public class NettyProxyConfig {
 		this.port = port;
 	}
 	
-	public NettyProxyConfig addInterceptRegx(InterceptorRegx2 interceptorRegx) {
+	public NettyProxyConfig addInterceptRegx(InterceptorRegx interceptorRegx) {
 		interceptorRegxList.add(interceptorRegx);
 		return this;
 	}

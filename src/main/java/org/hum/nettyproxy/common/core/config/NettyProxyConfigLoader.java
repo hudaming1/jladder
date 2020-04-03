@@ -1,6 +1,7 @@
 package org.hum.nettyproxy.common.core.config;
 
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
+import org.hum.nettyproxy.compoment.interceptor.IULComplier;
 
 /**
  * NettyProxy配置加载器
@@ -26,12 +27,13 @@ public abstract class NettyProxyConfigLoader {
 		return config;
 	}
 
-	private void setInterceptorRegxList(NettyProxyConfig config, Object interceptorRegxList) {
-		if (interceptorRegxList == null) {
+	private void setInterceptorRegxList(NettyProxyConfig config, Object interceptorRegxString) {
+		if (interceptorRegxString == null) {
 			return ;
 		}
-		String[] uil = interceptorRegxList.toString().split(",");
-		System.out.println(interceptorRegxList);
+		for (String uil : interceptorRegxString.toString().split(",")) {
+			config.addInterceptRegx(IULComplier.complie(uil));
+		}
 	}
 
 	private void setEnableAuthority(NettyProxyConfig config, Object enableAuthority) {
