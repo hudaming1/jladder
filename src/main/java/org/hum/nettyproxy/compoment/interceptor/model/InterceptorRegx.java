@@ -7,12 +7,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * update header.host = 'localhost:8080' where header.host= '129.28.193.172:8080'
+ * $actionType $actionValue where $matchKey $matchOp $matchValue
+ * update request.header.host = 'localhost:8080' where request.header.host= '129.28.193.172:8080'
+ * update response.header.Content-Type = 'application/json' where request.header.host = '129.28.193.172:8080';
+ * print [header/body/line/*] where header.host= '129.28.193.172:8080'
+ * 
  */
 @Data
 public class InterceptorRegx  {
 
-	// 匹配
+	// 匹配(暂时只能支持单一条件匹配)
 	private List<RegxMatch> match;
 	// 动作
 	private RegxAction action;
@@ -31,7 +35,7 @@ public class InterceptorRegx  {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class RegxAction {
-		// Replace/Update
+		// Replace/Update/Print/Add/Delete
 		private Object actionType;
 		// value
 		private String value;

@@ -23,13 +23,15 @@ public abstract class NettyProxyConfigLoader {
 		setWebroot(config, configContent.getWebroot());
 		setEnableAuthority(config, configContent.getEnableAuthority());
 		setInterceptorRegxList(config, configContent.getInterceptorRegxList());
-		
 		return config;
 	}
 
 	private void setInterceptorRegxList(NettyProxyConfig config, Object interceptorRegxList) {
-		// TODO Auto-generated method stub
-		
+		if (interceptorRegxList == null) {
+			return ;
+		}
+		String[] uil = interceptorRegxList.toString().split(",");
+		System.out.println(interceptorRegxList);
 	}
 
 	private void setEnableAuthority(NettyProxyConfig config, Object enableAuthority) {
@@ -80,7 +82,7 @@ public abstract class NettyProxyConfigLoader {
 		config.setConsolePort(parseInt(consolePort.toString(), "param \"consolePort\" is invaild, value=" + consolePort));
 	}
 
-	public abstract NettyProxyConfigContent loadConfig(Object content);
+	protected abstract NettyProxyConfigContent loadConfig(Object content);
 	
 	private void setRunMode(NettyProxyConfig config, Object val) {
 		if (val == null) {
@@ -95,9 +97,10 @@ public abstract class NettyProxyConfigLoader {
 	
 	private void setWorkerCnt(NettyProxyConfig config, Object val) {
 		if (val == null) {
-			throw new IllegalArgumentException("param[\"workerCnt\"] mustn't be null");
+			config.setWorkerCnt(Runtime.getRuntime().availableProcessors() * 4);
+		} else {
+			config.setWorkerCnt(parseInt(val.toString(), "\"workerCnt\" must be int type, actually value is " + val));
 		}
-		config.setWorkerCnt(parseInt(val.toString(), "\"workerCnt\" must be int type, actually value is " + val));
 	}
 	
 	private static int parseInt(String str, String message) {

@@ -21,7 +21,7 @@ public class NettyProxyConfigPropertiesLoader extends NettyProxyConfigLoader {
 	 * @throws FileNotFoundException
 	 */
 	@Override
-	public NettyProxyConfigContent loadConfig(Object file) {
+	protected NettyProxyConfigContent loadConfig(Object file) {
 		if (file == null) {
 			throw new IllegalArgumentException("file mustn't be null");
 		} else if (!(file instanceof String)) {

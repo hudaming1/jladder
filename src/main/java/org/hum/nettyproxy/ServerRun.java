@@ -1,14 +1,11 @@
 package org.hum.nettyproxy;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Properties;
 
 import org.hum.nettyproxy.common.core.ServerRunProxyFactory;
 import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
-import org.hum.nettyproxy.common.core.config.NettyProxyConfigParser;
+import org.hum.nettyproxy.common.core.config.proploader.NettyProxyConfigPropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +43,7 @@ public class ServerRun {
 //		args = "nettyproxy.runmode=11 nettyproxy.port=51996 nettyproxy.outside_proxy_host=47.75.102.227:5432 nettyproxy.consoleport=80 nettyproxy.enableauthority=1".split(" ");
 //		args = "nettyproxy.runmode=1 nettyproxy.port=52007 nettyproxy.interceptor=1 nettyproxy.interceptor.regx=[\"update header.host = 'localhost:8080' where header.host= '129.28.193.172:8080'\", \"update header.host = 'localhost:8080' where header.host= '129.28.193.172:8080'\"]".split("nettyproxy.");	
 //		args = "nettyproxy={runmode:1, port:52007}".split(" ");
-		NettyProxyConfig serverRunArg = NettyProxyConfigParser.loadConfigFile(ServerRun.class.getResource("/nettyproxy.properties").getFile());
+		NettyProxyConfig serverRunArg = new NettyProxyConfigPropertiesLoader().load(ServerRun.class.getResource("/nettyproxy.properties").getFile());
 		logger.info("input_args=" + serverRunArg);
 		ServerRunProxyFactory.create(serverRunArg.getRunMode()).start(serverRunArg);
 	}
