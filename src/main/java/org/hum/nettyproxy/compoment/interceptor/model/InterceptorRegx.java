@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class InterceptorRegx  {
 
+	private String iul;
 	// Replace/Update/Print/Add/Delete
 	private ActionTypeEnum actionType;
 	// 匹配(暂时只能支持单一条件匹配)

@@ -24,6 +24,7 @@ public class IULComplier {
 	 */
 	public static InterceptorRegx complie(String iul) {
 		InterceptorRegx regx = new InterceptorRegx();
+		regx.setIul(iul);
 
 		StringBuffer sbuilder = new StringBuffer(iul);
 		RegxAction action = new RegxAction();
@@ -32,7 +33,7 @@ public class IULComplier {
 		Pattern pattern = Pattern.compile("(update|replace|print|add|delete)\\s+");
 		Matcher matcher = pattern.matcher(sbuilder.toString());
 		if (!matcher.find()) {
-			throw new IllegalArgumentException("IUL invaild");
+			throw new IllegalArgumentException("IUL invaild, some error occured near '" + sbuilder + "'");
 		}
 		regx.setActionType(ActionTypeEnum.getEnum(matcher.group()));
 		sbuilder.delete(matcher.start(), matcher.end());
@@ -41,7 +42,7 @@ public class IULComplier {
 		pattern = Pattern.compile("^((header|line|body)\\.[a-zA-Z0-9-]*\\s*(?==))");
 		matcher = pattern.matcher(sbuilder.toString());
 		if (!matcher.find()) {
-			throw new IllegalArgumentException("IUL invaild");
+			throw new IllegalArgumentException("IUL invaild, some error occured near '" + sbuilder + "'");
 		}
 		action.setKey(matcher.group().trim());
 		sbuilder.delete(matcher.start(), matcher.end() + 1); // 上一步用零宽断言匹配"="，因此这里+1代表多删除了"="
@@ -50,7 +51,7 @@ public class IULComplier {
 		pattern = Pattern.compile("^'((?!').)*'{1}");
 		matcher = pattern.matcher(sbuilder.toString().trim());
 		if (!matcher.find()) {
-			throw new IllegalArgumentException("IUL invaild");
+			throw new IllegalArgumentException("IUL invaild, some error occured near '" + sbuilder + "'");
 		}
 		String valueContainQuot = matcher.group().trim();
 		action.setValue(valueContainQuot.substring(1, valueContainQuot.length() - 1));
@@ -60,7 +61,7 @@ public class IULComplier {
 		pattern = Pattern.compile("^where\\s+");
 		matcher = pattern.matcher(sbuilder.toString().trim());
 		if (!matcher.find()) {
-			throw new IllegalArgumentException("IUL invaild");
+			throw new IllegalArgumentException("IUL invaild, some error occured near '" + sbuilder + "'");
 		}
 		sbuilder.delete(matcher.start(), matcher.end()); 
 
@@ -71,7 +72,7 @@ public class IULComplier {
 		pattern = Pattern.compile("^((header|line|body)\\.[a-zA-Z0-9-]*\\s*(?=(=|<|>|(like))))");
 		matcher = pattern.matcher(sbuilder.toString().trim());
 		if (!matcher.find()) {
-			throw new IllegalArgumentException("IUL invaild");
+			throw new IllegalArgumentException("IUL invaild, some error occured near '" + sbuilder + "'");
 		}
 		match.setKey(matcher.group().trim());
 		sbuilder.delete(matcher.start(), matcher.end() + 1); 
@@ -80,7 +81,7 @@ public class IULComplier {
 		pattern = Pattern.compile("(=|<|>|(like))");
 		matcher = pattern.matcher(sbuilder.toString().trim());
 		if (!matcher.find()) {
-			throw new IllegalArgumentException("IUL invaild");
+			throw new IllegalArgumentException("IUL invaild, some error occured near '" + sbuilder + "'");
 		}
 		match.setOp(matcher.group().trim());
 		sbuilder.delete(matcher.start(), matcher.end() + 1); 
@@ -89,7 +90,7 @@ public class IULComplier {
 		pattern = Pattern.compile("^'((?!').)*'{1}");
 		matcher = pattern.matcher(sbuilder.toString().trim());
 		if (!matcher.find()) {
-			throw new IllegalArgumentException("IUL invaild, iul=" + iul);
+			throw new IllegalArgumentException("IUL invaild, some error occured near '" + sbuilder + "'");
 		}
 		valueContainQuot = matcher.group().trim();
 		match.setValue(valueContainQuot.substring(1, valueContainQuot.length() - 1));

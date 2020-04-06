@@ -1,7 +1,9 @@
 package org.hum.nettyproxy.compoment.interceptor;
 
+import java.util.List;
+
 import org.hum.nettyproxy.common.model.HttpRequest;
-import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx2;
+import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,26 +13,31 @@ public class DefaultInterceptorWrapper implements InterceptorWrapper {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultInterceptorWrapper.class);
 	
-	private InterceptorRegx2 interceptorRegx;
-	private Interceptor interceptor;
+	private InterceptorRegx interceptorRegx;
+	private List<Interceptor> interceptorList;
 	private Processor processor;
 	
 	public DefaultInterceptorWrapper() {
 	}
 	
-	public DefaultInterceptorWrapper(InterceptorRegx2 interceptorRegx) {
+	public DefaultInterceptorWrapper(InterceptorRegx interceptorRegx) {
 		this.interceptorRegx = interceptorRegx;
-		this.interceptor = InterceptorTypeFactory.get(interceptorRegx.getInterceptorType(), interceptorRegx.getInterceptorValue());
-		this.processor = InterceptorTypeFactory.get(interceptorRegx.getProcessType(), interceptorRegx.getProcessValue());
+		// TODO 将regx.match转成interceptor
+//		this.interceptor = InterceptorTypeFactory.get(interceptorRegx.getInterceptorType(), interceptorRegx.getInterceptorValue());
+//		this.processor = InterceptorTypeFactory.get(interceptorRegx.getProcessType(), interceptorRegx.getProcessValue());
 	}
 
 	@Override
 	public boolean tryIntercept(HttpRequest httpRequest) {
-		if (interceptor == null) {
-			logger.warn("unknown interceptor enum-type=" + interceptorRegx.getInterceptorType());
+		if (interceptorList == null) {
+			logger.warn("unknown interceptor, iul=" + interceptorRegx.getIul());
 			return false;
 		}
-		return interceptor.isHit(httpRequest);
+		// 写死 or 关系，后面需要改成动态的
+		for (Interceptor interceptor : interceptorList) {
+			return interceptor.isHit(httpRequest);
+		}
+		return false;
 	}
 
 	@Override
