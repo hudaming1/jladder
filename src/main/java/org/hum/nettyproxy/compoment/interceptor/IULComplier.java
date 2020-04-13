@@ -6,6 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hum.nettyproxy.compoment.interceptor.enumtype.ActionTypeEnum;
+import org.hum.nettyproxy.compoment.interceptor.enumtype.InterceptorFieldEnum;
+import org.hum.nettyproxy.compoment.interceptor.enumtype.InterceptorTypeEnum;
 import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx;
 import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx.RegxAction;
 import org.hum.nettyproxy.compoment.interceptor.model.InterceptorRegx.RegxMatch;
@@ -44,7 +46,7 @@ public class IULComplier {
 		if (!matcher.find()) {
 			throw new IllegalArgumentException("IUL invaild, some error occured near '" + sbuilder + "'");
 		}
-		action.setKey(matcher.group().trim());
+		fillAction(matcher.group().trim(), action);
 		sbuilder.delete(matcher.start(), matcher.end() + 1); // 上一步用零宽断言匹配"="，因此这里+1代表多删除了"="
 		
 		/** split to actionValue2 **/
@@ -74,7 +76,7 @@ public class IULComplier {
 		if (!matcher.find()) {
 			throw new IllegalArgumentException("IUL invaild, some error occured near '" + sbuilder + "'");
 		}
-		match.setKey(matcher.group().trim());
+		fillMatch(matcher.group().trim(), match);
 		sbuilder.delete(matcher.start(), matcher.end() + 1); 
 
 		/** split to $matchOp **/
@@ -100,5 +102,45 @@ public class IULComplier {
 		regx.setMatch(matchList);
 		
 		return regx;
+	}
+	
+	private static void fillMatch(String s, RegxMatch match) {
+		String[] matchArr = s.split("\\.");
+		if (matchArr.length == 3) {
+			// case : request.header.host
+			match.setType(InterceptorTypeEnum.getType(matchArr[0]));
+			match.setField(InterceptorFieldEnum.getEnum(matchArr[1]));
+			match.setKey(matchArr[2]);
+		} else if (matchArr.length == 2) {
+			// case : header.host
+			match.setType(InterceptorTypeEnum.Request);
+			match.setField(InterceptorFieldEnum.getEnum(matchArr[0]));
+			match.setKey(matchArr[1]);
+		} else if (matchArr.length == 1) {
+			// case : body
+			match.setType(InterceptorTypeEnum.Request);
+			match.setField(InterceptorFieldEnum.getEnum(matchArr[0]));
+		} else {
+			throw new IllegalArgumentException("IUL invaild, some error occured near '" + s + "'");
+		}
+	}
+	
+	private static void fillAction(String s, RegxAction action) {
+		String[] matchArr = s.split("\\.");
+		if (matchArr.length == 3) {
+			// case : request.header.host
+			action.setType(InterceptorTypeEnum.getType(matchArr[0]));
+			action.setField(InterceptorFieldEnum.getEnum(matchArr[1]));
+			action.setKey(matchArr[2]);
+		} else if (matchArr.length == 2) {
+			action.setType(InterceptorTypeEnum.Request);
+			action.setField(InterceptorFieldEnum.getEnum(matchArr[0]));
+			action.setKey(matchArr[1]);
+		} else if (matchArr.length == 1) {
+			action.setType(InterceptorTypeEnum.Request);
+			action.setField(InterceptorFieldEnum.getEnum(matchArr[0]));
+		} else {
+			throw new IllegalArgumentException("IUL invaild, some error occured near '" + s + "'");
+		}
 	}
 }

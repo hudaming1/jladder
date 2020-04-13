@@ -34,9 +34,7 @@ public class HttpRequestInterceptorHandler extends ChannelInboundHandlerAdapter 
 	    	ctx.fireChannelRead(msg);
 		}
 
-		List<InterceptorWrapper> wrappers = InterceptorContext.getWrappers();
-
-		for (InterceptorWrapper wrapper : wrappers) {
+		for (InterceptorWrapper wrapper : InterceptorContext.getWrappers()) {
 			if (wrapper.tryIntercept(httpRequest)) {
 				// 拦截成功
 				wrapper.doProcess(ctx, httpRequest);

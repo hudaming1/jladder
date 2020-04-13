@@ -3,6 +3,8 @@ package org.hum.nettyproxy.compoment.interceptor.model;
 import java.util.List;
 
 import org.hum.nettyproxy.compoment.interceptor.enumtype.ActionTypeEnum;
+import org.hum.nettyproxy.compoment.interceptor.enumtype.InterceptorFieldEnum;
+import org.hum.nettyproxy.compoment.interceptor.enumtype.InterceptorTypeEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +20,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class InterceptorRegx  {
 
+	// 原始IUL字符串
 	private String iul;
 	// Replace/Update/Print/Add/Delete
 	private ActionTypeEnum actionType;
@@ -28,8 +31,12 @@ public class InterceptorRegx  {
 	
 	@Data
 	public static class RegxMatch {
+		// request/response
+		private InterceptorTypeEnum type;
 		// Line/Header/Body
-		private Object key;
+		private InterceptorFieldEnum field;
+		// 只有当field=Header时有效：host/Content-Type...
+		private String key;
 		// Equals, Like
 		private Object op;
 		// value
@@ -40,7 +47,11 @@ public class InterceptorRegx  {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class RegxAction {
+		// request/response
+		private InterceptorTypeEnum type;
 		// Line/Header/Body
+		private InterceptorFieldEnum field;
+		// 只有当field=Header时有效：host/Content-Type...
 		private String key;
 		// value
 		private String value;
