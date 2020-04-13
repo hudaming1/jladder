@@ -7,6 +7,7 @@ public class InterceptorFactory {
 
 	public static Interceptor create(RegxMatch regxMatch) {
 		// TODO now
+		// regxMatch.getField();
 		return null;
 	}
 }
