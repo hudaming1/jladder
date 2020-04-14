@@ -1,5 +1,7 @@
 package org.hum.nettyproxy.compoment.monitor;
 
+import java.util.Arrays;
+
 import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,12 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
 	    	if (monitor != null) {
 	    		monitor.increaseInBytesLength(byteBuf.readableBytes());
 	    	}
+	    	if (logger.isInfoEnabled()) {
+	    		byte[] bytes = new byte[byteBuf.readableBytes()];
+	    		byteBuf.readBytes(bytes);
+	    		logger.info("read bytes=" + Arrays.toString(bytes));
+	    		byteBuf.resetReaderIndex();
+	    	}
     	}
         ctx.fireChannelRead(msg);
     }
@@ -68,6 +76,12 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
 	    	NettyProxyMonitorManager monitor = NettyProxyContext.getMonitor();
 	    	if (monitor != null) {
 	    		monitor.increaseOutBytesLength(byteBuf.writerIndex());
+	    	}
+	    	if (logger.isInfoEnabled()) {
+	    		byte[] bytes = new byte[byteBuf.readableBytes()];
+	    		byteBuf.readBytes(bytes);
+	    		logger.info("write bytes=" + Arrays.toString(bytes));
+	    		byteBuf.resetReaderIndex();
 	    	}
     	}
         ctx.write(msg, promise);

@@ -74,7 +74,7 @@ public class HttpProxyProcessHandler extends SimpleChannelInboundHandler<HttpReq
 			}
 		});
 	}
-
+	
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (ctx.channel().isActive()) {
