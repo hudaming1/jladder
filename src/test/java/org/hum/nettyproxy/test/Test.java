@@ -11,20 +11,6 @@ import java.net.UnknownHostException;
 public class Test {
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
-		@SuppressWarnings("resource")
-		Socket socket = new Socket("127.0.0.1", 5432);
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"));
-		bw.write("test");
-		bw.flush();
-		
-		System.out.println("flush over");
-		
-		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		String line = null;
-		while (!(line = br.readLine()).equals("")) {
-			System.out.println(line);
-		}
-		System.out.println(br.readLine());
-		System.out.println("ok");
+		System.out.println(new String(new byte[] {72, 84, 84, 80, 47, 49, 46, 49, 32, 50, 48, 48, 32, 67, 111, 110, 110, 101, 99, 116, 105, 111, 110, 32, 101, 115, 116, 97, 98, 108, 105, 115, 104, 101, 100, 13, 10, 13, 10}));
 	}
 }
