@@ -15,14 +15,13 @@
  */
 package org.hum.nettyproxy.test.officaldemo.https_server;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 
@@ -45,29 +44,74 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 				ctx.pipeline().remove(this);
 				ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
-				System.out.println("connected1");
+				ctx.pipeline().addLast(sslCtx.newHandler(ch.alloc()));
+				System.out.println("connected1 " + msg);
+//				ByteBuf buf = (ByteBuf) msg;
+//				byte[] bytes = new byte[buf.readableBytes()];
+//				buf.readBytes(bytes);
+//				System.out.println("\n" + new String(bytes) + "\n");
+//				String respString = "HTTP/1.1 200 OK\n"
+//						+ "Content-type:text/html\n"
+//						+ "Content-length:" + bytes.length + "\n"
+//						+ "\n";
+//				buf.writeBytes(respString.getBytes());
+//				buf.writeBytes(bytes);
+//    			ctx.writeAndFlush(buf);
+//    			System.out.println("flush");
+				ctx.pipeline().addLast(new ChannelInboundHandlerAdapter() {
+	                @Override
+	                public void channelRead(ChannelHandlerContext ctx, Object _msg) throws Exception {
+	                	System.out.println("connect2");
+	    				ByteBuf buf = (ByteBuf) _msg;
+	    				String body = "hello world";
+	    				String respString = "HTTP/1.1 200 OK\n"
+	    						+ "Content-type:text/html\n"
+	    						+ "Content-length:" + body.length() + "\n"
+	    						+ "\n";
+	    				buf.writeBytes(respString.getBytes());
+	    				buf.writeBytes(body.getBytes());
+	        			ctx.writeAndFlush(buf);
+//	    				byte[] bytes = new byte[buf.readableBytes()];
+//	    				buf.readBytes(bytes);
+//	    				// System.out.println(Arrays.toString(bytes));
+//	    				System.out.println(new String(bytes));
+	                    
+	                }
+	            });
 			}
 		});
 		
 		// 如果不用https代理，则需要注释以下代码
-        p.addLast("sslHandler", new SslHandler(HttpSslContextFactory.createSSLEngine()));
         if (sslCtx != null) {
-            p.addLast(new ChannelInboundHandlerAdapter() {
-                @Override
-                public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                    ctx.pipeline().remove(this);
-                    ctx.writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()));
-                    System.out.println("connected2");
-                }
-            });
-            p.addLast(sslCtx.newHandler(ch.alloc()));
+//            p.addLast(new ChannelInboundHandlerAdapter() {
+//                @Override
+//                public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//                    ctx.pipeline().remove(this);
+//
+//    				ByteBuf buf = (ByteBuf) msg;
+//    				String body = "hello world";
+//    				String respString = "HTTP/1.1 200 OK\n"
+//    						+ "Content-type:text/html\n"
+//    						+ "Content-length:" + body.length() + "\n"
+//    						+ "\n";
+//    				buf.writeBytes(respString.getBytes());
+//    				buf.writeBytes(body.getBytes());
+//        			ctx.writeAndFlush(buf);
+////    				byte[] bytes = new byte[buf.readableBytes()];
+////    				buf.readBytes(bytes);
+////    				// System.out.println(Arrays.toString(bytes));
+////    				System.out.println(new String(bytes));
+//                    
+//                }
+//            });
+            //p.addLast(sslCtx.newHandler(ch.alloc()));
         }
         
-        p.addLast(new HttpServerCodec());
-
-		// 如果不用https代理，则需要注释以下代码
-        p.addLast(new HttpServerExpectContinueHandler());
-        
-        p.addLast(new HttpHelloWorldServerHandler());
+//        p.addLast(new HttpServerCodec());
+//
+//		// 如果不用https代理，则需要注释以下代码
+//        p.addLast(new HttpServerExpectContinueHandler());
+//        
+//        p.addLast(new HttpHelloWorldServerHandler());
     }
 }

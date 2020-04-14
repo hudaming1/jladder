@@ -18,7 +18,7 @@ public class HttpSslContextFactory {
 		}
 		SSLContext serverContext = null;
 		try {
-			KeyStore ks = KeyStore.getInstance("JKS");
+			KeyStore ks = KeyStore.getInstance("PKCS12");
 			ks.load(HttpsKeyStore.getKeyStoreStream(), HttpsKeyStore.getKeyStorePassword());
 			KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
 			kmf.init(ks, HttpsKeyStore.getCertificatePassword());
