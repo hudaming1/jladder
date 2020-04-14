@@ -74,7 +74,7 @@ public class HttpHelloWorldServerHandler extends SimpleChannelInboundHandler<Htt
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		System.out.println("error=" + cause.getMessage());
+		cause.printStackTrace();
 		ctx.close();
 	}
 }
