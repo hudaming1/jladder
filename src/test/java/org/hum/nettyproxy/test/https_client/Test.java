@@ -15,6 +15,8 @@ import java.util.Arrays;
 public class Test {
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
+		// https://xz.aliyun.com/t/2531
+		// https://www.jianshu.com/p/7e9e5e084dfb
 		// https://dss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/js/lib/jquery-1-edb203c114.10.2.js
 		Socket socket = new Socket("dss0.bdstatic.com", 443);
 		// 1.client say hello

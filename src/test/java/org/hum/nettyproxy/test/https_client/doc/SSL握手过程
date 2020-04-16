@@ -1,0 +1,51 @@
+1. Client Hello
+SSL客户端通过Client Hello消息向SSL服务端发送:
+    1) 支持的SSL版本
+    2) 客户端生成的一个用于生成主密钥(master key)的32字节的随机数(主密钥由客户端和服务端的随机数共同生成)
+    3) 会话ID
+    3) 加密套件
+        3.1) 加密算法
+        3.2) 密钥交换算法
+        3.3) MAC算法
+        3.4) 加密方式(流、分组)
+    4) 压缩算法(如果支持压缩的话)
+2. Server Hello
+SSL服务器确定本次通信采用的SSL版本和加密套件，并通过Server Hello消息通知给SSL客户端。如果SSL服务器允许SSL客户端在以后的通信中重用本次会话，则SSL服务器会为本次会话分配会
+话ID，并通过Server Hello消息发送给SSL客户端。
+    1) 服务端采纳的本次通讯的SSL版本
+    2) 服务端生成的一个用于生成主密钥(master key)的32字节的随机数(主密钥由客户端和服务端的随机数共同生成)
+    3) 会话ID
+    3) 服务端采纳的用于本次通讯的加密套件(从客户端发送的加密套件列表中选出了一个)
+        3.1) 加密算法
+        3.2) 密钥交换算法
+        3.3) MAC算法
+        3.4) 加密方式(流、分组)
+    4) 压缩算法(如果支持压缩的话)
+3. Certificate
+SSL服务器将"携带自己公钥信息的数字证书"和到根CA整个链发给客户端通过Certificate消息发送给SSL客户端(整个公钥文件都发送过去)，客户端使用这个公钥完成以下任务:
+    1) 客户端可以使用该公钥来验证服务端的身份，因为只有服务端有对应的私钥能解密它的公钥加密的数据
+    2) 用于对"premaster secret"进行加密，这个"premaster secret"就是用客户端和服务端生成的Ramdom随机数来生成的，客户端用服务端的公钥对其进行了加密后发送给服务端
+4. Server Key Exchange
+密钥交换阶段(可选步骤)，之所以说是可选步骤，是因为只有在下列场景下这个步骤才会发生
+    1) 协商采用了RSA加密，但是服务端的证书没有提供RSA公钥
+    2) 协商采用了DH加密，但是服务端的证书没有提供DH参数
+    3) 协商采用了fortezza_kea加密，但是服务端的证书没有提供参数
+总结来说，"Server Key Exchange"这个步骤是对上一步"Certificate"的一个补充，为了让整个SSL握手过程能正常进行
+5. Server Hello Done
+SSL服务器发送Server Hello Done消息，通知SSL客户端版本和加密套件协商结束 
+6. Client Key Exchange
+SSL客户端验证SSL服务器的证书合法后，利用证书中的公钥加密SSL客户端随机生成的"premaster secret"(通过之前客户端、服务端分别生成的随机数生成的)，并通过
+Client Key Exchange消息发送给SSL服务器。
+注意，这一步完成后，客户端和服务端都已经保存了"主密钥"(之所以这里叫预备主密钥，是因为还没有投入使用)。这个"主密钥"会用于之后的SSL通信数据的加密
+7. Change Cipher Spec
+SSL客户端发送Change Cipher Spec消息，通知SSL服务器后续报文将采用协商好的"主密钥"和加密套件进行加密和MAC计算。
+8. Finished
+SSL客户端计算已交互的握手消息(除Change Cipher Spec消息外所有已交互的消息)的Hash值，利用协商好的密钥和加密套件处理Hash值(计算并添加MAC值、加密等)，并通过Finished消息
+发送给SSL服务器。SSL服务器利用同样的方法计算已交互的握手消息的Hash值，并与Finished消息的解密结果比较，如果二者相同，且MAC值验证成功，则证明密钥和加密套件协商成功。
+9. Change Cipher Spec
+同样地，SSL服务器发送Change Cipher Spec消息，通知SSL客户端后续报文将采用协商好的密钥和加密套件进行加密和MAC计算。
+10. Finished
+SSL服务器计算已交互的握手消息的Hash值，利用协商好的密钥和加密套件处理Hash值(计算并添加MAC值、加密等)，并通过Finished消息发送给SSL客户端。SSL客户端利用同样的方法计算已
+交互的握手消息的Hash值，并与Finished消息的解密结果比较，如果二者相同，且MAC值验证成功，则证明密钥和加密套件协商成功。
+SSL客户端接收到SSL服务器发送的Finished消息后，如果解密成功，则可以判断SSL服务器是数字证书的拥有者，即SSL服务器身份验证成功，因为只有拥有私钥的SSL服务器才能从
+Client Key Exchange消息中解密得到premaster secret，从而间接地实现了SSL客户端对SSL服务器的身份验证。
