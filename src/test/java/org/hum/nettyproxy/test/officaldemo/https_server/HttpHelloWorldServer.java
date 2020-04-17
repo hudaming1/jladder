@@ -47,7 +47,7 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 public final class HttpHelloWorldServer {
 
 	static final boolean SSL = true;
-	static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "51996" : "8080"));
+	static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "52007" : "8080"));
 	
 	public static void main(String[] args) throws Exception {
 		// Configure SSL.
