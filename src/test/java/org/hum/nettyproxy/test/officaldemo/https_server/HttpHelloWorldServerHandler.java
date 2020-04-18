@@ -44,6 +44,9 @@ public class HttpHelloWorldServerHandler extends SimpleChannelInboundHandler<Htt
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
+		
+		System.out.println("HttpHelloWorldServerHandler.channelRead0.enter");
+		
 		if (msg instanceof HttpRequest) {
 			HttpRequest req = (HttpRequest) msg;
 			

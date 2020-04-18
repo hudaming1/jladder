@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
@@ -27,6 +28,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
@@ -51,12 +53,18 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
 			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 				System.out.println("connected1 " + msg);
-				ctx.pipeline().addLast(new LogInboundAdapter());
-				ctx.pipeline().addLast(new LogOutboundAdapter());
-				ctx.pipeline().addLast(sslCtx.newHandler(ctx.alloc()));
-//		        ctx.pipeline().addLast(new HttpServerCodec());
-//		        ctx.pipeline().addLast(new HttpServerExpectContinueHandler());
-//		        ctx.pipeline().addLast(new HttpHelloWorldServerHandler());
+//				ctx.pipeline().addLast(new LogInboundAdapter());
+//				ctx.pipeline().addLast(new LogOutboundAdapter());
+				SslHandler sslHandler = new SslHandler(HttpSslContextFactory.createSSLEngine());
+				sslHandler.handshakeFuture().addListener(new GenericFutureListener<Future<? super Channel>>() {
+					@Override
+					public void operationComplete(Future<? super Channel> future) throws Exception {
+						System.out.println("ssl handshake over");
+				        ctx.pipeline().addLast(new MockInboundAdapter());
+					}
+				});
+				ctx.pipeline().addLast("sslHandler", sslHandler);
+				ctx.pipeline().remove(this);
 
 				ctx.pipeline().firstContext().writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()))
 						.addListener(new GenericFutureListener<Future<? super Void>>() {
@@ -65,12 +73,11 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
 								System.out.println("flush connect-line");
 							}
 						});
-				ctx.pipeline().remove(this);
 			}
 		});
 	}
 
-	public static class LogInboundAdapter extends ChannelInboundHandlerAdapter {
+	public static class MockInboundAdapter extends ChannelInboundHandlerAdapter {
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			ByteBuf buf = (ByteBuf) msg;
@@ -82,15 +89,7 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
 			System.out.println("readover==================");
 			buf.resetReaderIndex();
 
-//			Iterator<Entry<String, ChannelHandler>> iterator = ctx.pipeline().iterator();
-//			System.out.println();
-//			while (iterator.hasNext()) {
-//				Entry<String, ChannelHandler> entry = iterator.next();
-//				System.out.println(entry.getKey() + "=" +  entry.getValue());
-//			}
-//			System.out.println();
-
-			ctx.fireChannelRead(msg);
+//			ctx.pipeline().firstContext().writeAndFlush(Unpooled.wrappedBuffer("hello world".getBytes()));
 		}
 	};
 
