@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.hum.nettyproxy.test.officaldemo.https_server;
+package org.hum.nettyproxy.test.officaldemo.https_proxy;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -42,18 +42,6 @@ public class HttpHelloWorldServerHandler extends SimpleChannelInboundHandler<Htt
 		ctx.flush();
 	}
 	
-//	@Override
-//	public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
-//		
-//		System.out.println("HttpHelloWorldServerHandler.channelRead0.enter");
-//	
-//		String str = "HTTP/1.1 200 OK \r\n" 
-//						+ "Content-Length: 11 \r\n" 
-//						+ "\r\n"
-//						+ "Hello World";
-//		ctx.writeAndFlush(Unpooled.wrappedBuffer(str.getBytes()));
-//	}
-
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
 		

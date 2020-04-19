@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.test.officaldemo.https_server;
+package org.hum.nettyproxy.test.officaldemo.https_proxy;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.hum.nettyproxy.test.officaldemo.https_server;
+package org.hum.nettyproxy.test.officaldemo.https_proxy;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -23,9 +23,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 /**
  * An HTTP server that sends back the content of the received HTTP request in a
@@ -49,15 +46,15 @@ public final class HttpHelloWorldServer {
 	static final boolean SSL = true;
 	static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "52007" : "8080"));
 	
+	/**
+	 * 万事俱备，只差CA问题了
+	 * <pre>
+	 *   参照Fiddler和Charles原理，发现ProxyServer给Client授权信任的不是证书，而是CA，后面考虑要在TLS这块实现CA认证
+	 * </pre>
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
-		// Configure SSL.
-		final SslContext sslCtx;
-		if (SSL) {
-			SelfSignedCertificate ssc = new SelfSignedCertificate();
-			sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
-		} else {
-			sslCtx = null;
-		}
 
 		// Configure the server.
 		EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -68,7 +65,7 @@ public final class HttpHelloWorldServer {
 			b.group(bossGroup, workerGroup)
 				.channel(NioServerSocketChannel.class)
 				.handler(new LoggingHandler(LogLevel.INFO))
-				.childHandler(new HttpHelloWorldServerInitializer(sslCtx));
+				.childHandler(new HttpsProxyServerInitializer());
 
 			Channel ch = b.bind(PORT).sync().channel();
 

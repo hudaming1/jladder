@@ -1,4 +1,4 @@
-package org.hum.nettyproxy.test.officaldemo.https_server;
+package org.hum.nettyproxy.test.officaldemo.https_proxy;
 
 public class CreateCert {
 
