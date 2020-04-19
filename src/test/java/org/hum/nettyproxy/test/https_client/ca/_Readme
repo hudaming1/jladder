@@ -1,0 +1,30 @@
+创建自己的证书颁发机构(CA)
+即使是测试目的, 也会出现有多个站点需要自定义证书的情况, 不可能要求用户每个站点装一个 我们何不把自己添加成一个证书颁发机构(CA), 然后把这个证书装给客户端, 那么由这个CA颁发的证书都会被自动信任. 
+
+首先, 用同样的语法创建一个证书, 我们把名字取明确一些, 就叫myCA吧(跟第一步生成普通证书是一样一样的, 只是这次我们把它理解成一个证书颁发机构)
+
+openssl genrsa -out myCA.key 2048
+openssl req -new -x509 -key myCA.key -out myCA.cer -days 36500
+然后, 基于这个证书生成一个证书请求(CSR), (同样, 先生成一个key, 要用key来请求)
+
+openssl genrsa -out server.key 2048
+openssl req -new -out server.req -key server.key -subj /CN=域名
+注:
+1. 一旦域名配置了, 用不同于这个域名的主机名来请求, 就会校验失败
+2. 这里用到了上面说的-subj参数
+
+最后, 通过服务器证书(我们理解的CA), 对这个签发请求进行签发
+
+openssl x509 -req -in server.req -out server.cer -CAkey myCA.key -CA myCA.cer -days 36500 -CAcreateserial -CAserial serial
+
+
+
+https://developer.mozilla.org/en-US/docs/Archive/Security/Introduction_to_Public-Key_Cryptography#How_CA_Certificates_Are_Used_to_Establish_Trust
+https://developer.mozilla.org/en-US/docs/Archive/Security/Introduction_to_SSL
+http://chimera.labs.oreilly.com/books/1230000000545/ch04.html#TLS_FORWARD_SECRECY
+http://blog.fourthbit.com/2014/12/23/traffic-analysis-of-an-ssl-slash-tls-session (非常详细解析协议每种message的格式，重点推荐！！)
+关于openssl编程：
+http://h71000.www7.hp.com/doc/83final/ba554_90007/ch04s03.html
+http://www.linuxjournal.com/node/5487/print
+http://www.ibm.com/developerworks/library/l-openssl/
+https://www.cs.utah.edu/~swalton/Documents/Articles/Programming-OpenSSL.pdf

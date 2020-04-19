@@ -15,8 +15,6 @@
  */
 package org.hum.nettyproxy.test.officaldemo.https_server;
 
-import javax.net.ssl.SSLEngine;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
