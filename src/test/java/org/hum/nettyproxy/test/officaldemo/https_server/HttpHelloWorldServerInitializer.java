@@ -27,6 +27,8 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.Future;
@@ -60,7 +62,11 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
 					@Override
 					public void operationComplete(Future<? super Channel> future) throws Exception {
 						System.out.println("ssl handshake over");
-				        ctx.pipeline().addLast(new MockInboundAdapter());
+//				        ctx.pipeline().addLast(new MockInboundAdapter());
+
+						ctx.pipeline().addLast(new HttpServerCodec());
+						ctx.pipeline().addLast(new HttpServerExpectContinueHandler());
+						ctx.pipeline().addLast(new HttpHelloWorldServerHandler());
 					}
 				});
 				ctx.pipeline().addLast("sslHandler", sslHandler);
@@ -89,7 +95,7 @@ public class HttpHelloWorldServerInitializer extends ChannelInitializer<SocketCh
 			System.out.println("readover==================");
 			buf.resetReaderIndex();
 
-//			ctx.pipeline().firstContext().writeAndFlush(Unpooled.wrappedBuffer("hello world".getBytes()));
+			ctx.pipeline().firstContext().writeAndFlush(Unpooled.wrappedBuffer("hello world".getBytes()));
 		}
 	};
 

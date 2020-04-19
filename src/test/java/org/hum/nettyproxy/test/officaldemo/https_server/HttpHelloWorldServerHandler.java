@@ -41,6 +41,18 @@ public class HttpHelloWorldServerHandler extends SimpleChannelInboundHandler<Htt
 	public void channelReadComplete(ChannelHandlerContext ctx) {
 		ctx.flush();
 	}
+	
+//	@Override
+//	public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
+//		
+//		System.out.println("HttpHelloWorldServerHandler.channelRead0.enter");
+//	
+//		String str = "HTTP/1.1 200 OK \r\n" 
+//						+ "Content-Length: 11 \r\n" 
+//						+ "\r\n"
+//						+ "Hello World";
+//		ctx.writeAndFlush(Unpooled.wrappedBuffer(str.getBytes()));
+//	}
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {

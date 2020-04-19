@@ -1,8 +1,5 @@
 package org.hum.nettyproxy.test.officaldemo.https_server;
 
-import org.hum.nettyproxy.test.officaldemo.https_server.HttpHelloWorldServerInitializer.MockInboundAdapter;
-import org.hum.nettyproxy.test.officaldemo.https_server.HttpHelloWorldServerInitializer.LogOutboundAdapter;
-
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -21,8 +18,6 @@ public class HttpHelloWorldServerInitializer2 extends ChannelInitializer<SocketC
     @Override
     public void initChannel(SocketChannel ch) {
         ChannelPipeline p = ch.pipeline();
-		p.addLast(new MockInboundAdapter());
-		p.addLast(new LogOutboundAdapter());
         if (sslCtx != null) {
             p.addLast(sslCtx.newHandler(ch.alloc()));
         }
