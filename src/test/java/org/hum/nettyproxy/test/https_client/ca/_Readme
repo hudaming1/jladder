@@ -17,7 +17,7 @@ openssl req -new -out server.req -key server.key -subj /CN=域名
 
 openssl x509 -req -in server.req -out server.cer -CAkey myCA.key -CA myCA.cer -days 36500 -CAcreateserial -CAserial serial
 
-
+openssl pkcs12 -export -in server.cer -inkey server.key -out server.p12 -name "iot" 
 
 https://developer.mozilla.org/en-US/docs/Archive/Security/Introduction_to_Public-Key_Cryptography#How_CA_Certificates_Are_Used_to_Establish_Trust
 https://developer.mozilla.org/en-US/docs/Archive/Security/Introduction_to_SSL

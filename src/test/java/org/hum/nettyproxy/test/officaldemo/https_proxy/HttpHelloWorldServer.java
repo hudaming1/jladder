@@ -50,6 +50,8 @@ public final class HttpHelloWorldServer {
 	 * 万事俱备，只差CA问题了
 	 * <pre>
 	 *   参照Fiddler和Charles原理，发现ProxyServer给Client授权信任的不是证书，而是CA，后面考虑要在TLS这块实现CA认证
+	 *   TLS为什么要使用3个RandomKey，而不是直接使用PreMaster
+	 *   https://security.stackexchange.com/questions/89383/why-does-the-ssl-tls-handshake-have-a-client-and-server-random
 	 * </pre>
 	 * @param args
 	 * @throws Exception

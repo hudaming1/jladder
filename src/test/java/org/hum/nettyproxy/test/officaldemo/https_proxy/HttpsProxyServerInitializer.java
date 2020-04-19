@@ -61,7 +61,8 @@ public class HttpsProxyServerInitializer extends ChannelInitializer<SocketChanne
 				ctx.pipeline().addLast("sslHandler", sslHandler);
 				ctx.pipeline().remove(this);
 
-				ctx.pipeline().writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()))
+				// 注意：这里要用first啊，pipeline顺序不要错
+				ctx.pipeline().firstContext().writeAndFlush(Unpooled.wrappedBuffer(ConnectedLine.getBytes()))
 						.addListener(new GenericFutureListener<Future<? super Void>>() {
 							@Override
 							public void operationComplete(Future<? super Void> future) throws Exception {
