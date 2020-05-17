@@ -1,0 +1,16 @@
+创建CA
+https://www.cnblogs.com/sparkdev/p/10369313.html
+p12与pem互转 
+https://www.jianshu.com/p/1f00fbe80306
+
+openssl req -new -config /tmp/catest/rootca.cnf -key private/rootca.key.pem -out csr/rootca.csr.pem
+
+openssl ca -selfsign -config /tmp/catest/rootca.cnf -in csr/rootca.csr.pem -extensions v3_ca -days 7300 -out certs/rootca.cert.pem
+
+
+openssl ca -selfsign \
+    -config /tmp/catest/rootca.cnf \
+    -in csr/rootca.csr.pem \
+    -extensions v3_ca \
+    -days 7300 \
+    -out certs/rootca.cert.pem

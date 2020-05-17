@@ -26,8 +26,8 @@ public class HttpsKeyStore {
 }
 
 class Arguments {
-	public static String keystorePath = "/Users/hudaming/Workspace/GitHub/springserver/springserver/cert/keystore.p12";
-//	public static String keystorePath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/https_client/ca/server.p12";
+//	public static String keystorePath = "/Users/hudaming/Workspace/GitHub/springserver/springserver/cert/keystore.p12";
+	public static String keystorePath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/https_client/ca/paypal.p12";
 	public static String certificatePassword = "123456";
 	public static String keystorePassword = "123456";
 }
