@@ -2,15 +2,8 @@
 https://www.cnblogs.com/sparkdev/p/10369313.html
 p12与pem互转 
 https://www.jianshu.com/p/1f00fbe80306
-
-openssl req -new -config /tmp/catest/rootca.cnf -key private/rootca.key.pem -out csr/rootca.csr.pem
-
-openssl ca -selfsign -config /tmp/catest/rootca.cnf -in csr/rootca.csr.pem -extensions v3_ca -days 7300 -out certs/rootca.cert.pem
-
-
-openssl ca -selfsign \
-    -config /tmp/catest/rootca.cnf \
-    -in csr/rootca.csr.pem \
-    -extensions v3_ca \
-    -days 7300 \
-    -out certs/rootca.cert.pem
+使用CA签发证书 https://www.cnblogs.com/zhengah/p/5007938.html
+	openssl genrsa -out server.key 1024
+	openssl req -new -key server.key -out server.csr
+	openssl x509 -req -days 3650 -in server.csr -CA rootca.cert.pem -CAkey rootca.key.pem -CAcreateserial -out server.crt
+	openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12

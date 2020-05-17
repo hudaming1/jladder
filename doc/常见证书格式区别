@@ -19,3 +19,6 @@
 那些证书相关的玩意儿：http://www.360doc.com/content/15/0520/10/21412_471902987.shtml
 
 
+openssl x509 -req -days 3650 -in server.csr -CA rootca.cert.pem -CAkey rootca.key.pem -CAcreateserial -out server.crt
+
+openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12
