@@ -57,23 +57,8 @@ public class CA_Test2 {
 		PrivateKeyEntry caPrivateKey = (PrivateKeyEntry) caKeyStore.getEntry("nickli", new PasswordProtection("123456".toCharArray()));
 		
 		// 给alice签发证书并存为xxx-alice.jks的文件
-		String subject = "C=CN,ST=GuangDong,L=Shenzhen,O=Skybility,OU=Cloudbility,CN=*.163.com,E=huming@163.com";
-		gen(caPrivateKey, subject, "huming");
-	}
-
-	// 用KeyEntry形式存储一个私钥以及对应的证书，并把CA证书加入到它的信任证书列表里面。
-	public static void store(PrivateKey key, Certificate cert, Certificate caCert, String name)
-			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-		KeyStore store = KeyStore.getInstance("PKCS12");
-		store.load(null, null);
-
-//		PrivateKeyEntry entry = new PrivateKeyEntry(key, new Certificate[]{ caCert });
-//		store.setEntry(name, entry, new PasswordProtection("123456".toCharArray()));
-		store.setKeyEntry(name, key, "123456".toCharArray(), new Certificate[] { caCert });
-		File file = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/atlas-" + name + ".p12");
-		if (file.exists() || file.createNewFile()) {
-			store.store(new FileOutputStream(file), ("_" + name).toCharArray());
-		}
+		String subject = "C=CN,ST=GuangDong,L=Shenzhen,O=Skybility,OU=Cloudbility,CN=*.163.com,E=huming@163.com,Name=huming";
+		gen(caPrivateKey, subject, "*.163.com");
 	}
 
 	// 用ke所代表的CA给subject签发证书，并存储到名称为name的jks文件里面。
@@ -86,18 +71,14 @@ public class CA_Test2 {
 
 			KeyStore store = KeyStore.getInstance("PKCS12");
 			store.load(null, null);
-//			ByteArrayOutputStream ksStream = new ByteArrayOutputStream();
-//			store.store(ksStream, "123456".toCharArray());
-//			ksStream.flush();
 			String issuer = caCert.getIssuerDN().toString();
 			Certificate cert = generateV3(issuer, subject, BigInteger.ZERO,
 					new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
 					new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), // 待签名的公钥
 					caPrivateKey.getPrivateKey() // CA的私钥
 			);
-//			store(keyPair.getPrivate(), cert, caPrivateKey.getCertificate(), name);
 			
-			store.setKeyEntry(name, keyPair.getPrivate(), "123456".toCharArray(), new Certificate[] { cert });
+			store.setKeyEntry("aaa", keyPair.getPrivate(), "123456".toCharArray(), new Certificate[] { cert, caCert });
 			File file = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/atlas-" + name + ".p12");
 			if (file.exists() || file.createNewFile()) {
 				store.store(new FileOutputStream(file), "123456".toCharArray());

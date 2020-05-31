@@ -143,9 +143,11 @@ public class CA_Test {
 	 * @param storePass     密钥库密码
 	 * @param CAname        CA名称
 	 * @param CApass        CA密码
+	 * @throws IOException 
+	 * @throws CertificateException 
 	 */
 	public static void createSubjectCert(String certAlias, String subjectPasswd, File Store, String storePass,
-			String CAname, String CApass) {
+			String CAname, String CApass) throws Exception {
 
 		// 加载证书库
 		KeyStore keyStore = KeyStore.getInstance("PKCS12");
@@ -184,10 +186,11 @@ public class CA_Test {
 		x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get(sigAlg)));
 
 		// 条目主体信息
-		x509Info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(info.subject));
+//		x509Info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(new X500Name("CN=*.163.com")));
 
 		// 设置颁发者
-		X500Name caInfo = new X500Name(caCert.getIssuerX500Principal().toString());
+		String caInfoString = caCert.getIssuerX500Principal().toString();
+		X500Name caInfo = new X500Name(caInfoString);
 		x509Info.set(X509CertInfo.ISSUER, new CertificateIssuerName(caInfo));
 
 		// 设置公钥
@@ -209,13 +212,13 @@ public class CA_Test {
 
 		keyStore.setKeyEntry(certAlias, certAndKeyGen.getPrivateKey(), subjectPasswd.toCharArray(), certs);
 
-		FileOutputStream fos = new FileOutputStream(Store);
+		FileOutputStream fos = new FileOutputStream("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/huming_test2.p12");
 		keyStore.store(fos, storePass.toCharArray());
 		fos.close();
 	}
 	
-	public static void main(String[] args) {
-		File store = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert_111.p12");
-		createSubjectCert("createByJava" + System.currentTimeMillis(), "123456", store, "123456", "", "123456");
+	public static void main(String[] args) throws Exception {
+		File store = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
+		createSubjectCert("createByJava" + System.currentTimeMillis(), "123456", store, "123456", "nickli", "123456");
 	}
 }
