@@ -26,11 +26,16 @@
 
 #### 7.合并证书 & 导出p12文件
 > cat private/rootca.key.pem certs/rootca.cert.pem > server_cert.pem   
-> openssl pkcs12 -export -in server_cert.pem -out server_cert.p12
+> openssl pkcs12 -export -in server_cert.pem -out server_cert.p12 -caname nickli
 
 #### 8.使用CA签发证书
 > 进入「server」目录   
 > 生成私钥：openssl genrsa -out server.key 1024   
 > 创建请求：openssl req -new -key server.key -out server.csr -subj /CN=*.baidu.com
-> 生成证书容器：openssl x509 -req -days 3650 -in server.csr -CA ../server_cert.pem -CAkey ../server_cert.pem -CAcreateserial -out server.crt    
+> 使用CA颁发证书：openssl x509 -req -days 3650 -in server.csr -CA ../server_cert.pem -CAkey ../server_cert.pem -CAcreateserial -out server.crt    
 > 给Java程序导出p12文件：openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12
+
+
+
+## 参考资料
+> 创建CA：https://www.cnblogs.com/sparkdev/p/10369313.html
