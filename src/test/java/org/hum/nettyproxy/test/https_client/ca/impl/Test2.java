@@ -1,136 +1,330 @@
 package org.hum.nettyproxy.test.https_client.ca.impl;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.io.OutputStream;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
-import java.security.KeyStore.PasswordProtection;
-import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.UnrecoverableEntryException;
+import java.security.SecureRandom;
+import java.security.SignatureException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.Random;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.operator.ContentSigner;
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import sun.security.pkcs.PKCS7;
+
+import sun.security.x509.AlgorithmId;
+import sun.security.x509.CertAttrSet;
+import sun.security.x509.CertificateAlgorithmId;
+import sun.security.x509.CertificateIssuerName;
+import sun.security.x509.CertificateSerialNumber;
+import sun.security.x509.CertificateSubjectName;
+import sun.security.x509.CertificateValidity;
+import sun.security.x509.CertificateVersion;
+import sun.security.x509.CertificateX509Key;
+import sun.security.x509.X500Name;
+import sun.security.x509.X509CertImpl;
+import sun.security.x509.X509CertInfo;
 
 public class Test2 {
+	public static void createKeyStore(File store, String storePass, X500Name ca, String caPass) {
 
-	public static void main(String[] args) throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
-			FileNotFoundException, IOException, UnrecoverableEntryException {
-
-		KeyStore store = KeyStore.getInstance("JKS");
-
-		File file = new File("resource/atlas-ca.jks");
-
-		store.load(new FileInputStream(file), "atlas".toCharArray());
-
-		PrivateKeyEntry ke = (PrivateKeyEntry) store.getEntry("atlas", new PasswordProtection("atlas".toCharArray()));
-
-		String subject = "C=CN,ST=GuangDong,L=Shenzhen,O=Skybility,OU=Cloudbility,CN=Alice,E=alice@163.com";
-
-		// 给alice签发证书并存为xxx-alice.jks的文件
-
-		gen(ke, subject, "alice");
-
-		subject = "C=CN,ST=GuangDong,L=Shenzhen,O=Skybility,OU=Cloudbility,CN=Bob,E=Bob@gmail.com";
-
-		// 给Bob签发证书并存为xxx-bob.jks的文件
-
-		gen(ke, subject, "bob");
-
-	}
-
-	// 用KeyEntry形式存储一个私钥以及对应的证书，并把CA证书加入到它的信任证书列表里面。
-	public static void store(PrivateKey key, Certificate cert, Certificate caCert, String name)
-			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-
-		KeyStore store = KeyStore.getInstance("JKS");
-
-		store.load(null, null);
-
-		store.setKeyEntry(name, key, name.toCharArray(), new Certificate[] { cert, caCert });
-
-		File file = new File("resource/atlas-" + name + ".jks");
-
-		if (file.exists() || file.createNewFile()) {
-			store.store(new FileOutputStream(file), ("_" + name).toCharArray());
-		}
-
-	}
-
-	// 用ke所代表的CA给subject签发证书，并存储到名称为name的jks文件里面。
-
-	public static void gen(PrivateKeyEntry ke, String subject, String name) {
-
+		// 设置证书密钥类型和签名类型
+		sun.security.tools.keytool.CertAndKeyGen cak = null;
 		try {
-
-			X509Certificate caCert = (X509Certificate) ke.getCertificate();
-
-			KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-
-			kpg.initialize(2048);
-
-			KeyPair keyPair = kpg.generateKeyPair();
-
-			KeyStore store = KeyStore.getInstance("JKS");
-
-			store.load(null, null);
-
-			String issuer = caCert.getIssuerDN().toString();
-
-			Certificate cert = generateV3(issuer, subject, BigInteger.ZERO,
-					new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
-					new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), // 待签名的公钥
-					ke.getPrivateKey()// CA的私钥
-					);
-
-			store(keyPair.getPrivate(), cert, ke.getCertificate(), name);
-
-		} catch (Exception e) {
+			cak = new sun.security.tools.keytool.CertAndKeyGen("RSA", "SHA1withRSA", null);
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+		// 设置安全随机数
+		SecureRandom secureRandom = null;
+		try {
+			secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		cak.setRandom(secureRandom);
+
+		// 产生随机的公私密钥对 1024 bits
+		try {
+			cak.generate(1024);
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// 设置CA的信息
+		X500Name suject = ca;
+
+		// 产生一个自签名的证书
+		X509Certificate certificate = null;
+		try {
+			certificate = cak.getSelfCertificate(suject, new Date(), 50 * 365 * 24L * 60L * 60L);
+		} catch (InvalidKeyException | CertificateException | SignatureException | NoSuchAlgorithmException
+				| NoSuchProviderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// 设置证书验证链
+		X509Certificate[] certs = { certificate };
+
+		// 将CA的别名，私钥，密码存入keystore中
+		KeyStore keyStore = null;
+		try {
+			keyStore = KeyStore.getInstance("JKS");
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			keyStore.load(null, storePass.toCharArray());
+		} catch (NoSuchAlgorithmException | CertificateException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			keyStore.setKeyEntry("CA", cak.getPrivateKey(), caPass.toCharArray(), certs);
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(store);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			keyStore.store(fos, storePass.toCharArray());
+		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			fos.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public static Certificate generateV3(String issuer, String subject, BigInteger serial, Date notBefore,
-			Date notAfter, PublicKey publicKey, PrivateKey privKey) throws Exception {
+	/**
+	 * 创建开发者证书库条目
+	 * 
+	 * @param info          主体条目信息
+	 * @param certAlias     条目别名 根据密钥库个数产生
+	 * @param subjectPasswd 主体密码 随机产生6位字符串
+	 * @param Store         密钥库
+	 * @param storePass     密钥库密码
+	 * @param CAname        CA名称
+	 * @param CApass        CA密码
+	 */
+	public static void createSubjectCert(String certAlias, String subjectPasswd, File Store,
+			String storePass, String CAname, String CApass) {
 
-		X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(new X500Name(issuer), serial, notBefore,
-				notAfter, new X500Name(subject), publicKey);
+		// 加载证书库
+		KeyStore keyStore = null;
 
-		ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(privKey);
+		try {
+			keyStore = KeyStore.getInstance("JKS");
+		} catch (KeyStoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
-		// privKey是CA的私钥，publicKey是待签名的公钥，那么生成的证书就是被CA签名的证书。
+		try {
+			keyStore.load(new FileInputStream(Store), storePass.toCharArray());
+		} catch (NoSuchAlgorithmException | CertificateException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
-		X509CertificateHolder holder = builder.build(sigGen);
+		// 获取ca证书
+		X509Certificate caCert = null;
+		try {
+			caCert = (X509Certificate) keyStore.getCertificate(CAname);
+		} catch (KeyStoreException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 
-		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		// 产生公私密钥对信息
+		sun.security.tools.keytool.CertAndKeyGen certAndKeyGen = null;
+		try {
+			certAndKeyGen = new sun.security.tools.keytool.CertAndKeyGen("RSA", "SHA1withRSA");
+		} catch (NoSuchAlgorithmException e) {
+			/**********/
+			e.printStackTrace();
+		}
 
-		InputStream is1 = new ByteArrayInputStream(holder.toASN1Structure().getEncoded());
+		SecureRandom secureRandom = null;
+		try {
+			secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
-		X509Certificate theCert = (X509Certificate) cf.generateCertificate(is1);
+		certAndKeyGen.setRandom(secureRandom);
 
-		is1.close();
+		try {
+			certAndKeyGen.generate(1024);
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		return theCert;
+		// 签名算法
+		String sigAlg = "MD5WithRSA";
 
+		// 有效期 30年
+		long validity = 30 * 365 * 24L * 60L * 60L;
+		Date firstDate = new Date();
+		Date lastDate = new Date(firstDate.getTime() + validity);
+
+		CertificateValidity interval = new CertificateValidity(firstDate, lastDate);
+
+		/******* 设置条目信息 *******/
+		X509CertInfo x509Info = new X509CertInfo();
+
+		// 版本信息
+		try {
+			x509Info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
+		} catch (CertificateException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// 序列号
+		try {
+			x509Info.set(X509CertInfo.SERIAL_NUMBER,
+					new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
+		} catch (CertificateException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		AlgorithmId algID = null;
+		try {
+			algID = AlgorithmId.get(sigAlg);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// 签名算法信息
+		try {
+			x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algID));
+		} catch (CertificateException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// 条目主体信息
+		try {
+			x509Info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(info.subject));
+		} catch (CertificateException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// 设置颁发者
+		X500Name caInfo = null;
+		try {
+			caInfo = new X500Name(caCert.getIssuerX500Principal().toString());
+		} catch (IOException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+		try {
+			x509Info.set(X509CertInfo.ISSUER, new CertificateIssuerName(caInfo));
+		} catch (CertificateException | IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
+		// 设置公钥
+		try {
+			x509Info.set(X509CertInfo.KEY, new CertificateX509Key(certAndKeyGen.getPublicKey()));
+		} catch (CertificateException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// 设置有效期
+
+		try {
+			x509Info.set(X509CertInfo.VALIDITY, interval);
+		} catch (CertificateException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// 获取CA私钥
+		PrivateKey CAPrivateKey = null;
+
+		try {
+			CAPrivateKey = (PrivateKey) keyStore.getKey(CAname, CApass.toCharArray());
+		} catch (UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// 对subject签名
+		X509CertImpl cert = new X509CertImpl(x509Info);
+
+		try {
+			cert.sign(CAPrivateKey, sigAlg);
+		} catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
+				| SignatureException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// 设置证书验证链
+		Certificate[] certs = { cert, caCert };
+
+		try {
+			keyStore.setKeyEntry(certAlias, certAndKeyGen.getPrivateKey(), subjectPasswd.toCharArray(), certs);
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			FileOutputStream fos = new FileOutputStream(Store);
+			keyStore.store(fos, storePass.toCharArray());
+			fos.close();
+		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

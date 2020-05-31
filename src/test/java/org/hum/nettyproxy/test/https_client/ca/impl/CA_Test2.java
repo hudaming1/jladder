@@ -35,7 +35,7 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
-public class Test1 {
+public class CA_Test2 {
 	
 	static{
 		try{
@@ -50,6 +50,7 @@ public class Test1 {
 		// 读取CA证书的JKS文件
 		KeyStore caKeyStore = KeyStore.getInstance("PKCS12");
 		File file = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
+//		File file = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/atlas-huming.p12");
 		caKeyStore.load(new FileInputStream(file), "123456".toCharArray());
 		
 		// 读取CA的私钥文件
@@ -65,7 +66,10 @@ public class Test1 {
 			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		KeyStore store = KeyStore.getInstance("PKCS12");
 		store.load(null, null);
-		store.setKeyEntry(name, key, name.toCharArray(), new Certificate[] { caCert });
+
+//		PrivateKeyEntry entry = new PrivateKeyEntry(key, new Certificate[]{ caCert });
+//		store.setEntry(name, entry, new PasswordProtection("123456".toCharArray()));
+		store.setKeyEntry(name, key, "123456".toCharArray(), new Certificate[] { caCert });
 		File file = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/atlas-" + name + ".p12");
 		if (file.exists() || file.createNewFile()) {
 			store.store(new FileOutputStream(file), ("_" + name).toCharArray());
@@ -82,16 +86,22 @@ public class Test1 {
 
 			KeyStore store = KeyStore.getInstance("PKCS12");
 			store.load(null, null);
-			ByteArrayOutputStream ksStream = new ByteArrayOutputStream();
-			store.store(ksStream, "123456".toCharArray());
-			ksStream.flush();
+//			ByteArrayOutputStream ksStream = new ByteArrayOutputStream();
+//			store.store(ksStream, "123456".toCharArray());
+//			ksStream.flush();
 			String issuer = caCert.getIssuerDN().toString();
 			Certificate cert = generateV3(issuer, subject, BigInteger.ZERO,
 					new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
 					new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), // 待签名的公钥
 					caPrivateKey.getPrivateKey() // CA的私钥
 			);
-			store(keyPair.getPrivate(), cert, caPrivateKey.getCertificate(), name);
+//			store(keyPair.getPrivate(), cert, caPrivateKey.getCertificate(), name);
+			
+			store.setKeyEntry(name, keyPair.getPrivate(), "123456".toCharArray(), new Certificate[] { cert });
+			File file = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/atlas-" + name + ".p12");
+			if (file.exists() || file.createNewFile()) {
+				store.store(new FileOutputStream(file), "123456".toCharArray());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

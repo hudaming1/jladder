@@ -26,9 +26,10 @@ public class HttpsKeyStore {
 }
 
 class Arguments {
-//	public static String keystorePath = "/Users/hudaming/Workspace/GitHub/springserver/springserver/cert/keystore.p12";
-	public static String keystorePath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server/server.p12";
-//	public static String keystorePath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/https_proxy/server.p12";
+	// 1.客户端浏览器需要信任：/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/certs/rootca.cert.pem
+	// 2.
+	public static String keystorePath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server/baidu_server.p12";
+//	public static String keystorePath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/atlas-huming.p12";
 	public static String certificatePassword = "123456";
 	public static String keystorePassword = "123456";
 }

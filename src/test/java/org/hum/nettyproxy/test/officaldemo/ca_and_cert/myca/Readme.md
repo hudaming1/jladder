@@ -33,7 +33,7 @@
 > 生成私钥：openssl genrsa -out server.key 1024   
 > 创建请求：openssl req -new -key server.key -out server.csr -subj /CN=*.baidu.com
 > 使用CA颁发证书：openssl x509 -req -days 3650 -in server.csr -CA ../server_cert.pem -CAkey ../server_cert.pem -CAcreateserial -out server.crt    
-> 给Java程序导出p12文件：openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12
+> 给Java程序导出p12文件：openssl pkcs12 -export -in server.crt -inkey server.key -out baidu_server.p12
 
 
 
