@@ -1,7 +1,6 @@
 package org.hum.nettyproxy.test.https_client.ca.impl;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -50,6 +49,14 @@ public class CA_Test2 {
 		}
 	}
 
+	/**
+	 * TODO 搞不定了，留着TODO吧，目前的问题在我看来不是问题，「校验证书链时居然因为字段顺序不同，而导致证书链invaild」
+	 * <pre>
+	 *    1.解决方案一：目前使用的CA是通过「openssl」颁发的，考虑CA也用Java颁发，然后再颁发证书，是不是就ok了？
+	 *    2.解决方案二：能否更改证书内的字段顺序，根据什么取的，还没搞懂
+	 * </pre>
+	 * @param args
+	 */
 	public static void main(String[] args) throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
 			FileNotFoundException, IOException, UnrecoverableEntryException {
 		// 读取CA证书的JKS文件
@@ -96,10 +103,10 @@ public class CA_Test2 {
 
 	private static boolean validateChain(Certificate[] certChain) {
 		for (int i = 0; i < certChain.length - 1; i++) {
+			// C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com
 			X500Principal issuerDN = ((X509Certificate) certChain[i]).getIssuerX500Principal();
-			String issuserName = issuerDN.getName();
+			// EMAILADDRESS=ljfpower@163.com, CN=NickLi Root CA, OU=NickLi Ltd CA, O=NickLi Ltd, ST=ShaanXi, C=CN
 			X500Principal subjectDN = ((X509Certificate) certChain[i + 1]).getSubjectX500Principal();
-			String certName = subjectDN.getName();
 			if (!(issuerDN.equals(subjectDN)))
 				return false;
 		}
@@ -110,8 +117,6 @@ public class CA_Test2 {
 	// 1.2.840.113549.1.9.1=#16106c6a66706f776572403136332e636f6d,cn=nickli root ca,ou=nickli ltd ca,o=nickli ltd,st=shaanxi,c=cn
 	// c=cn,st=shaanxi,o=nickli ltd,ou=nickli ltd ca,cn=nickli root ca,1.2.840.113549.1.9.1=#16106c6a66706f776572403136332e636f6d
 	
-	// C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com
-	// EMAILADDRESS=ljfpower@163.com, CN=NickLi Root CA, OU=NickLi Ltd CA, O=NickLi Ltd, ST=ShaanXi, C=CN
 	public static Certificate generateV3(String issuer, String subject, BigInteger serial, Date notBefore,
 			Date notAfter, PublicKey publicKey, PrivateKey privKey)
 			throws OperatorCreationException, CertificateException, IOException {
