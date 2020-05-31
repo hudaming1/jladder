@@ -5,8 +5,8 @@ https://www.jianshu.com/p/1f00fbe80306
 使用CA签发证书 https://www.cnblogs.com/zhengah/p/5007938.html
 	openssl genrsa -out server.key 1024
 	## 使用*.*.* 需要客户端每次添加例外
-	openssl req -new -key server.key -out server.csr -subj /CN=*.*.*
-	openssl x509 -req -days 3650 -in server.csr -CA rootca.cert.pem -CAkey rootca.key.pem -CAcreateserial -out server.crt -passin 123456
+	openssl req -new -key server.key -out server.csr -subj /CN=*.baidu.com
+	openssl x509 -req -days 3650 -in server.csr -CA ../server_cert.pem -CAkey ../server_cert.pem -CAcreateserial -out server.crt
 	openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12
 使用Java动态颁发证书
 	https://blog.csdn.net/benweizhu/article/details/7013271

@@ -1,0 +1,85 @@
+# OpenSSL root CA configuration file.
+# v1
+[ ca ]
+# `man ca`
+default_ca = CA_default
+[ CA_default ]
+# Directory and file locations.
+dir = /Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca
+certs = $dir/certs
+crl_dir = $dir/crl
+new_certs_dir = $dir/newcerts
+database = $dir/db/index
+serial = $dir/db/serial
+RANDFILE = $dir/private/random
+# The root key and root certificate.
+private_key = $dir/private/rootca.key.pem
+certificate = $dir/certs/rootca.cert.pem
+# For certificate revocation lists.
+crlnumber = $dir/db/crlnumber
+crl = $dir/crl/rootca.crl.pem
+crl_extensions = crl_ext
+default_crl_days = 30
+# SHA-1 is deprecated, so use SHA-2 instead.
+default_md = sha256
+name_opt = ca_default
+cert_opt = ca_default
+default_days = 3750
+preserve = no
+policy = policy_strict
+[ policy_strict ]
+# The root CA should only sign intermediate certificates that match.
+# See the POLICY FORMAT section of `man ca`.
+countryName = match
+stateOrProvinceName = match
+organizationName = match
+organizationalUnitName = optional
+commonName = supplied
+emailAddress = optional
+[ req ]
+# Options for the `req` tool (`man req`).
+# Optionally, specify some defaults.
+prompt = no
+input_password = 123456
+
+default_bits = 2048
+distinguished_name = req_distinguished_name
+string_mask = utf8only
+# SHA-1 is deprecated, so use SHA-2 instead.
+default_md = sha256
+# Extension to add when the -x509 option is used.
+# make sure use x509_extensions, do not use req_extensions.
+x509_extensions = v3_ca
+# use the req_extensions not work.
+#req_extensions = v3_ca
+[ req_distinguished_name ]
+# See <https://en.wikipedia.org/wiki/Certificate_signing_request>.
+countryName = CN
+stateOrProvinceName = ShaanXi
+localityName = Xian
+organizationName = NickLi Ltd
+organizationalUnitName = NickLi Ltd CA
+commonName = NickLi Root CA
+emailAddress = ljfpower@163.com
+[ v3_ca ]
+# Extensions for a typical CA (`man x509v3_config`).
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+[ v3_intermediate_ca ]
+# Extensions for a typical intermediate CA (`man x509v3_config`).
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+[ crl_ext ]
+# Extension for CRLs (`man x509v3_config`).
+authorityKeyIdentifier=keyid:always
+[ ocsp ]
+# Extension for OCSP signing certificates (`man ocsp`).
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, digitalSignature
+extendedKeyUsage = critical, OCSPSigning
