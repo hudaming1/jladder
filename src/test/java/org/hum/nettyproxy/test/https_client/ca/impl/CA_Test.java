@@ -176,14 +176,13 @@ public class CA_Test {
 		x509Info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
 
 		// 签名算法信息
-		x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get("MD5WithRSA")));
+		x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get("SHA1withRSA")));
 
 		// 条目主体信息
 		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=*.163.com"));
 
 		// 设置颁发者
-		String caInfoString = caCert.getIssuerX500Principal().toString();
-		x509Info.set(X509CertInfo.ISSUER, new sun.security.x509.X500Name(caInfoString));
+		x509Info.set(X509CertInfo.ISSUER, new X500Name(caCert.getIssuerX500Principal().toString()));
 
 		// 设置公钥
 		x509Info.set(X509CertInfo.KEY, new CertificateX509Key(certAndKeyGen.getPublicKey()));
@@ -197,7 +196,7 @@ public class CA_Test {
 		// 对subject签名
 		X509CertImpl cert = new X509CertImpl(x509Info);
 		
-		cert.sign(CAPrivateKey, "MD5WithRSA");
+		cert.sign(CAPrivateKey, "SHA1withRSA");
 
 		// 设置证书验证链
 		Certificate[] certs = { cert, caCert };
@@ -210,8 +209,6 @@ public class CA_Test {
 	}
 	
 	/**
-	 * @param args
-	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		File store = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
