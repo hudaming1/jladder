@@ -50,12 +50,17 @@ public class CA_Test2 {
 	}
 
 	/**
-	 * TODO 搞不定了，留着TODO吧，目前的问题在我看来不是问题，「校验证书链时居然因为字段顺序不同，而导致证书链invaild」
+	 * 2020-05-31 搞不定了，留着TODO吧，目前的问题在我看来不是问题，「校验证书链时居然因为字段顺序不同，而导致证书链invaild」
 	 * <pre>
 	 *    1.解决方案一：目前使用的CA是通过「openssl」颁发的，考虑CA也用Java颁发，然后再颁发证书，是不是就ok了？
 	 *    2.解决方案二：能否更改证书内的字段顺序，根据什么取的，还没搞懂
 	 * </pre>
 	 * @param args
+	 */ 
+	/**
+	 * TODO 2020-0606  0531证书链始终无法通过，目前只是发现Principal的字段顺序不同，导致证书链无法通过，后来在创建时，将issuer
+	 * 排好序，然后写死在代码中，发现可以通过证书链校验了。但新的问题是证书无法使用，甚至在Mac中导入钥匙串时报错（密码输入部分能过）
+	 * 目前使用「bouncycastle」随意生成一个简单证书，都导入报错，需要查看原因
 	 */
 	public static void main(String[] args) throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
 			FileNotFoundException, IOException, UnrecoverableEntryException {
@@ -81,7 +86,11 @@ public class CA_Test2 {
 
 			// 使用CA创建Certificate
 			X509Certificate caCert = (X509Certificate) caPrivateKey.getCertificate();
-			String issuer = caCert.getIssuerDN().toString();
+//			String issuer = caCert.getIssuerDN().toString();
+			System.out.println(caCert.getIssuerDN().toString());
+			String  issuer = "C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com";
+			System.out.println(issuer);
+			
 			// 使用「bouncycastle工具类」创建证书
 			Certificate cert = generateV3(issuer, certSubject, BigInteger.ZERO, new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
 				new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), caPrivateKey.getPrivateKey() 
@@ -90,12 +99,15 @@ public class CA_Test2 {
 			KeyStore store = KeyStore.getInstance("PKCS12");
 			store.load(null, null);
 			validateChain(new Certificate[] { cert, caCert });
-			store.setKeyEntry("aaa", keyPair.getPrivate(), "1234356".toCharArray(), new Certificate[] { cert, caCert });
+			store.setKeyEntry("huming", keyPair.getPrivate(), "1234356".toCharArray(), new Certificate[] { caCert });
 //			store.setKeyEntry("aaa", keyPair.getPrivate(), "1234356".toCharArray(), new Certificate[] { cert, caCert });
 			File file = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/atlas-" + fileName + ".p12");
 			if (file.exists() || file.createNewFile()) {
-				store.store(new FileOutputStream(file), "123456".toCharArray());
+				file.delete();
 			}
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+			store.store(fileOutputStream, "123456".toCharArray());
+			fileOutputStream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
