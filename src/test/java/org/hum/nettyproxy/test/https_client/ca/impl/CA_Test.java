@@ -13,7 +13,6 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.SignatureException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -22,9 +21,7 @@ import java.util.Date;
 import sun.security.tools.keytool.CertAndKeyGen;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateAlgorithmId;
-import sun.security.x509.CertificateIssuerName;
 import sun.security.x509.CertificateSerialNumber;
-import sun.security.x509.CertificateSubjectName;
 import sun.security.x509.CertificateValidity;
 import sun.security.x509.CertificateVersion;
 import sun.security.x509.CertificateX509Key;
@@ -32,6 +29,7 @@ import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
+@SuppressWarnings("restriction")
 public class CA_Test {
 	
 	/**
@@ -42,7 +40,7 @@ public class CA_Test {
 	 * @param ca        ca信息
 	 * @param caPass    ca密码
 	 */
-	public static void createKeyStore(File store, String storePass, X500Name ca, String caPass) {
+	public static void createCA(File store, String storePass, X500Name ca, String caPass) {
 
 		// 设置证书密钥类型和签名类型
 		CertAndKeyGen cak = null;
@@ -158,13 +156,8 @@ public class CA_Test {
 
 		// 产生公私密钥对信息
 		CertAndKeyGen certAndKeyGen = new CertAndKeyGen("RSA", "SHA1withRSA");
-
-		SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");
-		certAndKeyGen.setRandom(secureRandom);
+		certAndKeyGen.setRandom(SecureRandom.getInstance("SHA1PRNG", "SUN"));
 		certAndKeyGen.generate(1024);
-
-		// 签名算法
-		String sigAlg = "MD5WithRSA";
 
 		// 有效期 30年
 		long validity = 30 * 365 * 24L * 60L * 60L;
@@ -183,15 +176,14 @@ public class CA_Test {
 		x509Info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
 
 		// 签名算法信息
-		x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get(sigAlg)));
+		x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get("MD5WithRSA")));
 
 		// 条目主体信息
-//		x509Info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(new X500Name("CN=*.163.com")));
+		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=*.163.com"));
 
 		// 设置颁发者
 		String caInfoString = caCert.getIssuerX500Principal().toString();
-		X500Name caInfo = new X500Name(caInfoString);
-		x509Info.set(X509CertInfo.ISSUER, new CertificateIssuerName(caInfo));
+		x509Info.set(X509CertInfo.ISSUER, new sun.security.x509.X500Name(caInfoString));
 
 		// 设置公钥
 		x509Info.set(X509CertInfo.KEY, new CertificateX509Key(certAndKeyGen.getPublicKey()));
@@ -204,8 +196,8 @@ public class CA_Test {
 
 		// 对subject签名
 		X509CertImpl cert = new X509CertImpl(x509Info);
-
-		cert.sign(CAPrivateKey, sigAlg);
+		
+		cert.sign(CAPrivateKey, "MD5WithRSA");
 
 		// 设置证书验证链
 		Certificate[] certs = { cert, caCert };
@@ -217,6 +209,10 @@ public class CA_Test {
 		fos.close();
 	}
 	
+	/**
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 		File store = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
 		createSubjectCert("createByJava" + System.currentTimeMillis(), "123456", store, "123456", "nickli", "123456");
