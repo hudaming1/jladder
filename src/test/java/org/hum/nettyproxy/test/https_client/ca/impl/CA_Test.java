@@ -170,7 +170,7 @@ public class CA_Test {
 		X509CertInfo x509Info = new X509CertInfo();
 
 		// 版本信息
-		x509Info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
+		// x509Info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
 
 		// 序列号
 		x509Info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
@@ -179,7 +179,7 @@ public class CA_Test {
 		x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get("SHA1withRSA")));
 
 		// 条目主体信息
-		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=*.163.com"));
+		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=www.baidu.com"));
 
 		// 设置颁发者
 		x509Info.set(X509CertInfo.ISSUER, new X500Name(caCert.getIssuerX500Principal().toString()));
@@ -209,6 +209,8 @@ public class CA_Test {
 	}
 	
 	/**
+	 * 目前通过Java生成的已经和用openssl生成的cert基本保持一致了（详细对比，只有有效期和序列号不同，其他关键信息例如签名算法，CA信息完全一致）
+	 * 但调用时仍然提示「javax.crypto.AEADBadTagException: Tag mismatch」错误
 	 */
 	public static void main(String[] args) throws Exception {
 		File store = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
