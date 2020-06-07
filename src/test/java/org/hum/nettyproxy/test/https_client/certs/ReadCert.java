@@ -19,6 +19,7 @@ import java.util.Enumeration;
 import org.junit.Test;
 
 import sun.misc.BASE64Encoder;
+import sun.security.x509.X509CertImpl;
 
 public class ReadCert {
 
@@ -188,10 +189,6 @@ public class ReadCert {
 
 			FileInputStream fis = new FileInputStream(KEYSTORE_FILE);
 
-			// If the keystore password is empty(""), then we have to set
-
-			// to null, otherwise it won't work!!!
-
 			char[] nPassword = null;
 
 			if ((KEYSTORE_PASSWORD == null) || KEYSTORE_PASSWORD.trim().equals("")) {
@@ -204,45 +201,41 @@ public class ReadCert {
 
 			fis.close();
 
-			System.out.println("keystore type=" + ks.getType());
-
-			// Now we loop all the aliases, we need the alias to get keys.
-
-			// It seems that this value is the "Friendly name" field in the
-
-			// detals tab <-- Certificate window <-- view <-- Certificate
-
-			// Button <-- Content tab <-- Internet Options <-- Tools menu
-
-			// In MS IE 6.
+//			System.out.println("keystore type=" + ks.getType());
 
 			Enumeration enum1 = ks.aliases();
 
 			String keyAlias = null;
 
-			// we are readin just one certificate.
 			if (enum1.hasMoreElements()) {
 				keyAlias = (String) enum1.nextElement();
 				System.out.println("alias=[" + keyAlias + "]");
 			}
 
-			// Now once we know the alias, we could get the keys.
-
-			// System.out.println("is key entry=" + ks.isKeyEntry(keyAlias));
-
 			PrivateKey prikey = (PrivateKey) ks.getKey(keyAlias, nPassword);
 
-			Certificate cert = ks.getCertificate(keyAlias);
+			sun.security.x509.X509CertImpl cert = (X509CertImpl) ks.getCertificate(keyAlias);
 
 			PublicKey pubkey = cert.getPublicKey();
+			
+			Enumeration<String> elements = cert.getElements();
+			
+			while (elements.hasMoreElements()) {
+				String key = elements.nextElement();
+				System.out.println(key + "=" + cert.get(key));
+			}
+			
+			System.out.println("principal=" + cert.getSubjectX500Principal());
+			
+			System.out.println("issuer=" + cert.getIssuerDN());
+			
+//			System.out.println("cert class = " + cert.getClass().getName());
 
-			// System.out.println("cert class = " + cert.getClass().getName());
+//			System.out.println("cert = " + cert);
+			
+//			System.out.println("public key = " + pubkey);
 
-			System.out.println("cert = " + cert);
-
-			// System.out.println("public key = " + pubkey);
-
-			// System.out.println("private key = " + prikey);
+//			System.out.println("private key = " + prikey);
 
 		} catch (Exception e) {
 			e.printStackTrace();

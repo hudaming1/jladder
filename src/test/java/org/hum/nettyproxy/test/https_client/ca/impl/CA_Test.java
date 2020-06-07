@@ -154,7 +154,7 @@ public class CA_Test {
 		X509Certificate caCert = (X509Certificate) keyStore.getCertificate(CAname);
 
 		// 有效期 30年
-		long validity = 1 * 365 * 24L * 60L * 60L;
+		long validity = 20 * 365 * 24L * 60L * 60L;
 		Date firstDate = new Date();
 		Date lastDate = new Date(firstDate.getTime() + validity);
 
