@@ -23,7 +23,6 @@ import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateAlgorithmId;
 import sun.security.x509.CertificateSerialNumber;
 import sun.security.x509.CertificateValidity;
-import sun.security.x509.CertificateVersion;
 import sun.security.x509.CertificateX509Key;
 import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
@@ -137,40 +136,40 @@ public class CA_Test {
 	 * @param info          主体条目信息
 	 * @param certAlias     条目别名 根据密钥库个数产生
 	 * @param subjectPasswd 主体密码 随机产生6位字符串
-	 * @param Store         密钥库
-	 * @param storePass     密钥库密码
+	 * @param caStore         密钥库
+	 * @param caStorePass     密钥库密码
 	 * @param CAname        CA名称
 	 * @param CApass        CA密码
 	 * @throws IOException 
 	 * @throws CertificateException 
 	 */
-	public static void createSubjectCert(String certAlias, String subjectPasswd, File Store, String storePass,
+	public static void createSubjectCert(String certAlias, String subjectPasswd, File caStore, String caStorePass,
 			String CAname, String CApass) throws Exception {
 
 		// 加载证书库
 		KeyStore keyStore = KeyStore.getInstance("PKCS12");
-		keyStore.load(new FileInputStream(Store), storePass.toCharArray());
+		keyStore.load(new FileInputStream(caStore), caStorePass.toCharArray());
 
 		// 获取ca证书
 		X509Certificate caCert = (X509Certificate) keyStore.getCertificate(CAname);
+
+		// 有效期 30年
+		long validity = 1 * 365 * 24L * 60L * 60L;
+		Date firstDate = new Date();
+		Date lastDate = new Date(firstDate.getTime() + validity);
+
+		CertificateValidity interval = new CertificateValidity(firstDate, lastDate);
 
 		// 产生公私密钥对信息
 		CertAndKeyGen certAndKeyGen = new CertAndKeyGen("RSA", "SHA1withRSA");
 		certAndKeyGen.setRandom(SecureRandom.getInstance("SHA1PRNG", "SUN"));
 		certAndKeyGen.generate(1024);
 
-		// 有效期 30年
-		long validity = 30 * 365 * 24L * 60L * 60L;
-		Date firstDate = new Date();
-		Date lastDate = new Date(firstDate.getTime() + validity);
-
-		CertificateValidity interval = new CertificateValidity(firstDate, lastDate);
-
 		/******* 设置条目信息 *******/
 		X509CertInfo x509Info = new X509CertInfo();
 
 		// 版本信息
-		// x509Info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
+		x509Info.set(X509CertInfo.VERSION, new sun.security.x509.CertificateVersion(sun.security.x509.CertificateVersion.V1));
 
 		// 序列号
 		x509Info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
@@ -179,7 +178,7 @@ public class CA_Test {
 		x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get("SHA1withRSA")));
 
 		// 条目主体信息
-		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=www.baidu.com"));
+		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=*.baidu.com"));
 
 		// 设置颁发者
 		x509Info.set(X509CertInfo.ISSUER, new X500Name(caCert.getIssuerX500Principal().toString()));
@@ -201,10 +200,17 @@ public class CA_Test {
 		// 设置证书验证链
 		Certificate[] certs = { cert, caCert };
 
-		keyStore.setKeyEntry(certAlias, certAndKeyGen.getPrivateKey(), subjectPasswd.toCharArray(), certs);
+		KeyStore certKeyStore = KeyStore.getInstance("PKCS12");
+		certKeyStore.load(null, null);
 
-		FileOutputStream fos = new FileOutputStream("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/huming_test2.p12");
-		keyStore.store(fos, storePass.toCharArray());
+		certKeyStore.setKeyEntry(certAlias, certAndKeyGen.getPrivateKey(), subjectPasswd.toCharArray(), certs);
+
+		String outpath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/huming_test2.p12";
+		
+		System.out.println(new File(outpath).delete());
+		
+		FileOutputStream fos = new FileOutputStream(outpath);
+		certKeyStore.store(fos, caStorePass.toCharArray());
 		fos.close();
 	}
 	
@@ -213,7 +219,9 @@ public class CA_Test {
 	 * 但调用时仍然提示「javax.crypto.AEADBadTagException: Tag mismatch」错误
 	 */
 	public static void main(String[] args) throws Exception {
+		long start = System.currentTimeMillis();
 		File store = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
-		createSubjectCert("createByJava" + System.currentTimeMillis(), "123456", store, "123456", "nickli", "123456");
+		createSubjectCert("1", "123456", store, "123456", "nickli", "123456");
+		System.out.println(System.currentTimeMillis() - start);
 	}
 }
