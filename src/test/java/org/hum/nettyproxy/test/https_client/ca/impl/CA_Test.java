@@ -22,7 +22,6 @@ import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
-@SuppressWarnings("restriction")
 public class CA_Test {
 
 	/**
@@ -51,10 +50,6 @@ public class CA_Test {
 		FileOutputStream fos = new FileOutputStream(outPath);
 		keyStore.store(fos, storePass == null ? null : storePass.toCharArray());
 		fos.close();
-	}
-	
-	public static void main(String[] args) throws IOException, Exception {
-		createCA(new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/certs/rootca4j.cert.p12"), "123456", new X500Name("EMAILADDRESS=huming@163.com, CN=HumingCN, OU=HumingOU, O=HumingO, ST=HumingST, C=CN"), "123456");
 	}
 
 	/**
@@ -138,12 +133,16 @@ public class CA_Test {
 		certKeyStore.store(fos, caStorePass.toCharArray());
 		fos.close();
 	}
+	
+	public static void main2(String[] args) throws IOException, Exception {
+		createCA(new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/certs/rootca4j.cert.p12"), "123456", new X500Name("EMAILADDRESS=huming@163.com, CN=HumingCN, OU=HumingOU, O=HumingO, ST=HumingST, C=CN"), "123456");
+	}
 
 	/**
 	 * 目前通过Java生成的已经和用openssl生成的cert基本保持一致了（详细对比，只有有效期和序列号不同，其他关键信息例如签名算法，CA信息完全一致）
 	 * 但调用时仍然提示「javax.crypto.AEADBadTagException: Tag mismatch」错误
 	 */
-	public static void main2(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
 		File store = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
 		createSubjectCert("1", "123456", store, "123456", "nickli", "123456");
