@@ -22,7 +22,7 @@ import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
-public class CA_Test {
+public class CreateCertOrCA_forJava {
 
 	/**
 	 * 产生证书库，并创建CA 别名末认为CA
@@ -43,7 +43,7 @@ public class CA_Test {
 		X509Certificate[] certs = { certificate };
 
 		// 将CA的别名，私钥，密码存入keystore中
-		KeyStore keyStore = KeyStore.getInstance("JKS");
+		KeyStore keyStore = KeyStore.getInstance("PKCS12");
 		keyStore.load(null, storePass == null ? null : storePass.toCharArray());
 		keyStore.setKeyEntry("CA", cak.getPrivateKey(), caPass.toCharArray(), certs);
 
@@ -76,7 +76,7 @@ public class CA_Test {
 		X509Certificate caCert = (X509Certificate) caKeyStore.getCertificate(CAname);
 
 		// 有效期30年
-		long validity = 20 * 365 * 24L * 60L * 60L;
+		long validity = 1 * 365 * 24L * 60L * 60L;
 		Date firstDate = new Date();
 		Date lastDate = new Date(firstDate.getTime() + validity);
 		CertificateValidity interval = new CertificateValidity(firstDate, lastDate);
@@ -99,7 +99,7 @@ public class CA_Test {
 		x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get("SHA1withRSA")));
 
 		// 条目主体信息
-		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=*.hudaming.com"));
+		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=*.baidu.com"));
 
 		// 设置颁发者
 		x509Info.set(X509CertInfo.ISSUER, new X500Name(caCert.getIssuerX500Principal().toString()));
@@ -125,7 +125,7 @@ public class CA_Test {
 
 		certKeyStore.setKeyEntry(certAlias, certAndKeyGen.getPrivateKey(), subjectPasswd.toCharArray(), certs);
 
-		String outpath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/hudaming.p12";
+		String outpath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200625/cert4java.p12";
 
 		System.out.println(new File(outpath).delete());
 
@@ -134,15 +134,15 @@ public class CA_Test {
 		fos.close();
 	}
 	
-	public static void main2(String[] args) throws IOException, Exception {
-		createCA(new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/certs/rootca4j.cert.p12"), "123456", new X500Name("EMAILADDRESS=huming@163.com, CN=HumingCN, OU=HumingOU, O=HumingO, ST=HumingST, C=CN"), "123456");
+	public static void main(String[] args) throws IOException, Exception {
+		createCA(new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200625/ca4java.p12"), "123456", new X500Name("EMAILADDRESS=huming@163.com, CN=HumingCN, OU=HumingOU, O=HumingO, ST=HumingST, C=CN"), "123456");
 	}
 
 	/**
 	 * 目前通过Java生成的已经和用openssl生成的cert基本保持一致了（详细对比，只有有效期和序列号不同，其他关键信息例如签名算法，CA信息完全一致）
 	 * 但调用时仍然提示「javax.crypto.AEADBadTagException: Tag mismatch」错误
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main2(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
 		File caFile = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
 		createSubjectCert("1", "123456", caFile, "123456", "nickli", "123456");

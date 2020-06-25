@@ -1,5 +1,5 @@
 p12导出pem
-导出证书文件：openssl pkcs12 -clcerts -nokeys -out cer.pem -in cer.p12
+导出证书文件：openssl pkcs12 -clcerts -nokeys -out ca_java2openssl.pem -in ca4java.p12
 导出私钥文件：openssl pkcs12 -nocerts -out key.pem -in key.p12
 
 pem转p12

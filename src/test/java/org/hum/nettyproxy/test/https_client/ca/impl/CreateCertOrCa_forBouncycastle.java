@@ -39,7 +39,7 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
-public class CA_Test2 {
+public class CreateCertOrCa_forBouncycastle {
 	
 	static{
 		try{

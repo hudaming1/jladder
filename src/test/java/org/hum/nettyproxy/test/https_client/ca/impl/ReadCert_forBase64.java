@@ -1,6 +1,6 @@
 package org.hum.nettyproxy.test.https_client.ca.impl;
 
-public class ReadCert {
+public class ReadCert_forBase64 {
 	static public java.security.cert.X509Certificate fromString(String cert) throws Exception {
 		java.security.cert.CertificateFactory certificateFactory = java.security.cert.CertificateFactory.getInstance("X.509");
 		String strCertificate = "-----BEGIN CERTIFICATE-----\n" + cert + "\n-----END CERTIFICATE-----\n";
