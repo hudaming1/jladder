@@ -1,0 +1,7 @@
+p12导出pem
+导出证书文件：openssl pkcs12 -clcerts -nokeys -out cer.pem -in cer.p12
+导出私钥文件：openssl pkcs12 -nocerts -out key.pem -in key.p12
+
+pem转p12
+openssl pkcs12 -export -in apns_dev.pem -out paypal.p12
+注意：如果「证书」和「私钥」分开，则需要先合并成一个文件，然后再转p12文件，合并命令：cat cer.pem key.pem > cer_key.pem

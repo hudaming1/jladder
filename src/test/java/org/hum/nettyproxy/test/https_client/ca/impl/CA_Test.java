@@ -99,7 +99,7 @@ public class CA_Test {
 		x509Info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get("SHA1withRSA")));
 
 		// 条目主体信息
-		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=*.baidu.com"));
+		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=*.hudaming.com"));
 
 		// 设置颁发者
 		x509Info.set(X509CertInfo.ISSUER, new X500Name(caCert.getIssuerX500Principal().toString()));
@@ -125,7 +125,7 @@ public class CA_Test {
 
 		certKeyStore.setKeyEntry(certAlias, certAndKeyGen.getPrivateKey(), subjectPasswd.toCharArray(), certs);
 
-		String outpath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/huming_test2.p12";
+		String outpath = "/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/dynamic/hudaming.p12";
 
 		System.out.println(new File(outpath).delete());
 
@@ -144,8 +144,8 @@ public class CA_Test {
 	 */
 	public static void main(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
-		File store = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
-		createSubjectCert("1", "123456", store, "123456", "nickli", "123456");
+		File caFile = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
+		createSubjectCert("1", "123456", caFile, "123456", "nickli", "123456");
 		System.out.println(System.currentTimeMillis() - start);
 	}
 }
