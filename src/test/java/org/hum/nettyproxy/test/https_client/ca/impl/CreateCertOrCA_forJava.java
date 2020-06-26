@@ -12,6 +12,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import org.bouncycastle.asn1.DEROctetString;
+
 import sun.security.tools.keytool.CertAndKeyGen;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateAlgorithmId;
@@ -21,7 +23,9 @@ import sun.security.x509.CertificateX509Key;
 import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
+import sun.security.util.ObjectIdentifier;
 
+@SuppressWarnings("restriction")
 public class CreateCertOrCA_forJava {
 
 	/**
@@ -36,9 +40,16 @@ public class CreateCertOrCA_forJava {
 		SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");
 		cak.setRandom(secureRandom);
 		cak.generate(1024);
-
+		
+		sun.security.x509.CertificateExtensions extensions = new sun.security.x509.CertificateExtensions();
+		// TODO
+		String oid = "";
+		DEROctetString octetString = new DEROctetString("".getBytes());
+		extensions.set(oid, new sun.security.x509.Extension(new ObjectIdentifier(oid), false, octetString.toASN1Primitive().getEncoded()));
+		
 		// 产生一个自签名的证书
 		X509Certificate certificate = cak.getSelfCertificate(caSubject, new Date(), 50 * 365 * 24L * 60L * 60L);
+		
 		// 设置证书验证链
 		X509Certificate[] certs = { certificate };
 
@@ -135,7 +146,8 @@ public class CreateCertOrCA_forJava {
 	}
 	
 	public static void main(String[] args) throws IOException, Exception {
-		createCA(new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200625/ca4java.p12"), "123456", new X500Name("EMAILADDRESS=huming@163.com, CN=HumingCN, OU=HumingOU, O=HumingO, ST=HumingST, C=CN"), "123456");
+		File outCaFile = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200625/ca4java.p12");
+		createCA(outCaFile, "123456", new X500Name("EMAILADDRESS=huming@163.com, CN=HumingCN, OU=HumingOU, O=HumingO, ST=HumingST, C=CN"), "123456");
 	}
 
 	/**
