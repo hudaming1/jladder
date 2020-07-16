@@ -1,0 +1,12 @@
+1.Server创建证书请求
+   (a) 创建PrivateKey
+       openssl genrsa -out server.key 1024    
+       疑问：这个私钥能用别的加密算法生成吗（我创建CA私钥时用的是AES）
+   (b) 根据上一步骤创建的私钥，创建CSR(证书签名请求 Certificate Signing Request)
+       openssl req -new -key server.key -out server.csr -subj /CN=*.baidu.com
+       解释：证书请求在配置文件中，主要元素是「domain」字段，其他就是「国家」、「省」、「市」等字段。
+       CSR文件用「ReadCsr.java」解析；CSR文件主要包含「域名」以及「组织」等信息，除了域名有业务用途之外，其他字段基本只做展示用。
+   (c) 由CA颁发证书并签名
+   	   openssl x509 -req -days 3650 -in server.csr -CA ca.pem -CAkey ca.pem -CAcreateserial -out server.crt    
+   	   注意ca.pem中一定要包含privateKey，因为这步是需要由CA给CSR签名颁发证书链。
+2.

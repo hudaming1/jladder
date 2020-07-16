@@ -52,6 +52,6 @@ public class ReadCert_forBase64 {
 				"TBj0/VLZjmmx6BEP3ojY+x1J96relc8geMJgEtslQIxq/H5COEBkEveegeGTLg==";
 		System.out.println(fromString(badCert));
 		System.out.println("==================================================================");
-		 System.out.println(fromString(correctCert));
+		System.out.println(fromString(correctCert));
 	}
 }

@@ -145,7 +145,7 @@ public class CreateCertOrCA_forJava {
 		fos.close();
 	}
 	
-	public static void main(String[] args) throws IOException, Exception {
+	public static void main2(String[] args) throws IOException, Exception {
 		File outCaFile = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200625/ca4java.p12");
 		createCA(outCaFile, "123456", new X500Name("EMAILADDRESS=huming@163.com, CN=HumingCN, OU=HumingOU, O=HumingO, ST=HumingST, C=CN"), "123456");
 	}
@@ -154,9 +154,9 @@ public class CreateCertOrCA_forJava {
 	 * 目前通过Java生成的已经和用openssl生成的cert基本保持一致了（详细对比，只有有效期和序列号不同，其他关键信息例如签名算法，CA信息完全一致）
 	 * 但调用时仍然提示「javax.crypto.AEADBadTagException: Tag mismatch」错误
 	 */
-	public static void main2(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
-		File caFile = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
+		File caFile = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200626/cert4java.p12");
 		createSubjectCert("1", "123456", caFile, "123456", "nickli", "123456");
 		System.out.println(System.currentTimeMillis() - start);
 	}
