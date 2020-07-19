@@ -39,3 +39,4 @@
 
 ## 参考资料
 > 创建CA：https://www.cnblogs.com/sparkdev/p/10369313.html
+> CA配置文件：https://www.cnblogs.com/f-ck-need-u/p/7115871.html
