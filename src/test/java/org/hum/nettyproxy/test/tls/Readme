@@ -9,4 +9,5 @@
    (c) 由CA颁发证书并签名
    	   openssl x509 -req -days 3650 -in server.csr -CA ca.pem -CAkey ca.pem -CAcreateserial -out server.crt    
    	   注意ca.pem中一定要包含privateKey，因为这步是需要由CA给CSR签名颁发证书链。
+   	   
 2.
