@@ -129,7 +129,7 @@ public class CreateCertOrCA_forJava {
 		cert.sign(CAPrivateKey, "SHA1withRSA");
 
 		// 设置证书验证链
-		Certificate[] certs = { cert, caCert };
+		Certificate[] certs = { cert };
 
 		KeyStore certKeyStore = KeyStore.getInstance("PKCS12");
 		certKeyStore.load(null, null);
@@ -147,7 +147,7 @@ public class CreateCertOrCA_forJava {
 	
 	public static void main2(String[] args) throws IOException, Exception {
 		File outCaFile = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200625/ca4java.p12");
-		createCA(outCaFile, "123456", new X500Name("EMAILADDRESS=huming@163.com, CN=HumingCN, OU=HumingOU, O=HumingO, ST=HumingST, C=CN"), "123456");
+		createCA(outCaFile, "123456", new X500Name("EMAILADDRESS=ljfpower@163.com, CN=NickLi Root CA, OU=NickLi Ltd, O=NickLi, ST=ShaanXi, C=CN"), "123456");
 	}
 
 	/**
@@ -156,8 +156,8 @@ public class CreateCertOrCA_forJava {
 	 */
 	public static void main(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
-		File caFile = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200626/cert4java.p12");
-		createSubjectCert("1", "123456", caFile, "123456", "nickli", "123456");
+		File caFile = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca/server_cert.p12");
+		createSubjectCert("nickli", "123456", caFile, "123456", "nickli", "123456");
 		System.out.println(System.currentTimeMillis() - start);
 	}
 }
