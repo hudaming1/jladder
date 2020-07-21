@@ -35,6 +35,8 @@ import javax.security.auth.x500.X500Principal;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameStyle;
+import org.bouncycastle.asn1.x500.style.RFC4519Style;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
@@ -66,9 +68,9 @@ public class CreateCert_forJava {
 		caStore.load(new FileInputStream(caFile), "123456".toCharArray());
 
 		// 给alice签发证书并存为server_cert.p12的文件
-		PrivateKeyEntry privateKey = (PrivateKeyEntry) caStore.getEntry("nickli", new PasswordProtection("123456".toCharArray()));
-		String subject = "CN=*.baidu.com";
-		gen(privateKey, subject, "huming");
+		PrivateKeyEntry caPrivateKey = (PrivateKeyEntry) caStore.getEntry("nickli", new PasswordProtection("123456".toCharArray()));
+		String serverSubject = "CN=*.baidu.com";
+		gen(caPrivateKey, serverSubject, "huming");
 	}
 
 	// 用KeyEntry形式存储一个私钥以及对应的证书，并把CA证书加入到它的信任证书列表里面。
@@ -136,9 +138,9 @@ public class CreateCert_forJava {
     }
 
 	// 用ke所代表的CA给subject签发证书，并存储到名称为name的jks文件里面。
-	public static void gen(PrivateKeyEntry ke, String subject, String name) {
+	public static void gen(PrivateKeyEntry caPrivateKey, String serverSubject, String name) {
 		try {
-			sun.security.x509.X509CertImpl caCert = (sun.security.x509.X509CertImpl) ke.getCertificate();
+			sun.security.x509.X509CertImpl caCert = (sun.security.x509.X509CertImpl) caPrivateKey.getCertificate();
 			KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
 			kpg.initialize(2048);
 			KeyPair keyPair = kpg.generateKeyPair();
@@ -156,25 +158,25 @@ public class CreateCert_forJava {
              * 
              * ============================================================
         	 */
-			sun.security.x509.X500Name x500Name = (sun.security.x509.X500Name) caCert.getIssuerDN();
-			X500Principal asX500Principal = x500Name.asX500Principal();
+			sun.security.x509.X500Name caX500Name = (sun.security.x509.X500Name) caCert.getSubjectDN();
+			X500Principal asX500Principal = caX500Name.asX500Principal();
 			System.out.println(asX500Principal.getName(X500Principal.RFC1779));
 			System.out.println(asX500Principal.getName(X500Principal.RFC2253));
 			System.out.println(asX500Principal.getName(X500Principal.CANONICAL));
-			System.out.println(x500Name);
-			String issuer = caCert.getIssuerDN().toString();
-			issuer = "EMAILADDRESS=ljfpower@163.com, CN=NickLi Root CA, OU=NickLi Ltd CA, O=NickLi Ltd, ST=ShaanXi, C=CN";
-			issuer = "C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com";
-			Certificate cert = generateV3(issuer, subject, BigInteger.ZERO,
+			System.out.println(caX500Name);
+			String issuer = caCert.getSubjectDN().toString();
+//			issuer = "EMAILADDRESS=ljfpower@163.com, CN=NickLi Root CA, OU=NickLi Ltd CA, O=NickLi Ltd, ST=ShaanXi, C=CN";
+//			issuer = "C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com";
+			Certificate serverCert = generateV3(issuer, serverSubject, BigInteger.ZERO,
 					new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
 					new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), // 待签名的公钥
-					ke.getPrivateKey()// CA的私钥
+					caPrivateKey.getPrivateKey()// CA的私钥
 					, null);
 			
 			System.out.println("subject=" + issuer);
 			//System.out.println("ca=" + ((sun.security.x509.X509CertImpl)caCert).getSubjectDN());
 			//System.out.println("cert=" + ((sun.security.x509.X509CertImpl)cert).getIssuerDN());
-			store(keyPair.getPrivate(), cert, ke.getCertificate(), name);
+			store(keyPair.getPrivate(), serverCert, caPrivateKey.getCertificate(), name);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -194,7 +196,6 @@ public class CreateCert_forJava {
 						ASN1Primitive.fromByteArray(ext.getValue()));
 			}
 		X509CertificateHolder holder = builder.build(sigGen);
-		System.out.println(holder.getIssuer());
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		InputStream is1 = new ByteArrayInputStream(holder.toASN1Structure().getEncoded());
         /**
