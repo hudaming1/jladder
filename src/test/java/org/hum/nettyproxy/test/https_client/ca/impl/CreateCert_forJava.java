@@ -69,7 +69,7 @@ public class CreateCert_forJava {
 
 		// 给alice签发证书并存为server_cert.p12的文件
 		PrivateKeyEntry caPrivateKey = (PrivateKeyEntry) caStore.getEntry("nickli", new PasswordProtection("123456".toCharArray()));
-		String serverSubject = "CN=*.baidu.com";
+		String serverSubject = "CN=*.hhhh.com";
 		gen(caPrivateKey, serverSubject, "huming");
 	}
 
@@ -112,8 +112,6 @@ public class CreateCert_forJava {
         	 */
             X500Principal issuerDN = ((X509Certificate)certChain[i]).getIssuerX500Principal();
             X500Principal subjectDN = ((X509Certificate)certChain[i+1]).getSubjectX500Principal();
-            System.out.println(issuerDN.getName());
-            System.out.println(subjectDN.getName());
             /**
              * ============================================================
              * 
@@ -159,23 +157,13 @@ public class CreateCert_forJava {
              * ============================================================
         	 */
 			sun.security.x509.X500Name caX500Name = (sun.security.x509.X500Name) caCert.getSubjectDN();
-			X500Principal asX500Principal = caX500Name.asX500Principal();
-			System.out.println(asX500Principal.getName(X500Principal.RFC1779));
-			System.out.println(asX500Principal.getName(X500Principal.RFC2253));
-			System.out.println(asX500Principal.getName(X500Principal.CANONICAL));
-			System.out.println(caX500Name);
-			String issuer = caCert.getSubjectDN().toString();
-			issuer = "C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com";
+			String issuer = caX500Name.getRFC2253Name();
 			// 这个序列号要动态生成
 			Certificate serverCert = generateV3(issuer, serverSubject, new BigInteger(System.currentTimeMillis() + ""),
 					new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
 					new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), // 待签名的公钥
 					caPrivateKey.getPrivateKey()// CA的私钥
 					, null);
-			
-			System.out.println("subject=" + issuer);
-			//System.out.println("ca=" + ((sun.security.x509.X509CertImpl)caCert).getSubjectDN());
-			//System.out.println("cert=" + ((sun.security.x509.X509CertImpl)cert).getIssuerDN());
 			store(keyPair.getPrivate(), serverCert, caPrivateKey.getCertificate(), name);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -185,9 +173,8 @@ public class CreateCert_forJava {
 	public static Certificate generateV3(String issuer, String subject, BigInteger serial, Date notBefore,
 			Date notAfter, PublicKey publicKey, PrivateKey privKey, List<Extension> extensions)
 			throws OperatorCreationException, CertificateException, IOException {
-		X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(new X500Name(issuer), serial, notBefore,
+		X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(new X500Name(RFC4519Style.INSTANCE, issuer), serial, notBefore,
 				notAfter, new X500Name(subject), publicKey);
-		// System.out.println("x500=" + new X500Name(issuer));
 		ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(privKey);
 		// privKey是CA的私钥，publicKey是待签名的公钥，那么生成的证书就是被CA签名的证书。
 		if (extensions != null)
