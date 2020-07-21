@@ -113,7 +113,7 @@ public class CreateCertOrCA_forJava {
 		x509Info.set(X509CertInfo.SUBJECT, new X500Name("CN=*.baidu.com"));
 
 		// 设置颁发者
-		x509Info.set(X509CertInfo.ISSUER, new X500Name(caCert.getIssuerX500Principal().toString()));
+		x509Info.set(X509CertInfo.ISSUER, new X500Name(caCert.getSubjectX500Principal().toString()));
 
 		// 设置公钥
 		x509Info.set(X509CertInfo.KEY, new CertificateX509Key(certAndKeyGen.getPublicKey()));
@@ -129,7 +129,7 @@ public class CreateCertOrCA_forJava {
 		cert.sign(CAPrivateKey, "SHA1withRSA");
 
 		// 设置证书验证链
-		Certificate[] certs = { cert };
+		Certificate[] certs = { cert, caCert };
 
 		KeyStore certKeyStore = KeyStore.getInstance("PKCS12");
 		certKeyStore.load(null, null);

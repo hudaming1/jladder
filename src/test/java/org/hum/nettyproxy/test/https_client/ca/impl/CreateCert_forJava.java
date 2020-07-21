@@ -79,7 +79,7 @@ public class CreateCert_forJava {
 		KeyStore store = KeyStore.getInstance("PKCS12");
 		store.load(null, null);
 		System.out.println(validateChain(new Certificate[] { cert, caCert }));
-		store.setKeyEntry("nickli", key, "123456".toCharArray(), new Certificate[] { cert, caCert });
+		store.setKeyEntry("nickli", key, "123456".toCharArray(), new Certificate[] { cert });
 		File file = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200720/cert4java.p12");
 		if (file.exists() || file.createNewFile()) {
 			store.store(new FileOutputStream(file), "123456".toCharArray());
@@ -165,9 +165,9 @@ public class CreateCert_forJava {
 			System.out.println(asX500Principal.getName(X500Principal.CANONICAL));
 			System.out.println(caX500Name);
 			String issuer = caCert.getSubjectDN().toString();
-//			issuer = "EMAILADDRESS=ljfpower@163.com, CN=NickLi Root CA, OU=NickLi Ltd CA, O=NickLi Ltd, ST=ShaanXi, C=CN";
-//			issuer = "C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com";
-			Certificate serverCert = generateV3(issuer, serverSubject, BigInteger.ZERO,
+			issuer = "C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com";
+			// 这个序列号要动态生成
+			Certificate serverCert = generateV3(issuer, serverSubject, new BigInteger(System.currentTimeMillis() + ""),
 					new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
 					new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), // 待签名的公钥
 					caPrivateKey.getPrivateKey()// CA的私钥
