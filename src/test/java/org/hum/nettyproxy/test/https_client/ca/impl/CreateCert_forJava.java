@@ -75,18 +75,23 @@ public class CreateCert_forJava {
 			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		KeyStore store = KeyStore.getInstance("PKCS12");
 		store.load(null, null);
-		// 这两个为什么顺序不同？ 
-		System.out.println(((sun.security.x509.X509CertImpl)cert).getIssuerDN());
-		System.out.println(((sun.security.x509.X509CertImpl)caCert).getSubjectDN());
-//		System.out.println(validateChain(new Certificate[] { cert, caCert }));
+		System.out.println(validateChain(new Certificate[] { cert, caCert }));
 		store.setKeyEntry("nickli", key, "123456".toCharArray(), new Certificate[] { cert, caCert });
 		File file = new File("/Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/_20200720/cert4java.p12");
 		if (file.exists() || file.createNewFile()) {
 			store.store(new FileOutputStream(file), "123456".toCharArray());
 		}
 	}
-//	C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com
-//	EMAILADDRESS=ljfpower@163.com, CN=NickLi Root CA, OU=NickLi Ltd CA, O=NickLi Ltd, ST=ShaanXi, C=CN		
+	
+    /**
+     * 校验证书链代码
+     * <pre>
+     *   {@link sun.security.pkcs12.PKCS12KeyStore.validateChain}
+     * </pre>
+     * @param certChain
+     * @return
+     * @throws IOException
+     */
     private static boolean validateChain(Certificate[] certChain) throws IOException
     {
         for (int i = 0; i < certChain.length-1; i++) {
@@ -95,7 +100,17 @@ public class CreateCert_forJava {
             X500Principal subjectDN = ((X509Certificate)certChain[i+1]).getSubjectX500Principal();
             System.out.println(issuerDN.getName());
             System.out.println(subjectDN.getName());
-            // 这个两个输出顺序不同，导致最终证书链无效
+            /**
+             * ============================================================
+             * 
+             * 
+             * 
+             * XXX 1.这个两个输出顺序不同，导致最终证书链无效
+             * 
+             * 
+             * 
+             * ============================================================
+             */
 //            System.out.println(new sun.security.x509.X500Name(issuerDN.getName()).getRFC2253CanonicalName());;
 //            System.out.println(new sun.security.x509.X500Name(subjectDN.getName()).getRFC2253CanonicalName());;
             if (!(issuerDN.equals(subjectDN)))
@@ -124,6 +139,10 @@ public class CreateCert_forJava {
 					new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), // 待签名的公钥
 					ke.getPrivateKey()// CA的私钥
 					, null);
+			
+			System.out.println("subject=" + issuer);
+			//System.out.println("ca=" + ((sun.security.x509.X509CertImpl)caCert).getSubjectDN());
+			//System.out.println("cert=" + ((sun.security.x509.X509CertImpl)cert).getIssuerDN());
 			store(keyPair.getPrivate(), cert, ke.getCertificate(), name);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -135,6 +154,7 @@ public class CreateCert_forJava {
 			throws OperatorCreationException, CertificateException, IOException {
 		X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(new X500Name(issuer), serial, notBefore,
 				notAfter, new X500Name(subject), publicKey);
+		// System.out.println("x500=" + new X500Name(issuer));
 		ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(privKey);
 		// privKey是CA的私钥，publicKey是待签名的公钥，那么生成的证书就是被CA签名的证书。
 		if (extensions != null)
@@ -143,8 +163,30 @@ public class CreateCert_forJava {
 						ASN1Primitive.fromByteArray(ext.getValue()));
 			}
 		X509CertificateHolder holder = builder.build(sigGen);
+		System.out.println(holder.getIssuer());
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		InputStream is1 = new ByteArrayInputStream(holder.toASN1Structure().getEncoded());
+        /**
+         * ============================================================
+         * 
+         * 
+         * 
+         * XXX 2.这里传入的issuer还没有变化，创建调用 X500Name.generateDN 时issuer顺序发生变化（根据rfc1779协议生成？names字段倒序生成，如果是正序就不存在问题，那到底应该是正序还是倒序？还是issuer和cert的配置规则不同导致？）
+         * 
+         * 调用链：
+         * sun.security.x509.X500Name.generateDN()
+         * sun.security.x509.X509CertInfo.parse()
+         * sun.security.x509.X509CertInfo.X509CertInfo()
+         * sun.security.x509.X509CertImpl.parse()
+         * sun.security.x509.X509CertImpl.X509CertImpl()
+         * sun.security.provider.X509Factory.engineGenerateCertificate()
+         * java.security.cert.CertificateFactory.generateCertificate()
+         * org.hum.nettyproxy.test.https_client.ca.impl.CreateCert_forJava.generateV3()
+         * 
+         * 
+         * 
+         * ============================================================
+         */
 		X509Certificate theCert = (X509Certificate) cf.generateCertificate(is1);
 		is1.close();
 		return theCert;
