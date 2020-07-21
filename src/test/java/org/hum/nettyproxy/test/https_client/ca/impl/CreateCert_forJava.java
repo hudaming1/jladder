@@ -157,6 +157,7 @@ public class CreateCert_forJava {
              * ============================================================
         	 */
 			sun.security.x509.X500Name caX500Name = (sun.security.x509.X500Name) caCert.getSubjectDN();
+			// 这里取了rfc2253，下面用的是rfc4519，两者格式能兼容？
 			String issuer = caX500Name.getRFC2253Name();
 			// 这个序列号要动态生成
 			Certificate serverCert = generateV3(issuer, serverSubject, new BigInteger(System.currentTimeMillis() + ""),
