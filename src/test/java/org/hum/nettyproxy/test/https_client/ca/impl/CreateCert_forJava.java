@@ -47,6 +47,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
  * @author hudaming
  * 参考 https://blog.csdn.net/cwjcsu/article/details/9217139
  */
+@SuppressWarnings("restriction")
 public class CreateCert_forJava {
 
 	static{
@@ -156,8 +157,14 @@ public class CreateCert_forJava {
              * ============================================================
         	 */
 			sun.security.x509.X500Name x500Name = (sun.security.x509.X500Name) caCert.getIssuerDN();
+			X500Principal asX500Principal = x500Name.asX500Principal();
+			System.out.println(asX500Principal.getName(X500Principal.RFC1779));
+			System.out.println(asX500Principal.getName(X500Principal.RFC2253));
+			System.out.println(asX500Principal.getName(X500Principal.CANONICAL));
 			System.out.println(x500Name);
 			String issuer = caCert.getIssuerDN().toString();
+			issuer = "EMAILADDRESS=ljfpower@163.com, CN=NickLi Root CA, OU=NickLi Ltd CA, O=NickLi Ltd, ST=ShaanXi, C=CN";
+			issuer = "C=CN, ST=ShaanXi, O=NickLi Ltd, OU=NickLi Ltd CA, CN=NickLi Root CA, EMAILADDRESS=ljfpower@163.com";
 			Certificate cert = generateV3(issuer, subject, BigInteger.ZERO,
 					new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
 					new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), // 待签名的公钥
