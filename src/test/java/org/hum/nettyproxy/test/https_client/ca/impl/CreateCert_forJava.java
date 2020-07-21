@@ -96,6 +96,17 @@ public class CreateCert_forJava {
     {
         for (int i = 0; i < certChain.length-1; i++) {
         	// getRFC2253CanonicalName
+        	/**
+             * ============================================================
+             * 
+             * 
+             * 
+             * XXX 3.issuerDN和subjectDN的X500Name.names属性顺序就不同？怎么回事？什么原理，cert不是根据issuer生成的吗
+             * 
+             * 
+             * 
+             * ============================================================
+        	 */
             X500Principal issuerDN = ((X509Certificate)certChain[i]).getIssuerX500Principal();
             X500Principal subjectDN = ((X509Certificate)certChain[i+1]).getSubjectX500Principal();
             System.out.println(issuerDN.getName());
@@ -126,13 +137,26 @@ public class CreateCert_forJava {
 	// 用ke所代表的CA给subject签发证书，并存储到名称为name的jks文件里面。
 	public static void gen(PrivateKeyEntry ke, String subject, String name) {
 		try {
-			X509Certificate caCert = (X509Certificate) ke.getCertificate();
+			sun.security.x509.X509CertImpl caCert = (sun.security.x509.X509CertImpl) ke.getCertificate();
 			KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
 			kpg.initialize(2048);
 			KeyPair keyPair = kpg.generateKeyPair();
 
 			KeyStore store = KeyStore.getInstance("PKCS12");
 			store.load(null, null);
+        	/**
+             * ============================================================
+             * 
+             * 
+             * 
+             * XXX 4.证书生成没有问题，现在看样子应该是我传值传的有问题吧？我传的是DN值，本身就是经过倒序后，现在需要试图拿到 caCert.info.names字段生成的Subject字符串
+             * 
+             * 
+             * 
+             * ============================================================
+        	 */
+			sun.security.x509.X500Name x500Name = (sun.security.x509.X500Name) caCert.getIssuerDN();
+			System.out.println(x500Name);
 			String issuer = caCert.getIssuerDN().toString();
 			Certificate cert = generateV3(issuer, subject, BigInteger.ZERO,
 					new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
