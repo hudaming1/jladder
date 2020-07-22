@@ -69,7 +69,7 @@ public class CreateCert_forJava {
 
 		// 给alice签发证书并存为server_cert.p12的文件
 		PrivateKeyEntry caPrivateKey = (PrivateKeyEntry) caStore.getEntry("nickli", new PasswordProtection("123456".toCharArray()));
-		String serverSubject = "CN=*.hhhh.com";
+		String serverSubject = "CN=*.huming.com, OU=Hudaming, O=Hudaming, ST=Hudaming, C=CN";
 		gen(caPrivateKey, serverSubject, "huming");
 	}
 
