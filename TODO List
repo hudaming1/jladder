@@ -1,3 +1,9 @@
+
+	 * 重新梳理https认证流程，包括从RootCA->权威CA->EndServer->EndUser
+	 * 整理项目结构，删除没有用的文件
+	 * Chrome浏览器的问题没有解决
+
+
 待解决问题：
 
 通过byteBuf.copy方式，确保capture和proxy相互隔离，互不影响，但目前capture时，HttpResponseDecoder.java:42报错
