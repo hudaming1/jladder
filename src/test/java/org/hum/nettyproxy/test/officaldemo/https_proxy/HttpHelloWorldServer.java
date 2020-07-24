@@ -15,6 +15,10 @@
  */
 package org.hum.nettyproxy.test.officaldemo.https_proxy;
 
+import java.security.Security;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -45,6 +49,13 @@ public final class HttpHelloWorldServer {
 
 	static final boolean SSL = true;
 	static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "52007" : "8080"));
+	static {
+		try {
+			Security.addProvider(new BouncyCastleProvider());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * 万事俱备，只差CA问题了

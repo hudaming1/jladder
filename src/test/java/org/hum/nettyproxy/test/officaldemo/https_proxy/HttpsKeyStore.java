@@ -1,14 +1,14 @@
 package org.hum.nettyproxy.test.officaldemo.https_proxy;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class HttpsKeyStore {
-
-	public static InputStream getKeyStoreStream() {
+	
+	public static InputStream getKeyStoreStream(String domain) {
 		InputStream inStream = null;
 		try {
-			inStream = new FileInputStream(Arguments.keystorePath);
+			// 创建证书
+			inStream = CA_Station.create(domain);
 		} catch (Exception e) {
 			System.out.println("读取密钥文件失败, path=" + Arguments.keystorePath);
 			e.printStackTrace();
