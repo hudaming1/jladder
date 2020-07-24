@@ -1,7 +1,6 @@
 
 	 * 重新梳理https认证流程，包括从RootCA->权威CA->EndServer->EndUser
 	 * 整理项目结构，删除没有用的文件
-	 * Chrome浏览器的问题没有解决
 
 
 待解决问题：

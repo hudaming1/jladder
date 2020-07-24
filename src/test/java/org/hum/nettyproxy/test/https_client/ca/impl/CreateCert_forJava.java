@@ -24,6 +24,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.Extension;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -35,7 +36,6 @@ import javax.security.auth.x500.X500Principal;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x500.X500NameStyle;
 import org.bouncycastle.asn1.x500.style.RFC4519Style;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -45,11 +45,12 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
+import sun.security.x509.GeneralNames;
+
 /**
  * @author hudaming
  * 参考 https://blog.csdn.net/cwjcsu/article/details/9217139
  */
-@SuppressWarnings("restriction")
 public class CreateCert_forJava {
 
 	static{
@@ -59,6 +60,8 @@ public class CreateCert_forJava {
 			e.printStackTrace();
 		}
 	}
+	
+	private static final String dnsName = "huming.com";
 
 	public static void main(String[] args) throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
 			FileNotFoundException, IOException, UnrecoverableEntryException {
@@ -69,7 +72,7 @@ public class CreateCert_forJava {
 
 		// 给alice签发证书并存为server_cert.p12的文件
 		PrivateKeyEntry caPrivateKey = (PrivateKeyEntry) caStore.getEntry("nickli", new PasswordProtection("123456".toCharArray()));
-		String serverSubject = "CN=*.huming.com, OU=Hudaming, O=Hudaming, ST=Hudaming, C=CN";
+		String serverSubject = "CN=" + dnsName + ", OU=Hudaming, O=Hudaming, ST=Hudaming, C=CN";
 		gen(caPrivateKey, serverSubject, "huming");
 	}
 
@@ -159,12 +162,19 @@ public class CreateCert_forJava {
 			sun.security.x509.X500Name caX500Name = (sun.security.x509.X500Name) caCert.getSubjectDN();
 			// 这里取了rfc2253，下面用的是rfc4519，两者格式能兼容？
 			String issuer = caX500Name.getRFC2253Name();
+			// 
+			List<Extension> extensions = new ArrayList<>();
+			sun.security.x509.SubjectAlternativeNameExtension ext = new sun.security.x509.SubjectAlternativeNameExtension();
+			GeneralNames names = new GeneralNames();
+			names.add(new sun.security.x509.GeneralName(new sun.security.x509.DNSName(dnsName)));
+			ext.set("subject_name", names);
+			extensions.add(ext);
 			// 这个序列号要动态生成
 			Certificate serverCert = generateV3(issuer, serverSubject, new BigInteger(System.currentTimeMillis() + ""),
 					new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
 					new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 32), keyPair.getPublic(), // 待签名的公钥
 					caPrivateKey.getPrivateKey()// CA的私钥
-					, null);
+					, extensions);
 			store(keyPair.getPrivate(), serverCert, caPrivateKey.getCertificate(), name);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -176,13 +186,15 @@ public class CreateCert_forJava {
 			throws OperatorCreationException, CertificateException, IOException {
 		X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(new X500Name(RFC4519Style.INSTANCE, issuer), serial, notBefore,
 				notAfter, new X500Name(subject), publicKey);
-		ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(privKey);
+		// 这里不要使用SHA1算法，Chrome浏览器会提示「NET::ERR_CERT_WEAK_SIGNATURE_ALGORITHM」意为使用了过期的加密算法
+		ContentSigner sigGen = new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC").build(privKey);
 		// privKey是CA的私钥，publicKey是待签名的公钥，那么生成的证书就是被CA签名的证书。
-		if (extensions != null)
+		if (extensions != null) {
 			for (Extension ext : extensions) {
 				builder.addExtension(new ASN1ObjectIdentifier(ext.getId()), ext.isCritical(),
 						ASN1Primitive.fromByteArray(ext.getValue()));
 			}
+		}
 		X509CertificateHolder holder = builder.build(sigGen);
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		InputStream is1 = new ByteArrayInputStream(holder.toASN1Structure().getEncoded());
