@@ -47,7 +47,7 @@ public class HttpsProxyServerInitializer extends ChannelInitializer<SocketChanne
 			 */
 			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-				// XXX 这里应该不用每次都创建SSLEngine吧，但后面我这里要是换成CA的话，应该怎么搞呢？
+				// 根据域名颁发证书
 				SslHandler sslHandler = new SslHandler(HttpSslContextFactory.createSSLEngine(parse2Domain((ByteBuf) msg)));
 				// 确保SSL握手完成后，将业务Handler加入pipeline
 				sslHandler.handshakeFuture().addListener(new GenericFutureListener<Future<? super Channel>>() {

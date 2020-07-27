@@ -1,13 +1,13 @@
 package org.hum.nettyproxy.test.officaldemo.https_proxy;
 
+import java.security.KeyStore;
+
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import java.security.KeyStore;
-import java.security.Security;
 
 public class HttpSslContextFactory {
-//    private static final String PROTOCOL = "SSLv2";
+
 	private static final String PROTOCOL = "SSLv3";// 客户端可以指明为SSLv3或者TLSv1.2
 	/** 针对于服务器端配置 */
 	private static SSLContext sslContext = null;
