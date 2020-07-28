@@ -61,7 +61,7 @@ public class CreateCert_forJava {
 		}
 	}
 	
-	private static final String dnsName = "huming.com";
+	private static final String dnsName = "baidu.com";
 
 	public static void main(String[] args) throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
 			FileNotFoundException, IOException, UnrecoverableEntryException {

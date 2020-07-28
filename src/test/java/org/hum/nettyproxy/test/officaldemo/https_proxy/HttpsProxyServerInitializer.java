@@ -47,16 +47,17 @@ public class HttpsProxyServerInitializer extends ChannelInitializer<SocketChanne
 			 */
 			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+				String domain = parse2Domain((ByteBuf) msg);
 				// 根据域名颁发证书
-				SslHandler sslHandler = new SslHandler(HttpSslContextFactory.createSSLEngine(parse2Domain((ByteBuf) msg)));
+				SslHandler sslHandler = new SslHandler(HttpSslContextFactory.createSSLEngine(domain));
 				// 确保SSL握手完成后，将业务Handler加入pipeline
 				sslHandler.handshakeFuture().addListener(new GenericFutureListener<Future<? super Channel>>() {
 					@Override
 					public void operationComplete(Future<? super Channel> future) throws Exception {
-						System.out.println("ssl handshake over");
 						ctx.pipeline().addLast(new HttpServerCodec());
 						ctx.pipeline().addLast(new HttpServerExpectContinueHandler());
-						ctx.pipeline().addLast(new HttpHelloWorldServerHandler());
+//						ctx.pipeline().addLast(new HttpHelloWorldDemoServerHandler());
+						ctx.pipeline().addLast(new HttpsForwardServerHandler(domain, 443));
 					}
 				});
 				ctx.pipeline().addLast("sslHandler", sslHandler);
