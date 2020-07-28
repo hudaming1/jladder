@@ -56,7 +56,6 @@ public class HttpsProxyServerInitializer extends ChannelInitializer<SocketChanne
 					public void operationComplete(Future<? super Channel> future) throws Exception {
 						ctx.pipeline().addLast(new HttpServerCodec());
 						ctx.pipeline().addLast(new HttpServerExpectContinueHandler());
-//						ctx.pipeline().addLast(new HttpHelloWorldDemoServerHandler());
 						ctx.pipeline().addLast(new HttpsForwardServerHandler(domain, 443));
 					}
 				});
@@ -79,6 +78,7 @@ public class HttpsProxyServerInitializer extends ChannelInitializer<SocketChanne
 		byte[] bytes = new byte[byteBuf.readableBytes()];
 		byteBuf.readBytes(bytes);
 		String requestLine = new String(bytes);
+		System.out.println(requestLine.split(" ")[0]);
 		String hostAndPort = requestLine.split(" ")[1];
 		byteBuf.resetReaderIndex();
 		return hostAndPort.split(":")[0];

@@ -55,7 +55,7 @@ public class HttpsForwardServerHandler extends SimpleChannelInboundHandler<HttpO
 //			} else {
 				response.headers().set(CONNECTION, CLOSE);
 //			}
-			ChannelFuture f = ctx.write(response);
+			ctx.writeAndFlush(response);
 
 //			if (!keepAlive) {
 //				f.addListener(ChannelFutureListener.CLOSE);

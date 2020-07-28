@@ -1,8 +1,6 @@
 package org.hum.nettyproxy.test.officaldemo.https_proxy;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -24,10 +22,13 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Promise;
 
 public class HttpsClient {
 
-	private static final EventLoopGroup WORKER_GROUP = new NioEventLoopGroup();
+	private static final EventLoopGroup WORKER_GROUP = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
+	private static final EventLoopGroup WORKER_GROUP2 = new NioEventLoopGroup(1);
 
 	public static Bootstrap newBootStrap() {
 		Bootstrap bootstrap = new Bootstrap();
@@ -47,50 +48,41 @@ public class HttpsClient {
 	
 	public static FullHttpResponse send(String host, int port, HttpRequest httpRequest) throws Exception {
 		final Bootstrap b = newBootStrap();
-		MainHandler mainHandler = new MainHandler(httpRequest);
+		Promise<FullHttpResponse> promise = new DefaultPromise<FullHttpResponse>(WORKER_GROUP2.next());
+		MainHandler mainHandler = new MainHandler(promise, httpRequest);
 		b.handler(new ClientInit(mainHandler, SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build()));
-		ChannelFuture f = b.connect(host, port);
-		f.channel().closeFuture().sync();
-		return mainHandler.getResponse();
+		b.connect(host, port);
+		return promise.get();
 	}
 
 	@ChannelHandler.Sharable
 	private static class MainHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
 
 		private HttpRequest request;
-		private FullHttpResponse resp;
+		private Promise<FullHttpResponse> promise;
 
-		public MainHandler(HttpRequest request) {
+		public MainHandler(Promise<FullHttpResponse> promise, HttpRequest request) {
 			super(false);
 			this.request = request;
+			this.promise = promise;
 		}
 
 		@Override
 		public void channelActive(ChannelHandlerContext ctx) throws Exception {
-			// 发送
-			ctx.channel().writeAndFlush(request).addListener(new ChannelFutureListener() {
-				@Override
-				public void operationComplete(ChannelFuture future) throws Exception {
-				}
-			});
+			ctx.channel().writeAndFlush(request);
 		}
 
 		@Override
 		protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) throws Exception {
 			// HttpContent httpContent = (HttpContent) msg;
 			// String response = httpContent.content().toString(Charset.defaultCharset());
-			this.resp = msg;
-			ctx.close();
+			promise.setSuccess(msg);
 		}
 
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 			cause.printStackTrace();
 			ctx.channel().close();
-		}
-		
-		public FullHttpResponse getResponse() {
-			return resp;
 		}
 	}
 
@@ -111,7 +103,7 @@ public class HttpsClient {
 			}
 			ch.pipeline().addLast(new HttpResponseDecoder());
 			ch.pipeline().addLast(new HttpRequestEncoder());
-			ch.pipeline().addLast(new HttpObjectAggregator(655350));
+			ch.pipeline().addLast(new HttpObjectAggregator(1024 * 1024));
 			ch.pipeline().addLast(handler);
 		}
 	}
