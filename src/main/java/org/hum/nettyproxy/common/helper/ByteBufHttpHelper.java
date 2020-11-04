@@ -9,15 +9,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.hum.nettyproxy.common.Constant;
-import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.enumtype.HttpMethodEnum;
 import org.hum.nettyproxy.common.model.HttpRequest;
 import org.hum.nettyproxy.common.util.ByteUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 /**
  * ByteBuf&Http帮助类
@@ -25,46 +21,15 @@ import io.netty.buffer.Unpooled;
  */
 public class ByteBufHttpHelper {
 
-	private static final Logger logger = LoggerFactory.getLogger(ByteBufHttpHelper.class);
 	private static final byte RETURN_LINE = 10;
 	private static final byte[] _2_ReturnLine = (Constant.RETURN_LINE + Constant.RETURN_LINE).getBytes();
 	private static String WEB_ROOT;
-	private static ByteBuf _404ByteBuf;
-	private static ByteBuf _500ByteBuf;
 	/**
 	 * 关于浏览器代理模式下的307重定向：
 	 *    Chrome和Firefox的要求都比较严格，甚至连一个空格都不能多
 	 */
 	private static final byte[] _307 = ("HTTP/1.1 307 TemporaryRedirect" + Constant.RETURN_LINE + "Location:").getBytes();
 
-	static {
-		try {
-			WEB_ROOT = NettyProxyContext.getConfig().getWebroot();
-			
-			if (WEB_ROOT == null || WEB_ROOT.isEmpty()) {
-				WEB_ROOT = ByteBufHttpHelper.class.getClassLoader().getResource("").toURI().getPath();
-				WEB_ROOT += "webapps";
-			}
-
-			_404ByteBuf = readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/404.html"));
-			_500ByteBuf = readFile(Unpooled.directBuffer(), new File(WEB_ROOT + "/500.html"));
-		} catch (Exception e) {
-			WEB_ROOT = "";
-			logger.error("init netty-simple-http-server error, can't init web-root-path", e);
-		}
-	}
-	
-	public static String getWebRoot() {
-		return WEB_ROOT;
-	}
-	
-	public static ByteBuf _404ByteBuf() {
-		return _404ByteBuf;
-	}
-	
-	public static ByteBuf _500ByteBuf() {
-		return _500ByteBuf;
-	}
 
 	public static String readLine(ByteBuf byteBuf) {
 		StringBuilder sbuilder = new StringBuilder();

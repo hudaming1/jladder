@@ -4,7 +4,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.hum.nettyproxy.ServerRun.Starter;
-import org.hum.nettyproxy.adapter.console.NettyHttpConsoleServer;
 import org.hum.nettyproxy.adapter.http.insideproxy.NettyHttpInsideProxyServer;
 import org.hum.nettyproxy.adapter.http.simpleproxy.NettyHttpSimpleProxyServer;
 import org.hum.nettyproxy.adapter.outside.NettyOutsideProxyServer;
@@ -45,11 +44,6 @@ abstract class AbstractNettyPorxyStarter implements Starter {
 		}
 		
 		_start(config);
-		
-		// 启动控制台
-		if (config.getConsolePort() != null && config.getConsolePort() > 0) {
-			ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyHttpConsoleServer(config));
-		}
 	}
 	
 	public abstract void _start(NettyProxyConfig config);

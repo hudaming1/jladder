@@ -1,7 +1,6 @@
 package org.hum.nettyproxy.common.core.config;
 
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
-import org.hum.nettyproxy.compoment.interceptor.IULComplier;
 
 /**
  * NettyProxy配置加载器
@@ -18,40 +17,9 @@ public abstract class NettyProxyConfigLoader {
 		NettyProxyConfig config = new NettyProxyConfig();
 		setRunMode(config, configContent.getRunMode());
 		setWorkerCnt(config, configContent.getWorkerCnt());
-		setConsolePort(config, configContent.getConsolePort());
 		setPort(config, configContent.getPort());
 		setOutsideProxyHost(config, configContent.getOutsideProxyHost());
-		setWebroot(config, configContent.getWebroot());
-		setEnableAuthority(config, configContent.getEnableAuthority());
-		setInterceptorRegxList(config, configContent.getInterceptorRegxList());
 		return config;
-	}
-
-	private void setInterceptorRegxList(NettyProxyConfig config, Object interceptorRegxString) {
-		if (interceptorRegxString == null) {
-			return ;
-		}
-		for (String uil : interceptorRegxString.toString().split(",")) {
-			config.addInterceptRegx(IULComplier.complie(uil));
-		}
-	}
-
-	private void setEnableAuthority(NettyProxyConfig config, Object enableAuthority) {
-		if (enableAuthority == null) {
-			return ;
-		}
-		try {
-			config.setEnableAuthority(Boolean.parseBoolean(enableAuthority.toString()));
-		} catch (Exception ce) {
-			throw new IllegalArgumentException("param \"enableAuthority\" is invaild", ce);
-		}
-	}
-
-	private void setWebroot(NettyProxyConfig config, Object webroot) {
-		if (webroot == null) {
-			return ;
-		}
-		config.setWebroot(webroot.toString());
 	}
 
 	private void setOutsideProxyHost(NettyProxyConfig config, Object outsideProxyHost) {
@@ -74,14 +42,6 @@ public abstract class NettyProxyConfigLoader {
 			throw new IllegalArgumentException("param \"port\" mustn't be null");
 		}
 		config.setPort(parseInt(port.toString(), "param \"port\" is invaild, value=" + port));
-	}
-
-	private void setConsolePort(NettyProxyConfig config, Object consolePort) {
-		if (consolePort == null) {
-			return ;
-		}
-
-		config.setConsolePort(parseInt(consolePort.toString(), "param \"consolePort\" is invaild, value=" + consolePort));
 	}
 
 	protected abstract NettyProxyConfigContent loadConfig(Object content);

@@ -6,8 +6,6 @@ import org.hum.nettyproxy.common.core.NettyProxyContext;
 import org.hum.nettyproxy.common.core.config.NettyProxyConfig;
 import org.hum.nettyproxy.common.enumtype.RunModeEnum;
 import org.hum.nettyproxy.common.util.NettyBootstrapUtil;
-import org.hum.nettyproxy.compoment.auth.AuthManager;
-import org.hum.nettyproxy.compoment.auth.HttpAuthorityCheckHandler;
 import org.hum.nettyproxy.compoment.monitor.NettyProxyMonitorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,17 +61,10 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		private HttpProxyProcessHandler httpProxyProcessHandler = new HttpProxyProcessHandler();
-		private HttpAuthorityCheckHandler authorityHandler = new HttpAuthorityCheckHandler(AuthManager.getInstance());
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			NettyProxyConfig config = NettyProxyContext.getConfig();
-			Boolean isEnableAuthority = config.getEnableAuthority();
-			
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
-			if (isEnableAuthority != null && isEnableAuthority == true) {
-				ch.pipeline().addLast(HttpAuthorityCheckHandler.NAME, authorityHandler);
-			}
 			ch.pipeline().addLast(new HttpRequestDecoder());
 			ch.pipeline().addLast(httpProxyProcessHandler);
 		}
