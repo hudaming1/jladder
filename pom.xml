@@ -75,7 +75,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.hum.nettyproxy.ServerRun</mainClass>
+							<mainClass>org.hum.jladder.ServerRun</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
