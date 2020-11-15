@@ -49,7 +49,7 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
 	    	if (logger.isInfoEnabled()) {
 	    		byte[] bytes = new byte[byteBuf.readableBytes()];
 	    		byteBuf.readBytes(bytes);
-	    		logger.info("read bytes=" + Arrays.toString(bytes));
+//	    		logger.info("read bytes=" + Arrays.toString(bytes));
 	    		byteBuf.resetReaderIndex();
 	    	}
     	}
@@ -80,7 +80,7 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
 	    	if (logger.isInfoEnabled()) {
 	    		byte[] bytes = new byte[byteBuf.readableBytes()];
 	    		byteBuf.readBytes(bytes);
-	    		logger.info("write bytes=" + Arrays.toString(bytes));
+//	    		logger.info("write bytes=" + Arrays.toString(bytes));
 	    		byteBuf.resetReaderIndex();
 	    	}
     	}

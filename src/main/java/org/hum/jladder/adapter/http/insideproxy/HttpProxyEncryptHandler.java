@@ -62,6 +62,7 @@ public class HttpProxyEncryptHandler extends SimpleChannelInboundHandler<HttpReq
 				ch.pipeline().addLast(new NettyHttpProxyEncShakeHanlder(browserCtx.channel(), req));
 			}
 		});
+		System.out.println("connect " + config.getOutsideProxyHost());
 		// 建立连接
 		bootstrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
 			@Override
