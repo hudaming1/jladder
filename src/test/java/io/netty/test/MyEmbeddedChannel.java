@@ -6,7 +6,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.ReferenceCountUtil;
 
 public class MyEmbeddedChannel extends EmbeddedChannel {
@@ -20,14 +19,15 @@ public class MyEmbeddedChannel extends EmbeddedChannel {
 			if (queueMessageField.get(this) == null) {
 				queueMessageField.set(this, new ArrayBlockingQueue<Object>(1024));
 			}
-			queueMessageField.setInt(this, 1);
-			System.out.println(queueMessageField.getModifiers());
+			
+			Field modifiersField = Field.class.getDeclaredField("modifiers");
+			modifiersField.setAccessible(true);
+
 			// eventloop
 			Field eventLoopGroupField = EmbeddedChannel.class.getDeclaredField("loop");
 			eventLoopGroupField.setAccessible(true);
-			eventLoopGroupField.setInt(this, 2);
-//			eventLoopGroupField.set(eventLoopGroupField, 2);
-			eventLoopGroupField.set(this, new NioEventLoopGroup(1));
+			modifiersField.setInt(eventLoopGroupField, eventLoopGroupField.getModifiers() & ~Modifier.FINAL);
+//			eventLoopGroupField.set(this, new NioEventLoopGroup(1));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
