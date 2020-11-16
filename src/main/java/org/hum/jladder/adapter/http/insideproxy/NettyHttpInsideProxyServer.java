@@ -1,7 +1,8 @@
 package org.hum.jladder.adapter.http.insideproxy;
 
+import org.hum.jladder.adapter.http.common.HttpConstant;
+import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.hum.jladder.common.NamedThreadFactory;
-import org.hum.jladder.common.codec.http.HttpRequestDecoder;
 import org.hum.jladder.common.core.NettyProxyContext;
 import org.hum.jladder.common.core.config.NettyProxyConfig;
 import org.hum.jladder.common.enumtype.RunModeEnum;
@@ -16,6 +17,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
@@ -62,12 +65,16 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	
 	private static class HttpInsideChannelInitializer extends ChannelInitializer<Channel> {
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
-		private final HttpProxyEncryptHandler httpProxyEncryptHandler = new HttpProxyEncryptHandler();
+		private final HttpProxyForwardHandler httpProxyEncryptHandler = new HttpProxyForwardHandler();
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
-			ch.pipeline().addLast(new HttpRequestDecoder());
+			ch.pipeline().addLast(new io.netty.handler.codec.http.HttpRequestDecoder());
+			ch.pipeline().addLast(new HttpObjectAggregator(HttpConstant.HTTP_OBJECT_AGGREGATOR_LEN));
+			ch.pipeline().addLast(new HttpRequestWrapperHandler());
+			ch.pipeline().addLast(new ProxyEncryptHandler());
+			ch.pipeline().addLast(new HttpRequestEncoder());
 			ch.pipeline().addLast(httpProxyEncryptHandler);
 		}
 	}

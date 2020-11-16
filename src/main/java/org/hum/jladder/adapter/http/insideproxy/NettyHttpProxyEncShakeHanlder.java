@@ -1,13 +1,12 @@
 package org.hum.jladder.adapter.http.insideproxy;
 
+import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.hum.jladder.common.Constant;
 import org.hum.jladder.common.codec.customer.DynamicLengthDecoder;
 import org.hum.jladder.common.codec.customer.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.jladder.common.handler.DecryptPipeChannelHandler;
 import org.hum.jladder.common.handler.ForwardHandler;
 import org.hum.jladder.common.handler.InactiveHandler;
-import org.hum.jladder.common.handler.EncryptPipeChannelHandler.Encryptor;
-import org.hum.jladder.common.model.HttpRequest;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -22,9 +21,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter {
 
 	private Channel browserChannel;
-	private HttpRequest req;
+	private HttpRequestWrapper req;
 	
-	public NettyHttpProxyEncShakeHanlder(Channel channel, HttpRequest req) {
+	public NettyHttpProxyEncShakeHanlder(Channel channel, HttpRequestWrapper req) {
 		this.browserChannel = channel;
 		this.req = req;
 	}
@@ -53,6 +52,8 @@ public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter 
 
         // https：开启双向通信
         if (req.isHttps()) { 
+        	System.out.println("https");
+        	outsideProxyCtx.pipeline().remove(ProxyEncryptHandler.class);
         	// HTTPS协议只有在第一次握手时用明文，交换秘钥后浏览器和目标服务器自己实现了加密，因此程序只需要透传即可。
         	outsideProxyCtx.pipeline().addLast(new ForwardHandler("outside_server->browser", browserChannel), new InactiveHandler(browserChannel));
         	browserChannel.pipeline().addLast(new ForwardHandler("browser->ouside_server", outsideProxyCtx.channel()));
@@ -61,14 +62,13 @@ public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter 
         	return ;
         } 
         
+        
+        System.out.println("http");
+        
         // proxy.response -> browser (仅开启单项转发就够了，因为HTTP是请求/应答协议)
         outsideProxyCtx.pipeline().addLast(new DynamicLengthDecoder(), new DecryptPipeChannelHandler(browserChannel), new InactiveHandler(browserChannel));
 
-        // TODO 这里我感觉应该可以优化：能不能直接返回byteBuf里的arr，从而不要再次开辟一段新的内存空间。
-		byte[] arr = new byte[req.getByteBuf().readableBytes()];
-		req.getByteBuf().readBytes(arr);
-		
         // 转发给outside_server（HTTP协议因为是明文协议，因此在和Proxy通信时，需要程序自己加密）
-        outsideProxyCtx.pipeline().writeAndFlush(Encryptor.encrypt(outsideProxyCtx.alloc().directBuffer(), arr));
+        outsideProxyCtx.pipeline().writeAndFlush(req.toRequest());
     }
 }
