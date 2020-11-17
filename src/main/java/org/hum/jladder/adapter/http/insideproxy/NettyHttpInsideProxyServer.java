@@ -18,7 +18,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
@@ -74,7 +73,6 @@ public class NettyHttpInsideProxyServer implements Runnable {
 			ch.pipeline().addLast(new HttpObjectAggregator(HttpConstant.HTTP_OBJECT_AGGREGATOR_LEN));
 			ch.pipeline().addLast(new HttpRequestWrapperHandler());
 			ch.pipeline().addLast(new ProxyEncryptHandler());
-			ch.pipeline().addLast(new HttpRequestEncoder());
 			ch.pipeline().addLast(httpProxyEncryptHandler);
 		}
 	}

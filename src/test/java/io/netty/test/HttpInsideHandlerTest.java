@@ -1,7 +1,9 @@
 package io.netty.test;
 
+import org.hum.jladder.adapter.http.common.HttpConstant;
+import org.hum.jladder.adapter.http.insideproxy.HttpProxyForwardHandler;
 import org.hum.jladder.adapter.http.insideproxy.ProxyEncryptHandler;
-import org.hum.jladder.common.codec.http.HttpRequestDecoder;
+import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.hum.jladder.common.core.NettyProxyContext;
 import org.hum.jladder.common.core.config.NettyProxyConfig;
 import org.hum.jladder.common.enumtype.RunModeEnum;
@@ -10,6 +12,7 @@ import org.junit.Test;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 
 public class HttpInsideHandlerTest {
 
@@ -23,7 +26,13 @@ public class HttpInsideHandlerTest {
 		String request = "GET / HTTP/1.1\n" + 
 				"Host: www.google.com\n"
 				+ "\n";
-		MyEmbeddedChannel channel = new MyEmbeddedChannel(new HttpRequestDecoder(), new ProxyEncryptHandler());
+		MyEmbeddedChannel channel = new MyEmbeddedChannel(
+				new io.netty.handler.codec.http.HttpRequestDecoder(), 
+				new HttpObjectAggregator(HttpConstant.HTTP_OBJECT_AGGREGATOR_LEN), 
+				new HttpRequestWrapperHandler(), 
+				new ProxyEncryptHandler(),
+				new HttpProxyForwardHandler()
+				);
 		ByteBuf byteBuf = Unpooled.buffer();
 		byteBuf.writeBytes(request.getBytes());
 		channel.writeInbound(byteBuf);

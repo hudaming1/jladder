@@ -2,7 +2,6 @@ package org.hum.jladder.adapter.http.insideproxy;
 
 import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.hum.jladder.common.codec.customer.NettyProxyConnectMessageCodec;
-import org.hum.jladder.common.codec.http.HttpRequestDecoder;
 import org.hum.jladder.common.core.NettyProxyContext;
 import org.hum.jladder.common.core.config.NettyProxyConfig;
 import org.hum.jladder.common.util.NettyBootstrapUtil;
@@ -16,8 +15,8 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.HttpRequestEncoder;
 
 /**
  * HTTP/HTTPS 加密转发
@@ -55,16 +54,14 @@ public class HttpProxyForwardHandler extends SimpleChannelInboundHandler<HttpReq
 		
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class);
-		bootstrap.group(browserCtx.channel().eventLoop());
+		bootstrap.group(new NioEventLoopGroup());
 		NettyBootstrapUtil.initTcpServerOptions(bootstrap, config);
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
 				ch.pipeline().addLast(new NettyHttpProxyEncShakeHanlder(browserCtx.channel(), requestWrapper));
-				ch.pipeline().addLast(new HttpRequestEncoder());
 			}
 		});
-		System.out.println("connect " + config.getOutsideProxyHost());
 		// 建立连接
 		bootstrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
 			@Override
