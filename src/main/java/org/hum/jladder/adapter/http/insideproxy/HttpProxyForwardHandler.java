@@ -54,7 +54,8 @@ public class HttpProxyForwardHandler extends SimpleChannelInboundHandler<HttpReq
 		
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class);
-		bootstrap.group(new NioEventLoopGroup());
+//		bootstrap.group(new NioEventLoopGroup());
+		bootstrap.group(browserCtx.channel().eventLoop());
 		NettyBootstrapUtil.initTcpServerOptions(bootstrap, config);
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
