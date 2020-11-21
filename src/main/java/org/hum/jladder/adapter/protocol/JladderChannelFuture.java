@@ -8,16 +8,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 
 @Data
 @SuppressWarnings("unchecked")
 public class JladderChannelFuture {
 
-	private String host;
-	private int port;
 	private ChannelFuture future;
 	
 	public JladderChannelFuture(ChannelFuture future) {
@@ -116,8 +112,7 @@ public class JladderChannelFuture {
 		return future.isVoid();
 	}
 
-	public void writeAndFlush(byte[] bytes) {
-		JladderMessage message = new JladderMessage(host, port, bytes);
+	public void writeAndFlush(JladderMessage message) {
 		future.channel().writeAndFlush(message);
 	}
 	

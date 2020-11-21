@@ -34,7 +34,7 @@ public class JladderForward extends ChannelDuplexHandler {
 		this.eventLoopGroup = eventLoopGroup;
 	}
 
-	public JladderForward connect(String host, int port) {
+	public JladderForward connect() {
 		bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class);
 		bootstrap.group(eventLoopGroup);
@@ -69,10 +69,13 @@ public class JladderForward extends ChannelDuplexHandler {
 		return this;
 	}
 	
-	public void write(ByteBuf byteBuf) {
+	public ChannelFuture writeAndFlush(JladderMessage message) {
 		if (this.channel == null || !this.channel.isActive()) {
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
-		this.channel.writeAndFlush(byteBuf);
+		return this.channel.writeAndFlush(message).addListener(f -> {
+			// TODO
+			// sign writable
+		});
 	}
 }

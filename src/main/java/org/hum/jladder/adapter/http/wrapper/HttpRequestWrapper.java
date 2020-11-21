@@ -1,5 +1,6 @@
 package org.hum.jladder.adapter.http.wrapper;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
@@ -65,7 +66,7 @@ public class HttpRequestWrapper {
 		return request;
 	}
 
-	public byte[] toBytes() {
+	public ByteBuf toByteBuf() {
 		// TODO Auto-generated method stub
 		return null;
 	}

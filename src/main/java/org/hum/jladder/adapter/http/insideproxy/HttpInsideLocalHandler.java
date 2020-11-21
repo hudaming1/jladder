@@ -2,12 +2,10 @@ package org.hum.jladder.adapter.http.insideproxy;
 
 import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.hum.jladder.adapter.protocol.JladderByteBuf;
-import org.hum.jladder.adapter.protocol.JladderChannelFuture;
-import org.hum.jladder.adapter.protocol.JladderForward;
-import org.hum.jladder.adapter.protocol.listener.JladderConnectListener;
-import org.hum.jladder.adapter.protocol.listener.JladderReadListener;
-import org.hum.jladder.common.core.NettyProxyContext;
-import org.hum.jladder.common.core.config.JladderConfig;
+import org.hum.jladder.adapter.protocol.JladderForwardExecutor;
+import org.hum.jladder.adapter.protocol.JladderMessage;
+import org.hum.jladder.adapter.protocol.JladderMessageReceiveEvent;
+import org.hum.jladder.adapter.protocol.JladderMessageReceiveListener;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,7 +21,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 @Sharable
 public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
-	private final static JladderConfig Config = NettyProxyContext.getConfig();	
+	private JladderForwardExecutor jladderForwardExecutor;
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
@@ -44,18 +42,12 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			
 		}
 		
-		JladderForward forward = new JladderForward(Config.getOutsideProxyHost(), Config.getOutsideProxyPort(), browserCtx.channel().eventLoop());
-		forward.onConnect(new JladderConnectListener() {
+		jladderForwardExecutor.writeAndFlush(new JladderMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf())).onReceive(new JladderMessageReceiveEvent() {
 			@Override
-			public void onConnect(JladderChannelFuture future) {
-				future.writeAndFlush(requestWrapper.toBytes());
+			public void onReceive(JladderByteBuf byteBuf) {
+				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			}
-		}).onRead(new JladderReadListener() {
-			@Override
-			public void onRead(JladderByteBuf msg) {
-				browserCtx.writeAndFlush(msg.toByteBuf());
-			}
-		}).connect(requestWrapper.host(), requestWrapper.port());
+		});
 	}
 	
 }
