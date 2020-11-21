@@ -2,7 +2,7 @@ package org.hum.jladder.common.util;
 
 import java.util.Map.Entry;
 
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,7 @@ public class NettyBootstrapUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(NettyBootstrapUtil.class);
 	
-	public static void initTcpServerOptions(ServerBootstrap serverBootstrap, NettyProxyConfig config) {
+	public static void initTcpServerOptions(ServerBootstrap serverBootstrap, JladderConfig config) {
 		// init server-options
 //		if (config.getTcpServerOptions() != null && !config.getTcpServerOptions().isEmpty()) {
 //			for (Entry<String, String> tcpOption : config.getTcpServerOptions().entrySet()) {
@@ -48,7 +48,7 @@ public class NettyBootstrapUtil {
 //		}
 	}
 
-	public static void initTcpServerOptions(Bootstrap bootstrap, NettyProxyConfig config) {
+	public static void initTcpServerOptions(Bootstrap bootstrap, JladderConfig config) {
 		// init server-options
 //		if (config.getTcpServerOptions() != null && !config.getTcpServerOptions().isEmpty()) {
 //			for (Entry<String, String> tcpOption : config.getTcpServerOptions().entrySet()) {

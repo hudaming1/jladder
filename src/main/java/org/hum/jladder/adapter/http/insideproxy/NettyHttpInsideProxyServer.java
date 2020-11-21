@@ -4,7 +4,7 @@ import org.hum.jladder.adapter.http.common.HttpConstant;
 import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.hum.jladder.common.NamedThreadFactory;
 import org.hum.jladder.common.core.NettyProxyContext;
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.hum.jladder.common.enumtype.RunModeEnum;
 import org.hum.jladder.common.util.NettyBootstrapUtil;
 import org.hum.jladder.compoment.monitor.NettyProxyMonitorHandler;
@@ -33,9 +33,9 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	private final ServerBootstrap serverBootstrap;
 	private final NettyProxyMonitorManager nettyProxyMonitorManager;
 	private final HttpInsideChannelInitializer httpChannelInitializer;
-	private final NettyProxyConfig config;
+	private final JladderConfig config;
 
-	public NettyHttpInsideProxyServer(NettyProxyConfig config) {
+	public NettyHttpInsideProxyServer(JladderConfig config) {
 		this.config = config;
 		nettyProxyMonitorManager = new NettyProxyMonitorManager();
 		NettyProxyContext.regist(config, nettyProxyMonitorManager);
@@ -64,7 +64,7 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	
 	private static class HttpInsideChannelInitializer extends ChannelInitializer<Channel> {
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
-		private final HttpProxyForwardHandler httpProxyEncryptHandler = new HttpProxyForwardHandler();
+		private final HttpInsideLocalHandler httpInsideLocalHandler = new HttpInsideLocalHandler();
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
@@ -72,8 +72,7 @@ public class NettyHttpInsideProxyServer implements Runnable {
 			ch.pipeline().addLast(new io.netty.handler.codec.http.HttpRequestDecoder());
 			ch.pipeline().addLast(new HttpObjectAggregator(HttpConstant.HTTP_OBJECT_AGGREGATOR_LEN));
 			ch.pipeline().addLast(new HttpRequestWrapperHandler());
-			ch.pipeline().addLast(new ProxyEncryptHandler());
-			ch.pipeline().addLast(httpProxyEncryptHandler);
+			ch.pipeline().addLast(httpInsideLocalHandler);
 		}
 	}
 }

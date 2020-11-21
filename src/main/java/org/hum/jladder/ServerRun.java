@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.hum.jladder.common.core.ServerRunProxyFactory;
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.hum.jladder.common.core.config.proploader.NettyProxyConfigPropertiesLoader;
 import org.hum.jladder.common.enumtype.RunModeEnum;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ public class ServerRun {
 	private static final Logger logger = LoggerFactory.getLogger(ServerRun.class);
 	
 	public static interface Starter {
-		void start(NettyProxyConfig args);
+		void start(JladderConfig args);
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class ServerRun {
 		args = "nettyproxy.runmode=11 nettyproxy.port=52007 nettyproxy.outside_proxy_host=47.75.102.227:5432".split(" ");
 //		args = "nettyproxy.runmode=1 nettyproxy.port=52007 nettyproxy.interceptor=1 nettyproxy.interceptor.regx=[\"update header.host = 'localhost:8080' where header.host= '129.28.193.172:8080'\", \"update header.host = 'localhost:8080' where header.host= '129.28.193.172:8080'\"]".split("nettyproxy.");	
 //		args = "nettyproxy={runmode:1, port:52007}".split(" ");
-		NettyProxyConfig serverRunArg = new NettyProxyConfigPropertiesLoader().load(ServerRun.class.getResource("/nettyproxy_http_simpleproxy.properties").getFile());
+		JladderConfig serverRunArg = new NettyProxyConfigPropertiesLoader().load(ServerRun.class.getResource("/nettyproxy_http_simpleproxy.properties").getFile());
 //		logger.info("input_args=" + serverRunArg);
 		serverRunArg.setOutsideProxyHost("47.75.102.227");
 		serverRunArg.setOutsideProxyPort(5432);

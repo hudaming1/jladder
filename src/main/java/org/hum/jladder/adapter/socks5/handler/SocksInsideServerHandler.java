@@ -5,7 +5,7 @@ import org.hum.jladder.common.codec.customer.DynamicLengthDecoder;
 import org.hum.jladder.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.jladder.common.codec.customer.NettyProxyBuildSuccessMessageCodec.NettyProxyBuildSuccessMessage;
 import org.hum.jladder.common.core.NettyProxyContext;
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.hum.jladder.common.handler.DecryptPipeChannelHandler;
 import org.hum.jladder.common.handler.EncryptPipeChannelHandler;
 import org.hum.jladder.common.handler.ForwardHandler;
@@ -42,7 +42,7 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 			return;
 		}
 		
-		NettyProxyConfig config = NettyProxyContext.getConfig();
+		JladderConfig config = NettyProxyContext.getConfig();
 
 		if (msg.port() == Constant.DEFAULT_HTTPS_PORT) {
 			browserCtx.pipeline().remove(this);

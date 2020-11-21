@@ -3,7 +3,7 @@ package org.hum.jladder.adapter.http.simpleproxy;
 import org.hum.jladder.common.NamedThreadFactory;
 import org.hum.jladder.common.codec.http.HttpRequestDecoder;
 import org.hum.jladder.common.core.NettyProxyContext;
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.hum.jladder.common.enumtype.RunModeEnum;
 import org.hum.jladder.common.util.NettyBootstrapUtil;
 import org.hum.jladder.compoment.monitor.NettyProxyMonitorHandler;
@@ -29,9 +29,9 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 	
 	private final ServerBootstrap serverBootstrap;
 	private final HttpChannelInitializer httpChannelInitializer;
-	private final NettyProxyConfig config;
+	private final JladderConfig config;
 
-	public NettyHttpSimpleProxyServer(NettyProxyConfig config) {
+	public NettyHttpSimpleProxyServer(JladderConfig config) {
 		this.config = config;
 		NettyProxyContext.regist(config);
 		serverBootstrap = new ServerBootstrap();

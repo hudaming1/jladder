@@ -3,7 +3,7 @@ package org.hum.jladder.adapter.http.insideproxy;
 import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.hum.jladder.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.jladder.common.core.NettyProxyContext;
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.hum.jladder.common.util.NettyBootstrapUtil;
 
 import io.netty.bootstrap.Bootstrap;
@@ -15,7 +15,6 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 /**
@@ -26,7 +25,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  * @author hudaming
  */
 @Sharable
-public class HttpProxyForwardHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
+public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
@@ -43,13 +42,10 @@ public class HttpProxyForwardHandler extends SimpleChannelInboundHandler<HttpReq
 		// 转发前记录真实IP，防止转发中丢失源IP地址
 		requestWrapper.header("x-forwarded-for", browserCtx.channel().remoteAddress().toString());
 		
-		NettyProxyConfig config = NettyProxyContext.getConfig();
+		JladderConfig config = NettyProxyContext.getConfig();
 		
 		if (requestWrapper.isHttps()) {
-			// 因为https在后面建立ssl认证时，全部基于tcp协议，无法使用http，因此这里需要将http-decoder删除。
-			browserCtx.pipeline().remove(io.netty.handler.codec.http.HttpRequestDecoder.class);
-			// 因为当前handler是基于http协议的，因此也无法处理后续https通信了。
-			browserCtx.pipeline().remove(this);
+			
 		}
 		
 		Bootstrap bootstrap = new Bootstrap();

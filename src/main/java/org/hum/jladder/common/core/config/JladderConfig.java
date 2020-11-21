@@ -5,7 +5,7 @@ import org.hum.jladder.common.enumtype.RunModeEnum;
 import lombok.Data;
 
 @Data
-public class NettyProxyConfig {
+public class JladderConfig {
 
 	/**
 	 * 运行模式：根据枚举选择程序做什么样的转发
@@ -33,10 +33,10 @@ public class NettyProxyConfig {
 	 */
 	private Integer outsideProxyPort;
 	
-	public NettyProxyConfig() { 
+	public JladderConfig() { 
 	}
 	
-	public NettyProxyConfig(RunModeEnum runMode, int port) {
+	public JladderConfig(RunModeEnum runMode, int port) {
 		this.runMode = runMode;
 		this.port = port;
 	}

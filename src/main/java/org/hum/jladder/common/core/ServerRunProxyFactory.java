@@ -9,7 +9,7 @@ import org.hum.jladder.adapter.http.simpleproxy.NettyHttpSimpleProxyServer;
 import org.hum.jladder.adapter.outside.NettyOutsideProxyServer;
 import org.hum.jladder.adapter.socks5.NettySocksInsideProxyServer;
 import org.hum.jladder.common.NamedThreadFactory;
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.hum.jladder.common.enumtype.RunModeEnum;
 
 public class ServerRunProxyFactory {
@@ -38,7 +38,7 @@ public class ServerRunProxyFactory {
 abstract class AbstractNettyPorxyStarter implements Starter {
 
 	@Override
-	public void start(NettyProxyConfig config) {
+	public void start(JladderConfig config) {
 		if (config == null) {
 			throw new IllegalArgumentException("config mustn't be null");
 		}
@@ -46,13 +46,13 @@ abstract class AbstractNettyPorxyStarter implements Starter {
 		_start(config);
 	}
 	
-	public abstract void _start(NettyProxyConfig config);
+	public abstract void _start(JladderConfig config);
 }
 
 class NettyHttpSimpleStarter extends AbstractNettyPorxyStarter {
 	
 	@Override
-	public void _start(NettyProxyConfig config) {
+	public void _start(JladderConfig config) {
 		ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyHttpSimpleProxyServer(config));
 	}
 }
@@ -60,7 +60,7 @@ class NettyHttpSimpleStarter extends AbstractNettyPorxyStarter {
 class NettyHttpInsideProxyStarter extends AbstractNettyPorxyStarter {
 	
 	@Override
-	public void _start(NettyProxyConfig config) {
+	public void _start(JladderConfig config) {
 		ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyHttpInsideProxyServer(config));
 	}
 }
@@ -68,7 +68,7 @@ class NettyHttpInsideProxyStarter extends AbstractNettyPorxyStarter {
 class OutsideProxyStarter extends AbstractNettyPorxyStarter {
 	
 	@Override
-	public void _start(NettyProxyConfig config) {
+	public void _start(JladderConfig config) {
 		ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyOutsideProxyServer(config));
 	}
 }
@@ -76,7 +76,7 @@ class OutsideProxyStarter extends AbstractNettyPorxyStarter {
 class NettySocksInsideProxyStarter extends AbstractNettyPorxyStarter {
 	
 	@Override
-	public void _start(NettyProxyConfig config) {
+	public void _start(JladderConfig config) {
 		ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettySocksInsideProxyServer(config));
 	}
 }

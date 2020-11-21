@@ -4,7 +4,7 @@ import org.hum.jladder.adapter.outside.handler.NettyServerPipeChannelHandler;
 import org.hum.jladder.common.NamedThreadFactory;
 import org.hum.jladder.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.hum.jladder.common.core.NettyProxyContext;
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.hum.jladder.common.enumtype.RunModeEnum;
 import org.hum.jladder.common.util.NettyBootstrapUtil;
 import org.hum.jladder.compoment.monitor.NettyProxyMonitorHandler;
@@ -32,9 +32,9 @@ public class NettyOutsideProxyServer implements Runnable {
 	private final ServerBootstrap serverBootstrap;
 	private final HttpChannelInitializer httpChannelInitializer;
 	private final NettyProxyMonitorManager nettyProxyMonitorManager;
-	private final NettyProxyConfig config;
+	private final JladderConfig config;
 
-	public NettyOutsideProxyServer(NettyProxyConfig config) {
+	public NettyOutsideProxyServer(JladderConfig config) {
 		this.config = config;
 		serverBootstrap = new ServerBootstrap();
 		httpChannelInitializer = new HttpChannelInitializer();

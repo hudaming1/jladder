@@ -1,11 +1,11 @@
 package io.netty.test;
 
 import org.hum.jladder.adapter.http.common.HttpConstant;
-import org.hum.jladder.adapter.http.insideproxy.HttpProxyForwardHandler;
+import org.hum.jladder.adapter.http.insideproxy.HttpInsideLocalHandler;
 import org.hum.jladder.adapter.http.insideproxy.ProxyEncryptHandler;
 import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.hum.jladder.common.core.NettyProxyContext;
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.hum.jladder.common.enumtype.RunModeEnum;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class HttpInsideHandlerTest {
 
 	@Test
 	public void test1() throws Exception {
-		NettyProxyConfig nettyConfig = new NettyProxyConfig();
+		JladderConfig nettyConfig = new JladderConfig();
 		nettyConfig.setOutsideProxyHost("47.75.102.227");
 		nettyConfig.setOutsideProxyPort(5432);
 		nettyConfig.setRunMode(RunModeEnum.HttpInsideServer);
@@ -31,7 +31,7 @@ public class HttpInsideHandlerTest {
 				new HttpObjectAggregator(HttpConstant.HTTP_OBJECT_AGGREGATOR_LEN), 
 				new HttpRequestWrapperHandler(), 
 				new ProxyEncryptHandler(),
-				new HttpProxyForwardHandler()
+				new HttpInsideLocalHandler()
 				);
 		ByteBuf byteBuf = Unpooled.buffer();
 		byteBuf.writeBytes(request.getBytes());

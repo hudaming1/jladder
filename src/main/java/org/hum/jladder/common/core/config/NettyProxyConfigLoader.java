@@ -12,9 +12,9 @@ public abstract class NettyProxyConfigLoader {
 	 * @param content
 	 * @return
 	 */
-	public NettyProxyConfig load(Object content) {
+	public JladderConfig load(Object content) {
 		NettyProxyConfigContent configContent = loadConfig(content);
-		NettyProxyConfig config = new NettyProxyConfig();
+		JladderConfig config = new JladderConfig();
 		setRunMode(config, configContent.getRunMode());
 		setWorkerCnt(config, configContent.getWorkerCnt());
 		setPort(config, configContent.getPort());
@@ -22,7 +22,7 @@ public abstract class NettyProxyConfigLoader {
 		return config;
 	}
 
-	private void setOutsideProxyHost(NettyProxyConfig config, Object outsideProxyHost) {
+	private void setOutsideProxyHost(JladderConfig config, Object outsideProxyHost) {
 		if ((config.getRunMode() == RunModeEnum.HttpInsideServer || config.getRunMode() == RunModeEnum.SocksInsideServer) && outsideProxyHost == null) {
 			throw new IllegalArgumentException("param \"outsideProxyHost\" mustn't be null when server on inside mode");
 		} else if (outsideProxyHost == null) {
@@ -37,7 +37,7 @@ public abstract class NettyProxyConfigLoader {
 		config.setOutsideProxyPort(parseInt(arr[1], "param \"outsideProxyHost\" port invaild, port value=" + arr[1]));
 	}
 
-	private void setPort(NettyProxyConfig config, Object port) {
+	private void setPort(JladderConfig config, Object port) {
 		if (port == null) {
 			throw new IllegalArgumentException("param \"port\" mustn't be null");
 		}
@@ -46,7 +46,7 @@ public abstract class NettyProxyConfigLoader {
 
 	protected abstract NettyProxyConfigContent loadConfig(Object content);
 	
-	private void setRunMode(NettyProxyConfig config, Object val) {
+	private void setRunMode(JladderConfig config, Object val) {
 		if (val == null) {
 			throw new IllegalArgumentException("param[\"runMode\"] mustn't be null");
 		}
@@ -57,7 +57,7 @@ public abstract class NettyProxyConfigLoader {
 		config.setRunMode(runMode);
 	}
 	
-	private void setWorkerCnt(NettyProxyConfig config, Object val) {
+	private void setWorkerCnt(JladderConfig config, Object val) {
 		if (val == null) {
 			config.setWorkerCnt(Runtime.getRuntime().availableProcessors() * 4);
 		} else {

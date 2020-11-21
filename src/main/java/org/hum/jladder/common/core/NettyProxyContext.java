@@ -2,17 +2,17 @@ package org.hum.jladder.common.core;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.hum.jladder.common.core.config.NettyProxyConfig;
+import org.hum.jladder.common.core.config.JladderConfig;
 import org.hum.jladder.common.enumtype.RunModeEnum;
 import org.hum.jladder.compoment.monitor.NettyProxyMonitorManager;
 
 public class NettyProxyContext {
 	
-	private final static ConcurrentHashMap<String, NettyProxyConfig> CONFIG_MAP = new ConcurrentHashMap<String, NettyProxyConfig>();
-	private final static InheritableThreadLocal<NettyProxyConfig> CONFIG_CONTEXT = new InheritableThreadLocal<NettyProxyConfig>();
+	private final static ConcurrentHashMap<String, JladderConfig> CONFIG_MAP = new ConcurrentHashMap<String, JladderConfig>();
+	private final static InheritableThreadLocal<JladderConfig> CONFIG_CONTEXT = new InheritableThreadLocal<JladderConfig>();
 	private final static InheritableThreadLocal<NettyProxyMonitorManager> MONITOR_CONTEXT = new InheritableThreadLocal<NettyProxyMonitorManager>();
 
-	public static void regist(NettyProxyConfig nettyConfig) {
+	public static void regist(JladderConfig nettyConfig) {
 		if (nettyConfig == null || nettyConfig.getRunMode() == null) {
 			throw new IllegalArgumentException("param mustn't be null");
 		}
@@ -25,12 +25,12 @@ public class NettyProxyContext {
 		MONITOR_CONTEXT.set(monitor);
 	}
 	
-	public static void regist(NettyProxyConfig nettyConfig, NettyProxyMonitorManager monitor) {
+	public static void regist(JladderConfig nettyConfig, NettyProxyMonitorManager monitor) {
 		regist(monitor);
 		regist(nettyConfig);
 	}
 
-	public static NettyProxyConfig getConfigByThreadName() {
+	public static JladderConfig getConfigByThreadName() {
 		String currentThreadName = Thread.currentThread().getName();
 		for (RunModeEnum runMode : RunModeEnum.values()) {
 			if (currentThreadName.startsWith(runMode.getName())) {
@@ -40,7 +40,7 @@ public class NettyProxyContext {
 		return null;
 	}
 
-	public static NettyProxyConfig getConfig() {
+	public static JladderConfig getConfig() {
 		return CONFIG_CONTEXT.get();
 	}
 	
