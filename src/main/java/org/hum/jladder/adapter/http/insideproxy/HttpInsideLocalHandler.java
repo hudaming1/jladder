@@ -1,21 +1,17 @@
 package org.hum.jladder.adapter.http.insideproxy;
 
 import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapper;
-import org.hum.jladder.common.codec.customer.NettyProxyConnectMessageCodec;
+import org.hum.jladder.adapter.protocol.JladderByteBuf;
+import org.hum.jladder.adapter.protocol.JladderChannelFuture;
+import org.hum.jladder.adapter.protocol.JladderForward;
+import org.hum.jladder.adapter.protocol.listener.JladderConnectListener;
+import org.hum.jladder.adapter.protocol.listener.JladderReadListener;
 import org.hum.jladder.common.core.NettyProxyContext;
 import org.hum.jladder.common.core.config.JladderConfig;
-import org.hum.jladder.common.util.NettyBootstrapUtil;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.socket.nio.NioSocketChannel;
 
 /**
  * HTTP/HTTPS 加密转发
@@ -27,6 +23,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 @Sharable
 public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
+	private final static JladderConfig Config = NettyProxyContext.getConfig();	
+	
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
 
@@ -42,33 +40,20 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		// 转发前记录真实IP，防止转发中丢失源IP地址
 		requestWrapper.header("x-forwarded-for", browserCtx.channel().remoteAddress().toString());
 		
-		JladderConfig config = NettyProxyContext.getConfig();
-		
 		if (requestWrapper.isHttps()) {
 			
 		}
 		
-		Bootstrap bootstrap = new Bootstrap();
-		bootstrap.channel(NioSocketChannel.class);
-//		bootstrap.group(new NioEventLoopGroup());
-		bootstrap.group(browserCtx.channel().eventLoop());
-		NettyBootstrapUtil.initTcpServerOptions(bootstrap, config);
-		bootstrap.handler(new ChannelInitializer<Channel>() {
+		JladderForward forward = new JladderForward(Config.getOutsideProxyHost(), Config.getOutsideProxyPort(), browserCtx.channel().eventLoop());
+		forward.connect(requestWrapper.host(), requestWrapper.port(), new JladderConnectListener() {
 			@Override
-			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new NettyHttpProxyEncShakeHanlder(browserCtx.channel(), requestWrapper));
+			public void onConnect(JladderChannelFuture future) {
+				future.writeAndFlush(requestWrapper.toBytes());
 			}
-		});
-		// 建立连接
-		bootstrap.connect(config.getOutsideProxyHost(), config.getOutsideProxyPort()).addListener(new ChannelFutureListener() {
+		}).onRead(new JladderReadListener() {
 			@Override
-			public void operationComplete(ChannelFuture remoteFuture) throws Exception {
-				
-				byte[] hostBytes = requestWrapper.host().getBytes();
-				ByteBuf byteBuf = remoteFuture.channel().alloc().directBuffer();
-				
-				// 告诉OutsideServer连接到远端服务器的地址和端口。
-				remoteFuture.channel().writeAndFlush(NettyProxyConnectMessageCodec.EncoderUtil.encode(byteBuf, hostBytes, (short) requestWrapper.port()));
+			public void onRead(JladderByteBuf msg) {
+				browserCtx.writeAndFlush(msg.toByteBuf());
 			}
 		});
 	}

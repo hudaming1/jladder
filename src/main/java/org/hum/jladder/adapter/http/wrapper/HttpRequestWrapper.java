@@ -65,6 +65,11 @@ public class HttpRequestWrapper {
 		return request;
 	}
 
+	public byte[] toBytes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
     @Getter
     @AllArgsConstructor
     public static class InetAddress {

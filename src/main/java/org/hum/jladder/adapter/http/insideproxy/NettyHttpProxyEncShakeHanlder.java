@@ -62,7 +62,6 @@ public class NettyHttpProxyEncShakeHanlder extends ChannelInboundHandlerAdapter 
         	return ;
         } 
         
-        
         System.out.println("http");
         
         // proxy.response -> browser (仅开启单项转发就够了，因为HTTP是请求/应答协议)
