@@ -45,7 +45,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		}
 		
 		JladderForward forward = new JladderForward(Config.getOutsideProxyHost(), Config.getOutsideProxyPort(), browserCtx.channel().eventLoop());
-		forward.connect(requestWrapper.host(), requestWrapper.port(), new JladderConnectListener() {
+		forward.onConnect(new JladderConnectListener() {
 			@Override
 			public void onConnect(JladderChannelFuture future) {
 				future.writeAndFlush(requestWrapper.toBytes());
@@ -55,7 +55,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			public void onRead(JladderByteBuf msg) {
 				browserCtx.writeAndFlush(msg.toByteBuf());
 			}
-		});
+		}).connect(requestWrapper.host(), requestWrapper.port());
 	}
 	
 }
