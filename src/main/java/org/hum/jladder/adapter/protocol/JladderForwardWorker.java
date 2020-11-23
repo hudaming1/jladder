@@ -14,7 +14,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class JladderForward extends ChannelDuplexHandler {
+public class JladderForwardWorker extends ChannelDuplexHandler {
 	
 	private EventLoopGroup eventLoopGroup;
 	private JladderConnectListener jladderConnectListener;
@@ -24,17 +24,17 @@ public class JladderForward extends ChannelDuplexHandler {
 	private String proxyHost;
 	private int proxyPort;
 	
-	public JladderForward(String proxyHost, int proxyPort) {
+	public JladderForwardWorker(String proxyHost, int proxyPort) {
 		this(proxyHost, proxyPort, new NioEventLoopGroup());
 	}
 	
-	public JladderForward(String proxyHost, int proxyPort, EventLoopGroup eventLoopGroup) {
+	public JladderForwardWorker(String proxyHost, int proxyPort, EventLoopGroup eventLoopGroup) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		this.eventLoopGroup = eventLoopGroup;
 	}
 
-	public JladderForward connect() {
+	public JladderForwardWorker connect() {
 		bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class);
 		bootstrap.group(eventLoopGroup);
@@ -59,12 +59,12 @@ public class JladderForward extends ChannelDuplexHandler {
         ctx.fireChannelRead(msg);
     }
 
-	public JladderForward onRead(JladderReadListener jladderReadListener) {
+	public JladderForwardWorker onRead(JladderReadListener jladderReadListener) {
 		this.jladderReadListener = jladderReadListener;
 		return this;
 	}
 
-	public JladderForward onConnect(JladderConnectListener jladderConnectListener) {
+	public JladderForwardWorker onConnect(JladderConnectListener jladderConnectListener) {
 		this.jladderConnectListener = jladderConnectListener;
 		return this;
 	}

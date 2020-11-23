@@ -3,9 +3,9 @@ package org.hum.jladder.adapter.http.insideproxy;
 import org.hum.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.hum.jladder.adapter.protocol.JladderByteBuf;
 import org.hum.jladder.adapter.protocol.JladderForwardExecutor;
+import org.hum.jladder.adapter.protocol.JladderForwardWorkerListener;
 import org.hum.jladder.adapter.protocol.JladderMessage;
 import org.hum.jladder.adapter.protocol.JladderMessageReceiveEvent;
-import org.hum.jladder.adapter.protocol.JladderMessageReceiveListener;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -42,7 +42,8 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			
 		}
 		
-		jladderForwardExecutor.writeAndFlush(new JladderMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf())).onReceive(new JladderMessageReceiveEvent() {
+		JladderForwardWorkerListener receiveListener = jladderForwardExecutor.writeAndFlush(new JladderMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
+		receiveListener.onReceive(new JladderMessageReceiveEvent() {
 			@Override
 			public void onReceive(JladderByteBuf byteBuf) {
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
