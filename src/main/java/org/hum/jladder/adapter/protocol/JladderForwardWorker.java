@@ -3,11 +3,9 @@ package org.hum.jladder.adapter.protocol;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.hum.jladder.adapter.protocol.listener.JladderConnectListener;
-import org.hum.jladder.adapter.protocol.listener.JladderReadListener;
+import org.hum.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
@@ -19,11 +17,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class JladderForwardWorker extends ChannelDuplexHandler {
 	
+	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private EventLoopGroup eventLoopGroup;
-	private JladderConnectListener jladderConnectListener;
-	private JladderReadListener jladderReadListener;
 	private Channel channel;
-	private Bootstrap bootstrap;
 	private String proxyHost;
 	private int proxyPort;
 	private Map<Long, JladderForwardWorkerListener> listenerMap = new ConcurrentHashMap<>();
@@ -39,10 +35,15 @@ public class JladderForwardWorker extends ChannelDuplexHandler {
 	}
 
 	public JladderForwardWorker connect() {
-		bootstrap = new Bootstrap();
+		if (!isCanBeStart()) {
+			return this;
+		}
+		status = JladderForwardWorkerStatusEnum.Starting;
+		
+		// init bootstrap
+		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class);
 		bootstrap.group(eventLoopGroup);
-		// NettyBootstrapUtil.initTcpServerOptions(bootstrap, Config);
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
@@ -51,49 +52,41 @@ public class JladderForwardWorker extends ChannelDuplexHandler {
 		});	
 		ChannelFuture chanelFuture = bootstrap.connect(proxyHost, proxyPort);
 		this.channel = chanelFuture.channel();
-		chanelFuture.addListener(jladderConnectListener);
+		chanelFuture.addListener(f -> {
+			if (f.isSuccess()) {
+				status = JladderForwardWorkerStatusEnum.Running;
+			}
+		});
 		return this;
+	}
+	
+	private boolean isCanBeStart() {
+		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	if (msg instanceof ByteBuf) {
-    		long msgId = parseId(msg);
-    		// TODO 
-    		listenerMap.get(msgId).onReceive(event);
-    		jladderReadListener.onRead(new JladderByteBuf((ByteBuf) msg));
+    	if (msg instanceof JladderMessage) {
+    		JladderMessage jladderByteBuf = (JladderMessage) msg;
+    		listenerMap.get(jladderByteBuf.getId()).fireReadEvent(new JladderByteBuf(jladderByteBuf.getBody()));
     	}
         ctx.fireChannelRead(msg);
     }
 
-	private long parseId(Object msg) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public JladderForwardWorker onRead(JladderReadListener jladderReadListener) {
-		this.jladderReadListener = jladderReadListener;
-		return this;
-	}
-
-	public JladderForwardWorker onConnect(JladderConnectListener jladderConnectListener) {
-		this.jladderConnectListener = jladderConnectListener;
-		return this;
-	}
-	
 	public JladderForwardWorkerListener writeAndFlush(JladderMessage message) {
-		if (this.channel == null || !this.channel.isActive()) {
+		if (status != JladderForwardWorkerStatusEnum.Running) {
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
 
 		message.setId(System.nanoTime());
 		
-		listenerMap.put(message.getId(), new JladderForwardWorkerListener(this));
+		listenerMap.put(message.getId(), new JladderForwardWorkerListener());
 		
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
 			// sign writable
 		});
+		
 		return listenerMap.get(message.getId());
 	}
 }
