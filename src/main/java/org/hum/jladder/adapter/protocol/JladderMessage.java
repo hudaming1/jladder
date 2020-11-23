@@ -14,6 +14,13 @@ public class JladderMessage {
 		this.port = port;
 		this.body = body;
 	}
+
+	public JladderMessage(long id, String host, int port, ByteBuf body) {
+		this.id = id;
+		this.host = host;
+		this.port = port;
+		this.body = body;
+	}
 	
 	void setId(long id) {
 		this.id = id;

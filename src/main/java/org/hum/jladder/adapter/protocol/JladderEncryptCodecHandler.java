@@ -29,6 +29,7 @@ public class JladderEncryptCodecHandler extends ChannelDuplexHandler {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
     	if (msg instanceof JladderMessage) {
+    		ctx.alloc().directBuffer();
     		ctx.writeAndFlush(encStrategy.encrypt((JladderMessage) msg));
     	} else {
     		ctx.writeAndFlush(msg);
