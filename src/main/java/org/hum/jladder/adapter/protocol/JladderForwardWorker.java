@@ -3,21 +3,24 @@ package org.hum.jladder.adapter.protocol;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.hum.jladder.adapter.protocol.encrypt.DefaultEncStrategy;
+import org.hum.jladder.adapter.protocol.encrypt.EncStrategy;
 import org.hum.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class JladderForwardWorker extends ChannelDuplexHandler {
+public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
 	
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
+	private static final EncStrategy encStategy = new DefaultEncStrategy();
 	private EventLoopGroup eventLoopGroup;
 	private Channel channel;
 	private String proxyHost;
@@ -47,7 +50,8 @@ public class JladderForwardWorker extends ChannelDuplexHandler {
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new JladderCodecHandler());
+				ch.pipeline().addLast(new JladderEncryptCodecHandler(encStategy));
+				ch.pipeline().addLast(JladderForwardWorker.this);
 			}
 		});	
 		ChannelFuture chanelFuture = bootstrap.connect(proxyHost, proxyPort);
@@ -64,15 +68,6 @@ public class JladderForwardWorker extends ChannelDuplexHandler {
 		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	if (msg instanceof JladderMessage) {
-    		JladderMessage jladderByteBuf = (JladderMessage) msg;
-    		listenerMap.get(jladderByteBuf.getId()).fireReadEvent(new JladderByteBuf(jladderByteBuf.getBody()));
-    	}
-        ctx.fireChannelRead(msg);
-    }
-
 	public JladderForwardWorkerListener writeAndFlush(JladderMessage message) {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			throw new IllegalStateException("channel not connect or has closed.");
@@ -88,5 +83,11 @@ public class JladderForwardWorker extends ChannelDuplexHandler {
 		});
 		
 		return listenerMap.get(message.getId());
+	}
+
+	@Override
+	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
+		listenerMap.get(msg.getId()).fireReadEvent(new JladderByteBuf(msg.getBody()));
+        ctx.fireChannelRead(msg);
 	}
 }

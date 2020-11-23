@@ -25,10 +25,7 @@ public class JladderForwardExecutor {
 	}
 
 	public JladderForwardWorkerListener writeAndFlush(JladderMessage message) {
-	
-		JladderForwardWorker jladderForward = select();
-		
-		return jladderForward.writeAndFlush(message);
+		return select().writeAndFlush(message);
 	}
 	
 	private JladderForwardWorker select() {
