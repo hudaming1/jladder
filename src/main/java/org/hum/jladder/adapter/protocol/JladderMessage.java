@@ -1,14 +1,37 @@
 package org.hum.jladder.adapter.protocol;
 
 import io.netty.buffer.ByteBuf;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
 public class JladderMessage {
 
+	private long id;
 	private String host;
 	private int port;
 	private ByteBuf body;
+
+	public JladderMessage(String host, int port, ByteBuf body) {
+		this.host = host;
+		this.port = port;
+		this.body = body;
+	}
+	
+	void setId(long id) {
+		this.id = id;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public ByteBuf getBody() {
+		return body;
+	}
 }

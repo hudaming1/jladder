@@ -1,5 +1,8 @@
 package org.hum.jladder.adapter.protocol;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.hum.jladder.adapter.protocol.listener.JladderConnectListener;
 import org.hum.jladder.adapter.protocol.listener.JladderReadListener;
 
@@ -23,6 +26,7 @@ public class JladderForwardWorker extends ChannelDuplexHandler {
 	private Bootstrap bootstrap;
 	private String proxyHost;
 	private int proxyPort;
+	private Map<Long, JladderForwardWorkerListener> listenerMap = new ConcurrentHashMap<>();
 	
 	public JladderForwardWorker(String proxyHost, int proxyPort) {
 		this(proxyHost, proxyPort, new NioEventLoopGroup());
@@ -54,10 +58,18 @@ public class JladderForwardWorker extends ChannelDuplexHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     	if (msg instanceof ByteBuf) {
+    		long msgId = parseId(msg);
+    		// TODO 
+    		listenerMap.get(msgId).onReceive(event);
     		jladderReadListener.onRead(new JladderByteBuf((ByteBuf) msg));
     	}
         ctx.fireChannelRead(msg);
     }
+
+	private long parseId(Object msg) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 	public JladderForwardWorker onRead(JladderReadListener jladderReadListener) {
 		this.jladderReadListener = jladderReadListener;
@@ -69,13 +81,19 @@ public class JladderForwardWorker extends ChannelDuplexHandler {
 		return this;
 	}
 	
-	public ChannelFuture writeAndFlush(JladderMessage message) {
+	public JladderForwardWorkerListener writeAndFlush(JladderMessage message) {
 		if (this.channel == null || !this.channel.isActive()) {
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
-		return this.channel.writeAndFlush(message).addListener(f -> {
+
+		message.setId(System.nanoTime());
+		
+		listenerMap.put(message.getId(), new JladderForwardWorkerListener(this));
+		
+		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
 			// sign writable
 		});
+		return listenerMap.get(message.getId());
 	}
 }

@@ -28,15 +28,11 @@ public class JladderForwardExecutor {
 	
 		JladderForwardWorker jladderForward = select();
 		
-		JladderForwardWorkerListener listener = new JladderForwardWorkerListener(jladderForward);
-		
-		jladderForward.writeAndFlush(message);
-		
-		return listener;
+		return jladderForward.writeAndFlush(message);
 	}
 	
 	private JladderForwardWorker select() {
-		// TODO 先简单实现
+		// TODO select实现要确保，一次只服务一个客户端会话
 		return jladderForwardWorkerList.get(RoundRobinRouter.getAndIncrement() % currentWorkerCount);
 	}
 }
