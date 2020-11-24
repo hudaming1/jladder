@@ -1,6 +1,6 @@
 package org.jladder.adapter.outside;
 
-import org.jladder.adapter.protocol.JladderCryptoHandler;
+import org.jladder.adapter.protocol.executor.JladderCryptoHandler;
 import org.jladder.common.NamedThreadFactory;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;

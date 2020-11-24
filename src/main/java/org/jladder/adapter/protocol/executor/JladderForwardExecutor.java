@@ -1,9 +1,10 @@
-package org.jladder.adapter.protocol;
+package org.jladder.adapter.protocol.executor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
@@ -14,14 +15,14 @@ import org.jladder.common.core.config.JladderConfig;
  */
 public class JladderForwardExecutor {
 	
-	private List<JladderForwardWorker> jladderForwardWorkerList = new ArrayList<>();
+	private List<JladderCryptoForwardWorker> jladderForwardWorkerList = new ArrayList<>();
 	private AtomicInteger RoundRobinRouter = new AtomicInteger(0);
 	private int currentWorkerCount = 20;
 	
 	public JladderForwardExecutor() {
 		JladderConfig config = NettyProxyContext.getConfig();
 		for (int i = 0 ;i < currentWorkerCount; i ++) {
-			JladderForwardWorker jladderForwardWorker = new JladderForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort());
+			JladderCryptoForwardWorker jladderForwardWorker = new JladderCryptoForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort());
 			jladderForwardWorker.connect();
 			jladderForwardWorkerList.add(jladderForwardWorker);
 		}
@@ -31,7 +32,7 @@ public class JladderForwardExecutor {
 		return select().writeAndFlush(message);
 	}
 	
-	private JladderForwardWorker select() {
+	private JladderCryptoForwardWorker select() {
 		// TODO select实现要确保，一次只服务一个客户端会话
 		return jladderForwardWorkerList.get(RoundRobinRouter.getAndIncrement() % currentWorkerCount);
 	}

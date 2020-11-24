@@ -2,9 +2,9 @@ package org.jladder.adapter.http.insideproxy;
 
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.protocol.JladderByteBuf;
-import org.jladder.adapter.protocol.JladderForwardExecutor;
 import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
+import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 import org.jladder.common.Constant;
 

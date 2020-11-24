@@ -1,8 +1,10 @@
-package org.jladder.adapter.protocol;
+package org.jladder.adapter.protocol.executor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jladder.adapter.protocol.JladderByteBuf;
+import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
@@ -10,7 +12,6 @@ import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
@@ -18,22 +19,22 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
+public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
 	
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private EventLoopGroup eventLoopGroup;
 	private Channel channel;
-	private String remoteHost;
-	private int remotePort;
+	private String proxyHost;
+	private int proxyPort;
 	private Map<Long, JladderOnReceiveDataListener> listenerMap = new ConcurrentHashMap<>();
 	
-	public JladderForwardWorker(String proxyHost, int proxyPort) {
+	public JladderCryptoForwardWorker(String proxyHost, int proxyPort) {
 		this(proxyHost, proxyPort, new NioEventLoopGroup());
 	}
 	
-	public JladderForwardWorker(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
-		this.remoteHost = remoteHost;
-		this.remotePort = remotePort;
+	public JladderCryptoForwardWorker(String proxyHost, int proxyPort, EventLoopGroup eventLoopGroup) {
+		this.proxyHost = proxyHost;
+		this.proxyPort = proxyPort;
 		this.eventLoopGroup = eventLoopGroup;
 	}
 
@@ -50,10 +51,11 @@ public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMes
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(childHandler());
+				ch.pipeline().addLast(new JladderCryptoHandler());
+				ch.pipeline().addLast(JladderCryptoForwardWorker.this);
 			}
 		});	
-		ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);
+		ChannelFuture chanelFuture = bootstrap.connect(proxyHost, proxyPort);
 		this.channel = chanelFuture.channel();
 		chanelFuture.addListener(f -> {
 			if (f.isSuccess()) {
@@ -61,10 +63,6 @@ public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMes
 			}
 		});
 		return new JladderOnConnectedListener();
-	}
-	
-	public ChannelHandler[] childHandler() {
-		return new ChannelHandler[] { this };
 	}
 	
 	private boolean isCanBeStart() {

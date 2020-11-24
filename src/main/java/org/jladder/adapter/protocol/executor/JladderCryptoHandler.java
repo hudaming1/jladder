@@ -1,5 +1,6 @@
-package org.jladder.adapter.protocol;
+package org.jladder.adapter.protocol.executor;
 
+import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.common.util.AESCoder;
 
 import io.netty.buffer.ByteBuf;
