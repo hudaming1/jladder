@@ -6,7 +6,10 @@ import org.hum.jladder.adapter.protocol.JladderForwardExecutor;
 import org.hum.jladder.adapter.protocol.JladderForwardWorkerListener;
 import org.hum.jladder.adapter.protocol.JladderMessage;
 import org.hum.jladder.adapter.protocol.JladderMessageReceiveEvent;
+import org.hum.jladder.common.Constant;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -21,6 +24,10 @@ import io.netty.channel.SimpleChannelInboundHandler;
 @Sharable
 public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
+	private static final ByteBuf HTTPS_CONNECTED_LINE = PooledByteBufAllocator.DEFAULT.directBuffer();
+	static {
+		HTTPS_CONNECTED_LINE.writeBytes(Constant.ConnectedLine.getBytes());
+	}
 	private JladderForwardExecutor jladderForwardExecutor;
 	
 	@Override
@@ -39,7 +46,8 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		requestWrapper.header("x-forwarded-for", browserCtx.channel().remoteAddress().toString());
 		
 		if (requestWrapper.isHttps()) {
-			
+			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE);
+			return ;
 		}
 		
 		JladderForwardWorkerListener receiveListener = jladderForwardExecutor.writeAndFlush(new JladderMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
