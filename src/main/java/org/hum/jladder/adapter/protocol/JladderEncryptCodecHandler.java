@@ -32,11 +32,12 @@ public class JladderEncryptCodecHandler extends ChannelDuplexHandler {
     		byte[] hostBytes = aesDecrypt(hostBytes4Encrypt);
     		// read port
     		int port = byteBuf.readInt();
-    		// read
+    		// read body
+    		boolean isBodyNeedDecrypt = byteBuf.readBoolean();
     		int bodyLen = byteBuf.readInt();
-    		byte[] bodyBytes4Encrypt = new byte[bodyLen];
-    		byteBuf.readBytes(bodyBytes4Encrypt);
-    		byte[] bodyBytes = aesDecrypt(bodyBytes4Encrypt);
+    		byte[] sourceBodyBytes = new byte[bodyLen];
+    		byteBuf.readBytes(sourceBodyBytes);
+    		byte[] bodyBytes = isBodyNeedDecrypt ? aesDecrypt(sourceBodyBytes) : sourceBodyBytes;
     		ByteBuf body = Unpooled.buffer(bodyLen);
     		body.readBytes(bodyBytes);
     		
@@ -57,7 +58,8 @@ public class JladderEncryptCodecHandler extends ChannelDuplexHandler {
     		byte[] bodyArr = new byte[body.readableBytes()];
     		body.writeBytes(bodyArr);
     		body.release();
-    		byte[] bodyBytes4Encrypt = aesEncrypt(bodyArr);
+    		// TODO 如果不需要加密，则直接用CompositeByteBuf组合即可
+    		byte[] bodyBytes4Encrypt = jladderMessage.isBodyNeedEncrypt() ? aesEncrypt(bodyArr) : bodyArr;
     		
     		ByteBuf buf = Unpooled.buffer();
     		buf.writeLong(MAGIC_NUMBER);
@@ -66,6 +68,7 @@ public class JladderEncryptCodecHandler extends ChannelDuplexHandler {
     		buf.writeInt(hostBytes4Encrypt.length);
     		buf.writeBytes(hostBytes4Encrypt);
     		buf.writeInt(jladderMessage.getPort());
+    		buf.writeBoolean(jladderMessage.isBodyNeedEncrypt());
     		buf.writeInt(bodyBytes4Encrypt.length);
     		buf.writeBytes(bodyBytes4Encrypt);
     		
