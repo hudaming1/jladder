@@ -8,12 +8,12 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 
-public class JladderEncryptCodecHandler extends ChannelDuplexHandler {
+public class JladderCryptoHandler extends ChannelDuplexHandler {
 	
 	private static final short TRANSFER_TYPE = 0;
 	private static final long MAGIC_NUMBER = 0x90ABCDEF;
 	
-	public JladderEncryptCodecHandler() {
+	public JladderCryptoHandler() {
 	}
 
 	// read -> decrypt

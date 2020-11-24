@@ -1,8 +1,7 @@
 package org.jladder.adapter.outside;
 
-import org.jladder.adapter.outside.handler.NettyServerPipeChannelHandler;
+import org.jladder.adapter.protocol.JladderCryptoHandler;
 import org.jladder.common.NamedThreadFactory;
-import org.jladder.common.codec.customer.NettyProxyConnectMessageCodec;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;
@@ -63,11 +62,12 @@ public class NettyOutsideProxyServer implements Runnable {
 	
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
-		private final NettyServerPipeChannelHandler nettyServerPipeChannelHandler = new NettyServerPipeChannelHandler();
+		private final NettyOutsideHandler nettyServerPipeChannelHandler = new NettyOutsideHandler();
+		private final JladderCryptoHandler jladderCryptoHandler = new JladderCryptoHandler();
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
-			ch.pipeline().addLast(new NettyProxyConnectMessageCodec.Decoder(), nettyServerPipeChannelHandler);
+			ch.pipeline().addLast(jladderCryptoHandler, nettyServerPipeChannelHandler);
 		}
 	}
 }
