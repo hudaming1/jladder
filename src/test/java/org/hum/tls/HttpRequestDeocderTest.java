@@ -1,7 +1,7 @@
 package org.hum.tls;
 
-import org.hum.jladder.common.helper.ByteBufHttpHelper;
-import org.hum.jladder.common.model.HttpRequest;
+import org.jladder.common.helper.ByteBufHttpHelper;
+import org.jladder.common.model.HttpRequest;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

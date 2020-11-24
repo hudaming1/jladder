@@ -75,7 +75,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.hum.jladder.ServerRun</mainClass>
+							<mainClass>org.jladder.ServerRun</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
