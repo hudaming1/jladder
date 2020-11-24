@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 
@@ -20,11 +21,13 @@ public class JladderForwardExecutor {
 	public JladderForwardExecutor() {
 		JladderConfig config = NettyProxyContext.getConfig();
 		for (int i = 0 ;i < currentWorkerCount; i ++) {
-			jladderForwardWorkerList.add(new JladderForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort()));
+			JladderForwardWorker jladderForwardWorker = new JladderForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort());
+			jladderForwardWorker.connect();
+			jladderForwardWorkerList.add(jladderForwardWorker);
 		}
 	}
 
-	public JladderForwardWorkerListener writeAndFlush(JladderMessage message) {
+	public JladderOnReceiveDataListener writeAndFlush(JladderMessage message) {
 		return select().writeAndFlush(message);
 	}
 	

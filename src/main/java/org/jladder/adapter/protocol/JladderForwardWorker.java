@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
+import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
+import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -22,7 +24,7 @@ public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMes
 	private Channel channel;
 	private String proxyHost;
 	private int proxyPort;
-	private Map<Long, JladderForwardWorkerListener> listenerMap = new ConcurrentHashMap<>();
+	private Map<Long, JladderOnReceiveDataListener> listenerMap = new ConcurrentHashMap<>();
 	
 	public JladderForwardWorker(String proxyHost, int proxyPort) {
 		this(proxyHost, proxyPort, new NioEventLoopGroup());
@@ -34,9 +36,9 @@ public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMes
 		this.eventLoopGroup = eventLoopGroup;
 	}
 
-	public JladderForwardWorker connect() {
+	public JladderOnConnectedListener connect() {
 		if (!isCanBeStart()) {
-			return this;
+			throw new IllegalStateException("worker cann't be connect, current_status=" + status);
 		}
 		status = JladderForwardWorkerStatusEnum.Starting;
 		
@@ -58,19 +60,19 @@ public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMes
 				status = JladderForwardWorkerStatusEnum.Running;
 			}
 		});
-		return this;
+		return new JladderOnConnectedListener();
 	}
 	
 	private boolean isCanBeStart() {
 		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
-	public JladderForwardWorkerListener writeAndFlush(JladderMessage message) {
+	public JladderOnReceiveDataListener writeAndFlush(JladderMessage message) {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
 
-		listenerMap.put(message.getId(), new JladderForwardWorkerListener());
+		listenerMap.put(message.getId(), new JladderOnReceiveDataListener());
 		
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
