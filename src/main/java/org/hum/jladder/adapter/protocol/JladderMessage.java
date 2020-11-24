@@ -38,15 +38,15 @@ public class JladderMessage {
 		return bodyNeedEncrypt;
 	}
 
-	public static JladderMessage buildNormalMessage(String host, int port, ByteBuf body) {
-		return buildNormalMessage(System.nanoTime(), host, port, body);
+	public static JladderMessage buildNeedEncryptMessage(String host, int port, ByteBuf body) {
+		return buildNeedEncryptMessage(System.nanoTime(), host, port, body);
 	}
 
-	public static JladderMessage buildNormalMessage(long id, String host, int port, ByteBuf body) {
+	public static JladderMessage buildNeedEncryptMessage(long id, String host, int port, ByteBuf body) {
 		return new JladderMessage(true, id, host, port, body);
 	}
 
-	public static JladderMessage buildEncMessage(String host, int port, ByteBuf body) {
+	public static JladderMessage buildUnNeedEncryptMessage(String host, int port, ByteBuf body) {
 		return new JladderMessage(false, System.nanoTime(), host, port, body);
 	}
 }

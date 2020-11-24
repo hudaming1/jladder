@@ -52,7 +52,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE);
 			return ;
 		} else {
-			JladderForwardWorkerListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNormalMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
+			JladderForwardWorkerListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNeedEncryptMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
 			receiveListener.onReceive(new JladderMessageReceiveEvent() {
 				@Override
 				public void onReceive(JladderByteBuf byteBuf) {
@@ -75,7 +75,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
 	    	if (msg instanceof ByteBuf) {
-	    		JladderForwardWorkerListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildEncMessage(remoteHost, remotePort, (ByteBuf) msg));
+	    		JladderForwardWorkerListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildUnNeedEncryptMessage(remoteHost, remotePort, (ByteBuf) msg));
 	    		receiveListener.onReceive(new JladderMessageReceiveEvent() {
 	    			@Override
 	    			public void onReceive(JladderByteBuf byteBuf) {

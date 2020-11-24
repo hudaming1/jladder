@@ -41,7 +41,7 @@ public class JladderEncryptCodecHandler extends ChannelDuplexHandler {
     		ByteBuf body = Unpooled.buffer(bodyLen);
     		body.readBytes(bodyBytes);
     		
-    		ctx.fireChannelRead(JladderMessage.buildNormalMessage(id, new String(hostBytes), port, body));
+    		ctx.fireChannelRead(JladderMessage.buildNeedEncryptMessage(id, new String(hostBytes), port, body));
     	} else {
     		ctx.fireChannelRead(msg);
     	}
