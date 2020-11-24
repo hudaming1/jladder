@@ -1,11 +1,13 @@
 package org.jladder.adapter.outside;
 
+import org.jladder.adapter.protocol.JladderAsynHttpClient;
+import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderMessage;
-import org.jladder.adapter.protocol.executor.JladderCryptoForwardWorker;
+import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
 
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.ChannelHandler.Sharable;
 
 @Sharable
 public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMessage> {
@@ -13,8 +15,12 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage msg) throws Exception {
 		// TODO 使用ctx.channel().eventLoop()
-		JladderCryptoForwardWorker forward = new JladderCryptoForwardWorker(msg.getHost(), msg.getPort());
-		
-		forward.writeAndFlush(msg.getBody());
+		JladderAsynHttpClient client = new JladderAsynHttpClient(msg.getHost(), msg.getPort());
+		client.writeAndFlush(msg.getBody()).onReceive(new JladderMessageReceiveEvent() {
+			@Override
+			public void onReceive(JladderByteBuf byteBuf) {
+				insideCtx.writeAndFlush(byteBuf.toByteBuf());
+			}
+		});
 	}
 }

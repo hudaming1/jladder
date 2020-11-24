@@ -1,37 +1,38 @@
 package org.jladder.adapter.protocol;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
+public class JladderAsynHttpClient extends ChannelInboundHandlerAdapter {
 	
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private EventLoopGroup eventLoopGroup;
 	private Channel channel;
 	private String remoteHost;
 	private int remotePort;
-	private Map<Long, JladderOnReceiveDataListener> listenerMap = new ConcurrentHashMap<>();
+	private JladderOnReceiveDataListener onReceiveListener = new JladderOnReceiveDataListener();
+	private JladderOnConnectedListener onConnectedListener = new JladderOnConnectedListener();
+	private CountDownLatch connectLatch = new CountDownLatch(1);
 	
-	public JladderForwardWorker(String proxyHost, int proxyPort) {
+	public JladderAsynHttpClient(String proxyHost, int proxyPort) {
 		this(proxyHost, proxyPort, new NioEventLoopGroup());
 	}
 	
-	public JladderForwardWorker(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
+	public JladderAsynHttpClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
 		this.remoteHost = remoteHost;
 		this.remotePort = remotePort;
 		this.eventLoopGroup = eventLoopGroup;
@@ -50,7 +51,7 @@ public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMes
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(childHandler());
+				ch.pipeline().addLast(JladderAsynHttpClient.this);
 			}
 		});	
 		ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);
@@ -59,36 +60,39 @@ public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMes
 			if (f.isSuccess()) {
 				status = JladderForwardWorkerStatusEnum.Running;
 			}
+			onConnectedListener.fireReadEvent(new JladderChannelFuture((ChannelFuture) f));
 		});
-		return new JladderOnConnectedListener();
-	}
-	
-	public ChannelHandler[] childHandler() {
-		return new ChannelHandler[] { this };
+		return onConnectedListener;
 	}
 	
 	private boolean isCanBeStart() {
 		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
-	public JladderOnReceiveDataListener writeAndFlush(JladderMessage message) {
+	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
-			throw new IllegalStateException("channel not connect or has closed.");
+			connect().onConnect(new JladderConnectEvent() {
+				@Override
+				public void onConnect(JladderChannelFuture channelFuture) {
+					connectLatch.countDown();
+				}
+			});
+			connectLatch.await();
 		}
-
-		listenerMap.put(message.getId(), new JladderOnReceiveDataListener());
 		
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
 			// sign writable
 		});
 		
-		return listenerMap.get(message.getId());
+		return onReceiveListener;
 	}
 
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
-		listenerMap.get(msg.getId()).fireReadEvent(new JladderByteBuf(msg.getBody()));
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		if (msg instanceof ByteBuf) {
+			onReceiveListener.fireReadEvent(new JladderByteBuf((ByteBuf) msg));
+		}
         ctx.fireChannelRead(msg);
 	}
 }
