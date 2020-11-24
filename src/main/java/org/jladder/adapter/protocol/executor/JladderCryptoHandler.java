@@ -8,7 +8,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.channel.ChannelHandler.Sharable;
 
+@Sharable
 public class JladderCryptoHandler extends ChannelDuplexHandler {
 	
 	private static final short TRANSFER_TYPE = 0;

@@ -1,6 +1,8 @@
 package org.jladder.adapter.http.insideproxy;
 
+import org.jladder.adapter.http.common.HttpConstant;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
+import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
@@ -11,6 +13,7 @@ import org.jladder.common.Constant;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -47,9 +50,13 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		requestWrapper.header("x-forwarded-for", browserCtx.channel().remoteAddress().toString());
 		
 		if (requestWrapper.isHttps()) {
-			browserCtx.channel().pipeline().remove(this);
-			browserCtx.channel().pipeline().addLast(new SimpleForwardChannelHandler(requestWrapper.host(), requestWrapper.port()));
+			browserCtx.pipeline().remove(this);
+			browserCtx.pipeline().remove(io.netty.handler.codec.http.HttpRequestDecoder.class);
+			browserCtx.pipeline().remove(HttpObjectAggregator.class);
+			browserCtx.pipeline().remove(HttpRequestWrapperHandler.class);
+			browserCtx.pipeline().addLast(new SimpleForwardChannelHandler(requestWrapper.host(), requestWrapper.port()));
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE);
+			System.out.println("https flush connected-line");
 			return ;
 		} else {
 			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNeedEncryptMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
@@ -74,11 +81,14 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
+	    	System.out.println("https read browser request");
 	    	if (msg instanceof ByteBuf) {
 	    		JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildUnNeedEncryptMessage(remoteHost, remotePort, (ByteBuf) msg));
+				System.out.println("https flush request to remote");
 	    		receiveListener.onReceive(new JladderMessageReceiveEvent() {
 	    			@Override
 	    			public void onReceive(JladderByteBuf byteBuf) {
+	    				System.out.println("https flush request to browser");
 	    				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    			}
 	    		});
