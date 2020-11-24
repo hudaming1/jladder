@@ -3,8 +3,6 @@ package org.hum.jladder.adapter.protocol;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.hum.jladder.adapter.protocol.encrypt.DefaultEncStrategy;
-import org.hum.jladder.adapter.protocol.encrypt.EncStrategy;
 import org.hum.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 
 import io.netty.bootstrap.Bootstrap;
@@ -20,7 +18,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
 	
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
-	private static final EncStrategy encStategy = new DefaultEncStrategy();
 	private EventLoopGroup eventLoopGroup;
 	private Channel channel;
 	private String proxyHost;
@@ -50,7 +47,7 @@ public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMes
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new JladderEncryptCodecHandler(encStategy));
+				ch.pipeline().addLast(new JladderEncryptCodecHandler());
 				ch.pipeline().addLast(JladderForwardWorker.this);
 			}
 		});	
@@ -73,8 +70,6 @@ public class JladderForwardWorker extends SimpleChannelInboundHandler<JladderMes
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
 
-		message.setId(System.nanoTime());
-		
 		listenerMap.put(message.getId(), new JladderForwardWorkerListener());
 		
 		this.channel.writeAndFlush(message).addListener(f -> {

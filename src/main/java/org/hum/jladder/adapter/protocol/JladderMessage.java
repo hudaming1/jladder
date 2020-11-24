@@ -5,25 +5,16 @@ import io.netty.buffer.ByteBuf;
 public class JladderMessage {
 
 	private long id;
+	private boolean needCodec;
 	private String host;
 	private int port;
 	private ByteBuf body;
 
-	public JladderMessage(String host, int port, ByteBuf body) {
-		this.host = host;
-		this.port = port;
-		this.body = body;
-	}
-
-	public JladderMessage(long id, String host, int port, ByteBuf body) {
+	private JladderMessage(boolean needCodec, long id, String host, int port, ByteBuf body) {
 		this.id = id;
 		this.host = host;
 		this.port = port;
 		this.body = body;
-	}
-	
-	void setId(long id) {
-		this.id = id;
 	}
 
 	public long getId() {
@@ -40,5 +31,21 @@ public class JladderMessage {
 
 	public ByteBuf getBody() {
 		return body;
+	}
+	
+	public boolean isNeedCodec() {
+		return needCodec;
+	}
+
+	public static JladderMessage buildNormalMessage(String host, int port, ByteBuf body) {
+		return buildNormalMessage(System.nanoTime(), host, port, body);
+	}
+
+	public static JladderMessage buildNormalMessage(long id, String host, int port, ByteBuf body) {
+		return new JladderMessage(true, id, host, port, body);
+	}
+
+	public static JladderMessage buildEncMessage(long id, String host, int port, ByteBuf body) {
+		return new JladderMessage(false, id, host, port, body);
 	}
 }

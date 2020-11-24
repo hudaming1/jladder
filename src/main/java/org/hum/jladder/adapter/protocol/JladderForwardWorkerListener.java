@@ -8,7 +8,7 @@ public class JladderForwardWorkerListener {
 		this.eventCallback = event;
 	}
 
-	public void fireReadEvent(JladderByteBuf jladderByteBuf) {
+	void fireReadEvent(JladderByteBuf jladderByteBuf) {
 		eventCallback.onReceive(jladderByteBuf);
 	}
 }

@@ -12,6 +12,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 /**
@@ -28,7 +29,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	static {
 		HTTPS_CONNECTED_LINE.writeBytes(Constant.ConnectedLine.getBytes());
 	}
-	private JladderForwardExecutor jladderForwardExecutor;
+	private final static JladderForwardExecutor JladderForwardExecutor = new JladderForwardExecutor();
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
@@ -46,11 +47,13 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		requestWrapper.header("x-forwarded-for", browserCtx.channel().remoteAddress().toString());
 		
 		if (requestWrapper.isHttps()) {
+			browserCtx.channel().pipeline().remove(this);
+			browserCtx.channel().pipeline().addLast(new SimpleForwardChannelHandler(requestWrapper.host(), requestWrapper.port()));
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE);
 			return ;
 		}
 		
-		JladderForwardWorkerListener receiveListener = jladderForwardExecutor.writeAndFlush(new JladderMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
+		JladderForwardWorkerListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNormalMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
 		receiveListener.onReceive(new JladderMessageReceiveEvent() {
 			@Override
 			public void onReceive(JladderByteBuf byteBuf) {
@@ -59,4 +62,28 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		});
 	}
 	
+	private static class SimpleForwardChannelHandler extends ChannelInboundHandlerAdapter {
+		
+		private String remoteHost;
+		private int remotePort;
+		
+		public SimpleForwardChannelHandler(String host, int port) {
+			this.remoteHost = host;
+			this.remotePort = port;
+		}
+
+	    @Override
+	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
+	    	if (msg instanceof ByteBuf) {
+	    		JladderForwardWorkerListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNormalMessage(remoteHost, remotePort, (ByteBuf) msg));
+	    		receiveListener.onReceive(new JladderMessageReceiveEvent() {
+	    			@Override
+	    			public void onReceive(JladderByteBuf byteBuf) {
+	    				browserCtx.writeAndFlush(byteBuf.toByteBuf());
+	    			}
+	    		});
+	    	}
+	    	browserCtx.fireChannelRead(msg);
+	    }
+	}
 }
