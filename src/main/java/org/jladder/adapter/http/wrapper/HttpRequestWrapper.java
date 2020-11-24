@@ -1,9 +1,13 @@
 package org.jladder.adapter.http.wrapper;
 
+import java.util.Map.Entry;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.util.CharsetUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -67,8 +71,31 @@ public class HttpRequestWrapper {
 	}
 
 	public ByteBuf toByteBuf() {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO CompositeByteBuf
+		ByteBuf body = Unpooled.buffer();
+		// request-line
+		body.writeBytes(request.method().asciiName().toByteArray());
+		body.writeBytes(" ".getBytes());
+		body.writeBytes(request.uri().getBytes());
+		body.writeBytes(" ".getBytes());
+		body.writeBytes(request.protocolVersion().protocolName().getBytes());
+		body.writeBytes(("/" + request.protocolVersion().majorVersion() + "." + request.protocolVersion().minorVersion()).getBytes());
+		body.writeBytes("\r\n".getBytes());
+		// request-header
+		for (Entry<String, String> header : request.headers()) {
+			body.writeBytes(header.getKey().getBytes());
+			body.writeBytes(":".getBytes());
+			body.writeBytes(header.getValue().getBytes());
+			body.writeBytes("\r\n".getBytes());
+		}
+		body.writeBytes("\r\n".getBytes());
+		// request-body
+		body.writeBytes(request.content());
+		body.writeBytes("\r\n".getBytes());
+		
+		
+		System.out.println(body.toString(CharsetUtil.UTF_8));
+		return body;
 	}
 
     @Getter

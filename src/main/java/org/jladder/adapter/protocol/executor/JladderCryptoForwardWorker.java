@@ -76,9 +76,14 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 
 		listenerMap.put(message.getId(), new JladderOnReceiveDataListener());
 		
+		if (message.getBody() != null) {
+			message.getBody().retain();
+		}
+		
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
 			// sign writable
+			System.out.println("executor flushed");
 		});
 		
 		return listenerMap.get(message.getId());

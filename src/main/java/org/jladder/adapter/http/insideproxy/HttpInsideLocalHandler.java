@@ -1,6 +1,5 @@
 package org.jladder.adapter.http.insideproxy;
 
-import org.jladder.adapter.http.common.HttpConstant;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.adapter.protocol.JladderByteBuf;
@@ -13,10 +12,11 @@ import org.jladder.common.Constant;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.util.CharsetUtil;
 
 /**
  * HTTP/HTTPS 加密转发
@@ -63,6 +63,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			receiveListener.onReceive(new JladderMessageReceiveEvent() {
 				@Override
 				public void onReceive(JladderByteBuf byteBuf) {
+					System.out.println(byteBuf.toByteBuf().toString(CharsetUtil.UTF_8));
 					browserCtx.writeAndFlush(byteBuf.toByteBuf());
 				}
 			});

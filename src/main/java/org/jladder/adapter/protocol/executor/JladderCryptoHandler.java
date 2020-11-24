@@ -1,5 +1,7 @@
 package org.jladder.adapter.protocol.executor;
 
+import java.util.Arrays;
+
 import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.common.util.AESCoder;
 
@@ -9,6 +11,7 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.util.CharsetUtil;
 
 @Sharable
 public class JladderCryptoHandler extends ChannelDuplexHandler {
@@ -22,6 +25,8 @@ public class JladderCryptoHandler extends ChannelDuplexHandler {
 	// read -> decrypt
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		
+		System.out.println("read http-request from inside-server");
     	
     	if (msg instanceof ByteBuf) {
     		ByteBuf byteBuf = (ByteBuf) msg;
@@ -42,7 +47,9 @@ public class JladderCryptoHandler extends ChannelDuplexHandler {
     		byteBuf.readBytes(sourceBodyBytes);
     		byte[] bodyBytes = isBodyNeedDecrypt ? aesDecrypt(sourceBodyBytes) : sourceBodyBytes;
     		ByteBuf body = Unpooled.buffer(bodyLen);
-    		body.readBytes(bodyBytes);
+    		body.writeBytes(bodyBytes);
+    		
+    		System.out.println(body.toString(CharsetUtil.UTF_8));
     		
     		ctx.fireChannelRead(JladderMessage.buildNeedEncryptMessage(id, new String(hostBytes), port, body));
     	} else {
@@ -57,9 +64,10 @@ public class JladderCryptoHandler extends ChannelDuplexHandler {
     		JladderMessage jladderMessage = (JladderMessage) msg;
 
     		byte[] hostBytes4Encrypt = aesEncrypt(jladderMessage.getHost().getBytes());
-    		ByteBuf body = jladderMessage.getBody();
+    		ByteBuf body = jladderMessage.getBody().retain();
+    		System.out.println(body.toString(CharsetUtil.UTF_8));
     		byte[] bodyArr = new byte[body.readableBytes()];
-    		body.writeBytes(bodyArr);
+    		body.readBytes(bodyArr);
     		body.release();
     		// TODO 如果不需要加密，则直接用CompositeByteBuf组合即可
     		byte[] bodyBytes4Encrypt = jladderMessage.isBodyNeedEncrypt() ? aesEncrypt(bodyArr) : bodyArr;

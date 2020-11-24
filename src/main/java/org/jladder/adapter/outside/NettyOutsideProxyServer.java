@@ -67,7 +67,8 @@ public class NettyOutsideProxyServer implements Runnable {
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
-			ch.pipeline().addLast(jladderCryptoHandler, nettyServerPipeChannelHandler);
+			ch.pipeline().addLast(jladderCryptoHandler);
+			ch.pipeline().addLast(nettyServerPipeChannelHandler);
 		}
 	}
 }
