@@ -51,7 +51,8 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new JladderCryptoHandler());
+				ch.pipeline().addLast(new JladderCryptoInHandler());
+				ch.pipeline().addLast(new JladderCryptoOutHandler());
 				ch.pipeline().addLast(JladderCryptoForwardWorker.this);
 			}
 		});	

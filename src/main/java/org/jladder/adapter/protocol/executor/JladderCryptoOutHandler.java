@@ -1,61 +1,21 @@
 package org.jladder.adapter.protocol.executor;
 
-import java.util.Arrays;
-
 import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.common.util.AESCoder;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
 import io.netty.util.CharsetUtil;
 
 @Sharable
-public class JladderCryptoHandler extends ChannelDuplexHandler {
+public class JladderCryptoOutHandler extends ChannelOutboundHandlerAdapter {
 	
 	private static final short TRANSFER_TYPE = 0;
 	private static final long MAGIC_NUMBER = 0x90ABCDEF;
-	
-	public JladderCryptoHandler() {
-	}
-
-	// read -> decrypt
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		
-		System.out.println("read http-request from inside-server");
-    	
-    	if (msg instanceof ByteBuf) {
-    		ByteBuf byteBuf = (ByteBuf) msg;
-    		byteBuf.skipBytes(8); // skip magic_number
-    		byteBuf.skipBytes(2); // skip type
-    		long id = byteBuf.readLong();
-    		// read host
-    		int hostLen = byteBuf.readInt();
-    		byte[] hostBytes4Encrypt = new byte[hostLen];
-    		byteBuf.readBytes(hostBytes4Encrypt);
-    		byte[] hostBytes = aesDecrypt(hostBytes4Encrypt);
-    		// read port
-    		int port = byteBuf.readInt();
-    		// read body
-    		boolean isBodyNeedDecrypt = byteBuf.readBoolean();
-    		int bodyLen = byteBuf.readInt();
-    		byte[] sourceBodyBytes = new byte[bodyLen];
-    		byteBuf.readBytes(sourceBodyBytes);
-    		byte[] bodyBytes = isBodyNeedDecrypt ? aesDecrypt(sourceBodyBytes) : sourceBodyBytes;
-    		ByteBuf body = Unpooled.buffer(bodyLen);
-    		body.writeBytes(bodyBytes);
-    		
-    		System.out.println(body.toString(CharsetUtil.UTF_8));
-    		
-    		ctx.fireChannelRead(JladderMessage.buildNeedEncryptMessage(id, new String(hostBytes), port, body));
-    	} else {
-    		ctx.fireChannelRead(msg);
-    	}
-    }
 	
 	// write -> encrypt
     @Override
@@ -91,9 +51,5 @@ public class JladderCryptoHandler extends ChannelDuplexHandler {
 
 	private byte[] aesEncrypt(byte[] bytes) {
 		return AESCoder.encrypt(bytes);
-	}
-	
-	private byte[] aesDecrypt(byte[] bytes) {
-		return AESCoder.decrypt(bytes);
 	}
 }
