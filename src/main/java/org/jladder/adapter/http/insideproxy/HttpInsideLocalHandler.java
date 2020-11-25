@@ -91,7 +91,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    		receiveListener.onReceive(new JladderMessageReceiveEvent() {
 	    			@Override
 	    			public void onReceive(JladderByteBuf byteBuf) {
-	    				System.out.println("https flush request to browser");
+	    				System.out.println("https flush response to browser");
 	    				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    			}
 	    		});

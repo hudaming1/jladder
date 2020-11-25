@@ -14,7 +14,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class JladderAsynHttpClient extends ChannelInboundHandlerAdapter {
@@ -26,11 +25,8 @@ public class JladderAsynHttpClient extends ChannelInboundHandlerAdapter {
 	private int remotePort;
 	private JladderOnReceiveDataListener onReceiveListener = new JladderOnReceiveDataListener();
 	private JladderOnConnectedListener onConnectedListener = new JladderOnConnectedListener();
+	// XXX 用Lock代替更贴近语义
 	private CountDownLatch connectLatch = new CountDownLatch(1);
-	
-	public JladderAsynHttpClient(String proxyHost, int proxyPort) {
-		this(proxyHost, proxyPort, new NioEventLoopGroup());
-	}
 	
 	public JladderAsynHttpClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
 		this.remoteHost = remoteHost;
