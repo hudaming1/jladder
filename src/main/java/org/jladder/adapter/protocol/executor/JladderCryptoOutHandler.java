@@ -9,7 +9,6 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
-import io.netty.util.CharsetUtil;
 
 @Sharable
 public class JladderCryptoOutHandler extends ChannelOutboundHandlerAdapter {
@@ -25,7 +24,7 @@ public class JladderCryptoOutHandler extends ChannelOutboundHandlerAdapter {
 
     		byte[] hostBytes4Encrypt = aesEncrypt(jladderMessage.getHost().getBytes());
     		ByteBuf body = jladderMessage.getBody().retain();
-    		System.out.println(body.toString(CharsetUtil.UTF_8));
+    		
     		byte[] bodyArr = new byte[body.readableBytes()];
     		body.readBytes(bodyArr);
     		body.release();

@@ -1,5 +1,6 @@
 package org.jladder.adapter.outside;
 
+import org.jladder.adapter.protocol.executor.JladderCryptoInHandler;
 import org.jladder.adapter.protocol.executor.JladderCryptoOutHandler;
 import org.jladder.common.NamedThreadFactory;
 import org.jladder.common.core.NettyProxyContext;
@@ -67,6 +68,7 @@ public class NettyOutsideProxyServer implements Runnable {
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
+			ch.pipeline().addLast(new JladderCryptoInHandler());
 			ch.pipeline().addLast(jladderCryptoHandler);
 			ch.pipeline().addLast(nettyServerPipeChannelHandler);
 		}

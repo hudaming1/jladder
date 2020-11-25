@@ -17,12 +17,13 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage msg) throws Exception {
 		// TODO 使用ctx.channel().eventLoop()
-		log.info("msg=" + msg);
+		log.info("outside recieve request");
 		msg.getBody().retain();
 		JladderAsynHttpClient client = new JladderAsynHttpClient(msg.getHost(), msg.getPort());
 		client.writeAndFlush(msg.getBody()).onReceive(new JladderMessageReceiveEvent() {
 			@Override
 			public void onReceive(JladderByteBuf byteBuf) {
+				log.info("outside receive response and flushed");
 				insideCtx.writeAndFlush(JladderMessage.buildNeedEncryptMessage(msg.getId(), msg.getHost(), msg.getPort(), byteBuf.toByteBuf().retain()));
 			}
 		});

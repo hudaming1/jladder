@@ -2,7 +2,6 @@ package io.netty.test;
 
 import org.jladder.adapter.http.common.HttpConstant;
 import org.jladder.adapter.http.insideproxy.HttpInsideLocalHandler;
-import org.jladder.adapter.http.insideproxy.ProxyEncryptHandler;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
@@ -30,7 +29,7 @@ public class HttpInsideHandlerTest {
 				new io.netty.handler.codec.http.HttpRequestDecoder(), 
 				new HttpObjectAggregator(HttpConstant.HTTP_OBJECT_AGGREGATOR_LEN), 
 				new HttpRequestWrapperHandler(), 
-				new ProxyEncryptHandler(),
+//				new ProxyEncryptHandler(),
 				new HttpInsideLocalHandler()
 				);
 		ByteBuf byteBuf = Unpooled.buffer();

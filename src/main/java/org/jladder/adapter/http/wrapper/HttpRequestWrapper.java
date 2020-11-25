@@ -7,7 +7,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.util.CharsetUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -93,8 +92,6 @@ public class HttpRequestWrapper {
 		body.writeBytes(request.content());
 		body.writeBytes("\r\n".getBytes());
 		
-		
-		System.out.println(body.toString(CharsetUtil.UTF_8));
 		return body;
 	}
 

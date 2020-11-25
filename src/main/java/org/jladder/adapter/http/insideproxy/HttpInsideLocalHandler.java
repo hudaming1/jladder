@@ -16,7 +16,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.util.CharsetUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * HTTP/HTTPS 加密转发
@@ -25,6 +25,7 @@ import io.netty.util.CharsetUtil;
  * </pre>
  * @author hudaming
  */
+@Slf4j
 @Sharable
 public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
@@ -56,14 +57,15 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.pipeline().remove(HttpRequestWrapperHandler.class);
 			browserCtx.pipeline().addLast(new SimpleForwardChannelHandler(requestWrapper.host(), requestWrapper.port()));
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE);
-			System.out.println("https flush connected-line");
+			log.debug("https flush connected-line");
 			return ;
 		} else {
 			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNeedEncryptMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
+			log.info("http1.forward http-request");
 			receiveListener.onReceive(new JladderMessageReceiveEvent() {
 				@Override
 				public void onReceive(JladderByteBuf byteBuf) {
-					System.out.println(byteBuf.toByteBuf().toString(CharsetUtil.UTF_8));
+					log.info("http3.reveive message");
 					browserCtx.writeAndFlush(byteBuf.toByteBuf());
 				}
 			});

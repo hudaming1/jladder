@@ -18,7 +18,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
 	
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
@@ -84,7 +86,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
 			// sign writable
-			System.out.println("executor flushed");
+			log.info("http2.executor flushed");
 		});
 		
 		return listenerMap.get(message.getId());
