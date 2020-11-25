@@ -20,10 +20,9 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage msg) throws Exception {
-		// TODO 使用ctx.channel().eventLoop()
 		log.info("outside recieve request");
 		msg.getBody().retain();
-		// XXX 这里为什么不能用insideCtx的eventLoop
+		// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
 		JladderAsynHttpClient client = new JladderAsynHttpClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup);
 		client.writeAndFlush(msg.getBody()).onReceive(new JladderMessageReceiveEvent() {
 			@Override

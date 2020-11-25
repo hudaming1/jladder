@@ -2,9 +2,7 @@ package org.jladder.adapter.http.insideproxy;
 
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
-import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderMessage;
-import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
 import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 import org.jladder.common.Constant;
@@ -57,17 +55,14 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.pipeline().remove(HttpRequestWrapperHandler.class);
 			browserCtx.pipeline().addLast(new SimpleForwardChannelHandler(requestWrapper.host(), requestWrapper.port()));
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE);
-			log.debug("https flush connected-line");
+			log.info("https flush connected-line");
 			return ;
 		} else {
 			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNeedEncryptMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
 			log.info("http1.forward http-request");
-			receiveListener.onReceive(new JladderMessageReceiveEvent() {
-				@Override
-				public void onReceive(JladderByteBuf byteBuf) {
-					log.info("http3.reveive message");
-					browserCtx.writeAndFlush(byteBuf.toByteBuf());
-				}
+			receiveListener.onReceive(byteBuf -> {
+				log.info("http3.reveive message");
+				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			});
 		}
 	}
@@ -88,12 +83,9 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    	if (msg instanceof ByteBuf) {
 	    		JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildUnNeedEncryptMessage(remoteHost, remotePort, (ByteBuf) msg));
 				System.out.println("https flush request to remote");
-	    		receiveListener.onReceive(new JladderMessageReceiveEvent() {
-	    			@Override
-	    			public void onReceive(JladderByteBuf byteBuf) {
-	    				System.out.println("https flush response to browser");
-	    				browserCtx.writeAndFlush(byteBuf.toByteBuf());
-	    			}
+	    		receiveListener.onReceive(byteBuf -> {
+	    			System.out.println("https flush response to browser");
+	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		});
 	    	}
 	    	browserCtx.fireChannelRead(msg);
