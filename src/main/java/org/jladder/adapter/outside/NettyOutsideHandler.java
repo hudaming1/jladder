@@ -5,6 +5,8 @@ import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.ChannelHandlerContext;
@@ -31,5 +33,11 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 				insideCtx.writeAndFlush(JladderMessage.buildNeedEncryptMessage(msg.getId(), msg.getHost(), msg.getPort(), byteBuf.toByteBuf().retain()));
 			}
 		});
+//		byte[] bytes = new byte[msg.getBody().readableBytes()];
+//		msg.getBody().readBytes(bytes);
+//		ByteBuf byteBuf = Unpooled.buffer();
+//		String respString = new String(bytes) + " huming";
+//		byteBuf.writeBytes(respString.getBytes());
+//		insideCtx.writeAndFlush(JladderMessage.buildNeedEncryptMessage(msg.getId(), msg.getHost(), msg.getPort(), byteBuf));
 	}
 }
