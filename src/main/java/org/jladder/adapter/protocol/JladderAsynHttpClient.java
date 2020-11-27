@@ -15,7 +15,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class JladderAsynHttpClient extends ChannelInboundHandlerAdapter {
 	
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
@@ -94,4 +96,9 @@ public class JladderAsynHttpClient extends ChannelInboundHandlerAdapter {
 		}
         ctx.fireChannelRead(msg);
 	}
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    	log.error("remoteHost=" + remoteHost + ":" + remotePort + " error, ", cause);
+    }
 }
