@@ -11,12 +11,10 @@ import org.jladder.common.Constant;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -27,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
  * @author hudaming
  */
 @Slf4j
-@Sharable
 public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
 	private static final ByteBuf HTTPS_CONNECTED_LINE = PooledByteBufAllocator.DEFAULT.directBuffer();
@@ -65,14 +62,11 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.pipeline().remove(HttpRequestWrapperHandler.class);
 			browserCtx.pipeline().addLast(new SimpleForwardChannelHandler(clientIden, requestWrapper.host(), requestWrapper.port()));
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE.retain());
-			log.info("https flush connected-line");
 			return ;
 		} else {
 			JladderMessage message = JladderMessage.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
 			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
-    		log.info("[request]" + clientIden + "," + message.getId() + "=" + requestWrapper.toByteBuf().readableBytes());
 			receiveListener.onReceive(byteBuf -> {
-				log.info("[response]" + clientIden + "," + message.getId() + "=" + byteBuf.toByteBuf().readableBytes());
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			});
 		}
@@ -94,10 +88,10 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
 	    	if (msg instanceof ByteBuf) {
 	    		JladderMessage request = JladderMessage.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
-	    		log.info("[request]" + request.getClientIden() + "," + request.getId() + "=" + request.getBody().readableBytes());
+//	    		log.info("[request]" + request.getClientIden() + "," + request.getId() + "=" + request.getBody().readableBytes());
 	    		JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
 	    		receiveListener.onReceive(byteBuf -> {
-	    			log.info("[response]" + request.getId() + "=" + byteBuf.readableBytes());
+//	    			log.info("[response]" + request.getId() + "=" + byteBuf.readableBytes());
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		});
 	    	}

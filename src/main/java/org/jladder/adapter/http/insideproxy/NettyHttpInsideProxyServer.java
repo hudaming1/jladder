@@ -64,7 +64,6 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	
 	private static class HttpInsideChannelInitializer extends ChannelInitializer<Channel> {
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
-		private final HttpInsideLocalHandler httpInsideLocalHandler = new HttpInsideLocalHandler();
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
@@ -72,7 +71,7 @@ public class NettyHttpInsideProxyServer implements Runnable {
 			ch.pipeline().addLast(new io.netty.handler.codec.http.HttpRequestDecoder());
 			ch.pipeline().addLast(new HttpObjectAggregator(HttpConstant.HTTP_OBJECT_AGGREGATOR_LEN));
 			ch.pipeline().addLast(new HttpRequestWrapperHandler());
-			ch.pipeline().addLast(httpInsideLocalHandler);
+			ch.pipeline().addLast(new HttpInsideLocalHandler());
 		}
 	}
 }
