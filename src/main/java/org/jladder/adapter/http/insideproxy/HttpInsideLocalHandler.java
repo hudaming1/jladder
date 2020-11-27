@@ -28,11 +28,18 @@ import lombok.extern.slf4j.Slf4j;
 public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
 	private static final ByteBuf HTTPS_CONNECTED_LINE = PooledByteBufAllocator.DEFAULT.directBuffer();
+	private final static JladderForwardExecutor JladderForwardExecutor = new JladderForwardExecutor();
 	static {
 		HTTPS_CONNECTED_LINE.writeBytes(Constant.ConnectedLine.getBytes());
 	}
-	private final static JladderForwardExecutor JladderForwardExecutor = new JladderForwardExecutor();
 	
+	private String clientIden;
+	
+	@Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		clientIden = System.nanoTime() + "";
+    }
+    
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
 
@@ -53,12 +60,12 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.pipeline().remove(io.netty.handler.codec.http.HttpRequestDecoder.class);
 			browserCtx.pipeline().remove(HttpObjectAggregator.class);
 			browserCtx.pipeline().remove(HttpRequestWrapperHandler.class);
-			browserCtx.pipeline().addLast(new SimpleForwardChannelHandler(requestWrapper.host(), requestWrapper.port()));
-			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE);
+			browserCtx.pipeline().addLast(new SimpleForwardChannelHandler(clientIden, requestWrapper.host(), requestWrapper.port()));
+			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE.retain());
 			log.info("https flush connected-line");
 			return ;
 		} else {
-			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNeedEncryptMessage(requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
+			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
 			log.info("http1.forward http-request");
 			receiveListener.onReceive(byteBuf -> {
 				log.info("http3.reveive message");
@@ -69,10 +76,12 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	
 	private static class SimpleForwardChannelHandler extends ChannelInboundHandlerAdapter {
 		
+		private String clientIden;
 		private String remoteHost;
 		private int remotePort;
 		
-		public SimpleForwardChannelHandler(String host, int port) {
+		public SimpleForwardChannelHandler(String clientIden, String host, int port) {
+			this.clientIden = clientIden;
 			this.remoteHost = host;
 			this.remotePort = port;
 		}
@@ -80,8 +89,8 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
 	    	if (msg instanceof ByteBuf) {
-	    		JladderMessage request = JladderMessage.buildUnNeedEncryptMessage(remoteHost, remotePort, (ByteBuf) msg);
-	    		log.info("[request]" + request.getId() + "=" + request.getBody().readableBytes());
+	    		JladderMessage request = JladderMessage.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
+	    		log.info("[request]" + request.getClientIden() + "," + request.getId() + "=" + request.getBody().readableBytes());
 	    		JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
 	    		receiveListener.onReceive(byteBuf -> {
 	    			log.info("[response]" + request.getId() + "=" + byteBuf.readableBytes());

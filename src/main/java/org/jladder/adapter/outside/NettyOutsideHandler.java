@@ -25,8 +25,8 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage msg) throws Exception {
 		msg.getBody().retain();
-		log.info("[request]" + msg.getId() + "=" + msg.getBody().readableBytes());
-		String clientKey = msg.getHost() + ":" + msg.getPort();
+		log.info("[request]" + msg.getClientIden() + "," + msg.getId() + "=" + msg.getBody().readableBytes());
+		String clientKey = msg.getClientIden();
 		JladderAsynHttpClient client = null;
 		if (!ClientMap.containsKey(clientKey)) {
 			// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
@@ -36,7 +36,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 		client.writeAndFlush(msg.getBody()).onReceive(new JladderMessageReceiveEvent() {
 			@Override
 			public void onReceive(JladderByteBuf byteBuf) {
-				JladderMessage response = JladderMessage.buildNeedEncryptMessage(msg.getId(), msg.getHost(), msg.getPort(), byteBuf.toByteBuf().retain());
+				JladderMessage response = JladderMessage.buildNeedEncryptMessage(msg.getClientIden(), msg.getId(), msg.getHost(), msg.getPort(), byteBuf.toByteBuf().retain());
 				log.info("[response]" + response.getId() + "=" + response.getBody().readableBytes());
 				insideCtx.writeAndFlush(response);
 			}

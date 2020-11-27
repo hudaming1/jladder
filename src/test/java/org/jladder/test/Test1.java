@@ -29,7 +29,7 @@ public class Test1 {
 		for (int i = 0 ;i < 1000 ;i ++) {
 			ByteBuf byteBuf = Unpooled.buffer();
 			byteBuf.writeBytes("hello ".getBytes());
-			JladderForwardExecutor.writeAndFlush(JladderMessage.buildUnNeedEncryptMessage("www.baidu.com", 443, byteBuf)).onReceive(resp -> {
+			JladderForwardExecutor.writeAndFlush(JladderMessage.buildUnNeedEncryptMessage("123", "www.baidu.com", 443, byteBuf)).onReceive(resp -> {
 				int len = resp.readableBytes();
 				byte[] bytes = new byte[len];
 				resp.readBytes(bytes);

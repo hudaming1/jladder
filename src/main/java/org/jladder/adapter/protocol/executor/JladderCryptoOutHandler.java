@@ -34,6 +34,8 @@ public class JladderCryptoOutHandler extends ChannelOutboundHandlerAdapter {
     		ByteBuf buf = Unpooled.buffer();
     		buf.writeLong(MAGIC_NUMBER);
     		buf.writeShort(TRANSFER_TYPE);
+    		buf.writeInt(jladderMessage.getClientIden().length());
+    		buf.writeBytes(jladderMessage.getClientIden().getBytes());
     		buf.writeLong(jladderMessage.getId());
     		buf.writeInt(hostBytes4Encrypt.length);
     		buf.writeBytes(hostBytes4Encrypt);

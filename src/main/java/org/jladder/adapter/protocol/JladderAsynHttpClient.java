@@ -67,13 +67,16 @@ public class JladderAsynHttpClient extends ChannelInboundHandlerAdapter {
 
 	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
-			connect().onConnect(new JladderConnectEvent() {
-				@Override
-				public void onConnect(JladderChannelFuture channelFuture) {
-					connectLatch.countDown();
-				}
-			});
-			connectLatch.await();
+			try {
+				connect().onConnect(new JladderConnectEvent() {
+					@Override
+					public void onConnect(JladderChannelFuture channelFuture) {
+						connectLatch.countDown();
+					}
+				});
+				connectLatch.await();
+			} catch(IllegalStateException ignore) {
+			}
 		}
 		
 		this.channel.writeAndFlush(message).addListener(f -> {

@@ -16,6 +16,12 @@ public class JladderCryptoInHandler extends ReplayingDecoder<JladderMessage> {
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 		in.skipBytes(8); // skip magic_number
 		in.skipBytes(2); // skip type
+		// read client_iden
+		int idenLen = in.readInt();
+		byte[] idenBytes = new byte[idenLen];
+		in.readBytes(idenBytes);
+		String clientIden = new String(idenBytes);
+		// read id
 		long id = in.readLong();
 		// read host
 		int hostLen = in.readInt();
@@ -32,7 +38,7 @@ public class JladderCryptoInHandler extends ReplayingDecoder<JladderMessage> {
 		byte[] bodyBytes = isBodyNeedDecrypt ? aesDecrypt(sourceBodyBytes) : sourceBodyBytes;
 		ByteBuf body = Unpooled.buffer(bodyLen);
 		body.writeBytes(bodyBytes);
-		out.add(JladderMessage.buildNeedEncryptMessage(id, new String(hostBytes), port, body));
+		out.add(JladderMessage.buildNeedEncryptMessage(clientIden, id, new String(hostBytes), port, body));
 	}
 
 	private byte[] aesDecrypt(byte[] bytes) {
