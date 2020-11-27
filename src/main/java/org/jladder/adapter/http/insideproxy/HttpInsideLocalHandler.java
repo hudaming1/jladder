@@ -79,12 +79,12 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
-	    	System.out.println("https read browser request, remoteHost=" + remoteHost + ", remotePort=" + remotePort);
 	    	if (msg instanceof ByteBuf) {
-	    		JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildUnNeedEncryptMessage(remoteHost, remotePort, (ByteBuf) msg));
-				System.out.println("https flush request to remote");
+	    		JladderMessage request = JladderMessage.buildUnNeedEncryptMessage(remoteHost, remotePort, (ByteBuf) msg);
+	    		log.info("[request]" + request.getId() + "=" + request.getBody().readableBytes());
+	    		JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
 	    		receiveListener.onReceive(byteBuf -> {
-	    			System.out.println("https flush response to browser");
+	    			log.info("[response]" + request.getId() + "=" + byteBuf.readableBytes());
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		});
 	    	}
