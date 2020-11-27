@@ -33,6 +33,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 			client = ClientMap.putIfAbsent(clientKey, new JladderAsynForwardClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup));
 		}
 		client = ClientMap.get(clientKey);
+		// TODO 连续flush两个request，为什么只收到第一个response，丢失了后一个response
 		client.writeAndFlush(msg.getBody()).onReceive(new JladderMessageReceiveEvent() {
 			@Override
 			public void onReceive(JladderByteBuf byteBuf) {
@@ -42,14 +43,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 			}
 		});
 		
-//		TODO
+//		TODO remote在onclose时，告诉也要断开inside浏览器的连接
 //		client.onClose()
-		
-//		byte[] bytes = new byte[msg.getBody().readableBytes()];
-//		msg.getBody().readBytes(bytes);
-//		ByteBuf byteBuf = Unpooled.buffer();
-//		String respString = new String(bytes) + " huming";
-//		byteBuf.writeBytes(respString.getBytes());
-//		insideCtx.writeAndFlush(JladderMessage.buildNeedEncryptMessage(msg.getId(), msg.getHost(), msg.getPort(), byteBuf));
 	}
 }

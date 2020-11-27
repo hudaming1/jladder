@@ -1,5 +1,7 @@
 package org.jladder.adapter.http.insideproxy;
 
+import java.util.Random;
+
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.adapter.protocol.JladderMessage;
@@ -38,7 +40,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		clientIden = System.nanoTime() + "";
+		clientIden = System.nanoTime() + "" + new Random().nextInt();
     }
     
 	@Override

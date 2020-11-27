@@ -10,11 +10,11 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +31,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private JladderOnConnectedListener onConnectedListener = new JladderOnConnectedListener();
 	// XXX 用Lock代替更贴近语义
 	private CountDownLatch connectLatch = new CountDownLatch(1);
+	private CountDownLatch connectStartLatch = new CountDownLatch(1);
 	
 	public JladderAsynForwardClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
 		this.remoteHost = remoteHost;
@@ -40,7 +41,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
 	public JladderOnConnectedListener connect() {
 		if (!isCanBeStart()) {
-			throw new IllegalStateException("worker cann't be connect, current_status=" + status);
+			return null;
 		}
 		status = JladderForwardWorkerStatusEnum.Starting;
 		
@@ -56,6 +57,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		});	
 		ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);
 		this.channel = chanelFuture.channel();
+		connectStartLatch.countDown();
 		chanelFuture.addListener(f -> {
 			if (f.isSuccess()) {
 				status = JladderForwardWorkerStatusEnum.Running;
@@ -71,15 +73,17 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
 	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
-			try {
-				connect().onConnect(new JladderConnectEvent() {
+			JladderOnConnectedListener connectedListener = connect();
+			if (connectedListener == null) {
+				connectStartLatch.await();
+			} else {
+				connectedListener.onConnect(new JladderConnectEvent() {
 					@Override
 					public void onConnect(JladderChannelFuture channelFuture) {
 						connectLatch.countDown();
 					}
 				});
 				connectLatch.await();
-			} catch(IllegalStateException ignore) {
 			}
 		}
 		
