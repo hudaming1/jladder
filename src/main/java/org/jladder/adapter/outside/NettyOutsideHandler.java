@@ -3,7 +3,7 @@ package org.jladder.adapter.outside;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jladder.adapter.protocol.JladderAsynHttpClient;
+import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
@@ -20,17 +20,17 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMessage> {
 
 	private static final EventLoopGroup HttpClientEventLoopGroup = new NioEventLoopGroup(1);
-	private static final Map<String, JladderAsynHttpClient> ClientMap = new ConcurrentHashMap<>();
+	private static final Map<String, JladderAsynForwardClient> ClientMap = new ConcurrentHashMap<>();
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage msg) throws Exception {
 		msg.getBody().retain();
 		log.info("[request]" + msg.getClientIden() + "," + msg.getId() + "=" + msg.getBody().readableBytes());
 		String clientKey = msg.getClientIden();
-		JladderAsynHttpClient client = null;
+		JladderAsynForwardClient client = null;
 		if (!ClientMap.containsKey(clientKey)) {
 			// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
-			client = ClientMap.putIfAbsent(clientKey, new JladderAsynHttpClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup));
+			client = ClientMap.putIfAbsent(clientKey, new JladderAsynForwardClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup));
 		}
 		client = ClientMap.get(clientKey);
 		client.writeAndFlush(msg.getBody()).onReceive(new JladderMessageReceiveEvent() {

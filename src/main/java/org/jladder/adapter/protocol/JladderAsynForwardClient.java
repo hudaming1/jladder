@@ -14,11 +14,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JladderAsynHttpClient extends ChannelInboundHandlerAdapter {
+@Sharable
+public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private EventLoopGroup eventLoopGroup;
@@ -30,7 +32,7 @@ public class JladderAsynHttpClient extends ChannelInboundHandlerAdapter {
 	// XXX 用Lock代替更贴近语义
 	private CountDownLatch connectLatch = new CountDownLatch(1);
 	
-	public JladderAsynHttpClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
+	public JladderAsynForwardClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
 		this.remoteHost = remoteHost;
 		this.remotePort = remotePort;
 		this.eventLoopGroup = eventLoopGroup;
@@ -49,7 +51,7 @@ public class JladderAsynHttpClient extends ChannelInboundHandlerAdapter {
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(JladderAsynHttpClient.this);
+				ch.pipeline().addLast(JladderAsynForwardClient.this);
 			}
 		});	
 		ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);

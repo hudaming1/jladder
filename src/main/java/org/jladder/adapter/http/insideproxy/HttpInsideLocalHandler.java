@@ -14,6 +14,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -65,10 +66,11 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			log.info("https flush connected-line");
 			return ;
 		} else {
-			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(JladderMessage.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf()));
-			log.info("http1.forward http-request");
+			JladderMessage message = JladderMessage.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
+			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
+    		log.info("[request]" + clientIden + "," + message.getId() + "=" + requestWrapper.toByteBuf().toString(CharsetUtil.UTF_8));
 			receiveListener.onReceive(byteBuf -> {
-				log.info("http3.reveive message");
+				log.info("[response]" + clientIden + "," + message.getId() + "=" + byteBuf.toByteBuf().toString(CharsetUtil.UTF_8));
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			});
 		}

@@ -2,7 +2,7 @@ package org.jladder.test;
 
 import java.io.IOException;
 
-import org.jladder.adapter.protocol.JladderAsynHttpClient;
+import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class JladderAsynHttpClientTest {
 
 	@Test
 	public void test1() throws IOException, InterruptedException {
-		JladderAsynHttpClient client = new JladderAsynHttpClient("www.baidu.com", 80, new NioEventLoopGroup(1));
+		JladderAsynForwardClient client = new JladderAsynForwardClient("www.baidu.com", 80, new NioEventLoopGroup(1));
 		ByteBuf message = Unpooled.wrappedBuffer("GET / HTTP/1.1\r\nConnection: close\r\n\r\n".getBytes());
 		client.writeAndFlush(message).onReceive(new JladderMessageReceiveEvent() {
 			@Override
