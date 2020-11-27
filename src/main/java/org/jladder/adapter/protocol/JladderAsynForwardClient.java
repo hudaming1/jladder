@@ -1,6 +1,8 @@
 package org.jladder.adapter.protocol;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
@@ -73,26 +75,35 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
 	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
-			JladderOnConnectedListener connectedListener = connect();
-			if (connectedListener == null) {
-				connectStartLatch.await();
-			} else {
-				connectedListener.onConnect(new JladderConnectEvent() {
-					@Override
-					public void onConnect(JladderChannelFuture channelFuture) {
-						connectLatch.countDown();
-					}
-				});
-				connectLatch.await();
-			}
+			_connect();
 		}
 		
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
+			if (!f.isSuccess()) {
+				f.cause().printStackTrace();
+			}
 			// sign writable
 		});
 		
 		return onReceiveListener;
+	}
+
+	private Lock lock = new ReentrantLock();
+	private void _connect() {
+		lock.lock();
+		try {
+			if (isCanBeStart()) {
+				connect().onConnect(f -> {
+					connectLatch.countDown();
+				});
+				connectLatch.await();
+			}
+		} catch (InterruptedException e) {
+			log.error("", e);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override

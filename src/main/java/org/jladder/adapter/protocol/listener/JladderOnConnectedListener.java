@@ -12,6 +12,8 @@ public class JladderOnConnectedListener {
 	}
 
 	public void fireReadEvent(JladderChannelFuture channelFuture) {
-		event.onConnect(channelFuture);
+		if (event != null) {
+			event.onConnect(channelFuture);
+		}
 	}
 }

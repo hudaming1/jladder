@@ -70,9 +70,9 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		} else {
 			JladderMessage message = JladderMessage.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
 			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
-    		log.info("[request]" + clientIden + "," + message.getId() + "=" + requestWrapper.toByteBuf().toString(CharsetUtil.UTF_8));
+    		log.info("[request]" + clientIden + "," + message.getId() + "=" + requestWrapper.toByteBuf().readableBytes());
 			receiveListener.onReceive(byteBuf -> {
-				log.info("[response]" + clientIden + "," + message.getId() + "=" + byteBuf.toByteBuf().toString(CharsetUtil.UTF_8));
+				log.info("[response]" + clientIden + "," + message.getId() + "=" + byteBuf.toByteBuf().readableBytes());
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			});
 		}
