@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderMessage;
-import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
+import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener.JladderMessageReceiveEvent;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,7 +33,6 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 			client = ClientMap.putIfAbsent(clientKey, new JladderAsynForwardClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup));
 		}
 		client = ClientMap.get(clientKey);
-		// TODO 连续flush两个request，为什么只收到第一个response，丢失了后一个response
 		client.writeAndFlush(msg.getBody()).onReceive(new JladderMessageReceiveEvent() {
 			@Override
 			public void onReceive(JladderByteBuf byteBuf) {

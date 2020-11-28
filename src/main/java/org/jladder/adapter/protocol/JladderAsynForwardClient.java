@@ -6,6 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
+import org.jladder.adapter.protocol.listener.JladderOnDisconnectedListener;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 
 import io.netty.bootstrap.Bootstrap;
@@ -24,14 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 @Sharable
 public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	
-	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private EventLoopGroup eventLoopGroup;
 	private Channel channel;
 	private String remoteHost;
 	private int remotePort;
+	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private JladderOnReceiveDataListener onReceiveListener = new JladderOnReceiveDataListener();
 	private JladderOnConnectedListener onConnectedListener = new JladderOnConnectedListener();
-	// XXX 用Lock代替更贴近语义
+	private JladderOnDisconnectedListener jladderOnDisconnectedListener = new JladderOnDisconnectedListener();
 	private CountDownLatch connectLatch = new CountDownLatch(1);
 	private CountDownLatch connectStartLatch = new CountDownLatch(1);
 	
@@ -90,6 +91,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	}
 
 	private Lock lock = new ReentrantLock();
+	// 确保只有一个线程建立连接
 	private void _connect() {
 		lock.lock();
 		try {
@@ -105,6 +107,10 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			lock.unlock();
 		}
 	}
+	
+	public JladderOnDisconnectedListener onDisconnect() {
+		return this.jladderOnDisconnectedListener;
+	}
 
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -113,6 +119,14 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		}
         ctx.fireChannelRead(msg);
 	}
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    	if (this.jladderOnDisconnectedListener != null) {
+    		this.jladderOnDisconnectedListener.fireReadEvent(new JladderChannelFuture(future));
+    	}
+        ctx.fireChannelInactive();
+    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

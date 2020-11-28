@@ -2,11 +2,11 @@ package org.jladder.adapter.protocol.listener;
 
 import org.jladder.adapter.protocol.JladderChannelFuture;
 
-public class JladderOnConnectedListener {
+public class JladderOnDisconnectedListener {
 
-	private JladderConnectEvent event;
+	private JladderDisconnectEvent event;
 
-	public void onConnect(JladderConnectEvent event) {
+	public void onDisconnect(JladderDisconnectEvent event) {
 		this.event = event;
 	}
 
@@ -16,7 +16,7 @@ public class JladderOnConnectedListener {
 		}
 	}
 
-	public static interface JladderConnectEvent {
+	public static interface JladderDisconnectEvent {
 		public void onConnect(JladderChannelFuture channelFuture);
 	}
 }

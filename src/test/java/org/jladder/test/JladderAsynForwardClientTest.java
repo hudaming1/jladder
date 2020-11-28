@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
-import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
+import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener.JladderMessageReceiveEvent;
 import org.junit.Test;
 
 import io.netty.buffer.ByteBuf;

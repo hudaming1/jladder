@@ -1,7 +1,6 @@
 package org.jladder.adapter.protocol.listener;
 
 import org.jladder.adapter.protocol.JladderByteBuf;
-import org.jladder.adapter.protocol.JladderMessageReceiveEvent;
 
 public class JladderOnReceiveDataListener {
 
@@ -13,5 +12,9 @@ public class JladderOnReceiveDataListener {
 
 	public void fireReadEvent(JladderByteBuf jladderByteBuf) {
 		eventCallback.onReceive(jladderByteBuf);
+	}
+
+	public static interface JladderMessageReceiveEvent {
+		public void onReceive(JladderByteBuf byteBuf);
 	}
 }
