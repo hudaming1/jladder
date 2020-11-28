@@ -1,22 +1,22 @@
 package org.jladder.adapter.protocol.listener;
 
-import org.jladder.adapter.protocol.JladderChannelFuture;
+import org.jladder.adapter.protocol.JladderChannelHandlerContext;
 
 public class JladderOnDisconnectedListener {
 
 	private JladderDisconnectEvent event;
-
+	
 	public void onDisconnect(JladderDisconnectEvent event) {
 		this.event = event;
 	}
 
-	public void fireReadEvent(JladderChannelFuture channelFuture) {
+	public void fireReadEvent(JladderChannelHandlerContext ctx) {
 		if (event != null) {
-			event.onConnect(channelFuture);
+			event.onDisconnect(ctx);
 		}
 	}
 
 	public static interface JladderDisconnectEvent {
-		public void onConnect(JladderChannelFuture channelFuture);
+		public void onDisconnect(JladderChannelHandlerContext ctx);
 	}
 }

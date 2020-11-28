@@ -5,7 +5,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
+import org.jladder.adapter.protocol.JladderChannelHandlerContext;
 import org.jladder.adapter.protocol.JladderMessage;
+import org.jladder.adapter.protocol.listener.JladderOnDisconnectedListener;
+import org.jladder.adapter.protocol.listener.JladderOnDisconnectedListener.JladderDisconnectEvent;
+import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener.JladderMessageReceiveEvent;
 
 import io.netty.channel.ChannelHandler.Sharable;
@@ -33,14 +37,16 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 			client = ClientMap.putIfAbsent(clientKey, new JladderAsynForwardClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup));
 		}
 		client = ClientMap.get(clientKey);
-		client.writeAndFlush(msg.getBody()).onReceive(new JladderMessageReceiveEvent() {
-			@Override
-			public void onReceive(JladderByteBuf byteBuf) {
-				JladderMessage response = JladderMessage.buildNeedEncryptMessage(msg.getClientIden(), msg.getId(), msg.getHost(), msg.getPort(), byteBuf.toByteBuf().retain());
-				log.info("[response]" + response.getId() + "=" + response.getBody().readableBytes());
-				insideCtx.writeAndFlush(response);
-			}
-		});
+//		client.writeAndFlush(msg.getBody()).onReceive(new JladderMessageReceiveEvent() {
+//			@Override
+//			public void onReceive(JladderByteBuf byteBuf) {
+//				JladderMessage response = JladderMessage.buildNeedEncryptMessage(msg.getClientIden(), msg.getId(), msg.getHost(), msg.getPort(), byteBuf.toByteBuf().retain());
+//				log.info("[response]" + response.getId() + "=" + response.getBody().readableBytes());
+//				insideCtx.writeAndFlush(response);
+//			}
+//		});
+		
+		client.addListener();
 		
 //		TODO remote在onclose时，告诉也要断开inside浏览器的连接
 //		client.onClose()

@@ -5,6 +5,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
+import org.jladder.adapter.protocol.listener.JladderAsynForwardClientListener;
 import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
 import org.jladder.adapter.protocol.listener.JladderOnDisconnectedListener;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
@@ -30,9 +31,10 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private String remoteHost;
 	private int remotePort;
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
-	private JladderOnReceiveDataListener onReceiveListener = new JladderOnReceiveDataListener();
-	private JladderOnConnectedListener onConnectedListener = new JladderOnConnectedListener();
-	private JladderOnDisconnectedListener jladderOnDisconnectedListener = new JladderOnDisconnectedListener();
+//	private JladderOnReceiveDataListener onReceiveListener;
+//	private JladderOnConnectedListener onConnectedListener = new JladderOnConnectedListener();
+//	private JladderOnDisconnectedListener onDisconnectListener = null;
+	private JladderAsynForwardClientListener listener;
 	private CountDownLatch connectLatch = new CountDownLatch(1);
 	private CountDownLatch connectStartLatch = new CountDownLatch(1);
 	
@@ -74,7 +76,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
-	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
+	public JladderAsynForwardClient writeAndFlush(ByteBuf message) throws InterruptedException {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			_connect();
 		}
@@ -87,7 +89,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			// sign writable
 		});
 		
-		return onReceiveListener;
+		return this;
 	}
 
 	private Lock lock = new ReentrantLock();
@@ -107,10 +109,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			lock.unlock();
 		}
 	}
-	
-	public JladderOnDisconnectedListener onDisconnect() {
-		return this.jladderOnDisconnectedListener;
-	}
 
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -122,8 +120,8 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	if (this.jladderOnDisconnectedListener != null) {
-    		this.jladderOnDisconnectedListener.fireReadEvent(new JladderChannelFuture(future));
+    	if (this.listener != null) {
+    		this.listener.fireReadEvent(new JladderChannelHandlerContext(ctx));
     	}
         ctx.fireChannelInactive();
     }
@@ -132,4 +130,8 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     	log.error("remoteHost=" + remoteHost + ":" + remotePort + " error, ", cause);
     }
+
+	public void addListener(JladderAsynForwardClientListener listener) {
+		this.listener = listener;
+	}
 }
