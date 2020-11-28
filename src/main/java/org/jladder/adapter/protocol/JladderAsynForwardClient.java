@@ -1,5 +1,6 @@
 package org.jladder.adapter.protocol;
 
+import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,7 +35,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 //	private JladderOnReceiveDataListener onReceiveListener;
 //	private JladderOnConnectedListener onConnectedListener = new JladderOnConnectedListener();
 //	private JladderOnDisconnectedListener onDisconnectListener = null;
-	private JladderAsynForwardClientListener listener;
+	private JladderAsynForwardClientListener listenerNodeList = new SimpleJladderAsynForwardClientListener(null);
 	private CountDownLatch connectLatch = new CountDownLatch(1);
 	private CountDownLatch connectStartLatch = new CountDownLatch(1);
 	
@@ -44,9 +45,9 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		this.eventLoopGroup = eventLoopGroup;
 	}
 
-	public JladderOnConnectedListener connect() {
+	public void connect() {
 		if (!isCanBeStart()) {
-			return null;
+			return ;
 		}
 		status = JladderForwardWorkerStatusEnum.Starting;
 		
@@ -67,9 +68,8 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			if (f.isSuccess()) {
 				status = JladderForwardWorkerStatusEnum.Running;
 			}
-			onConnectedListener.fireReadEvent(new JladderChannelFuture((ChannelFuture) f));
+			listener.onConnect(new JladderChannelFuture((ChannelFuture) f));
 		});
-		return onConnectedListener;
 	}
 	
 	private boolean isCanBeStart() {
@@ -113,15 +113,17 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		if (msg instanceof ByteBuf) {
-			onReceiveListener.fireReadEvent(new JladderByteBuf((ByteBuf) msg));
+			listener.onReceiveData(new JladderByteBuf((ByteBuf) msg));
+//			onReceiveListener.fireReadEvent(new JladderByteBuf((ByteBuf) msg));
 		}
         ctx.fireChannelRead(msg);
 	}
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	if (this.listener != null) {
-    		this.listener.fireReadEvent(new JladderChannelHandlerContext(ctx));
+    	if (this.listenerNodeList != null && !listenerNodeList.isEmpty()) {
+    		listener.onDisconnect(new JladderChannelHandlerContext(ctx));
+//    		this.listener.fireReadEvent(new JladderChannelHandlerContext(ctx));
     	}
         ctx.fireChannelInactive();
     }
@@ -132,6 +134,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
     }
 
 	public void addListener(JladderAsynForwardClientListener listener) {
-		this.listener = listener;
+		listenerNodeList.add(listener);
 	}
 }
