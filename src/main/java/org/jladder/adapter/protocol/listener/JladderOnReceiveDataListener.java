@@ -11,7 +11,8 @@ public class JladderOnReceiveDataListener {
 	}
 
 	public void fireReadEvent(JladderByteBuf jladderByteBuf) {
-		eventCallback.onReceive(jladderByteBuf);
+		if (eventCallback != null)
+			eventCallback.onReceive(jladderByteBuf);
 	}
 
 	public static interface JladderMessageReceiveEvent {

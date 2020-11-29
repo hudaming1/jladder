@@ -8,6 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderAsynForwardClientListener;
+import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
 import org.jladder.adapter.protocol.listener.SimpleJladderAsynForwardClientListener;
 
 import io.netty.bootstrap.Bootstrap;
@@ -31,6 +32,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private String remoteHost;
 	private int remotePort;
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
+	private JladderOnReceiveDataListener onReceiveListener = new JladderOnReceiveDataListener();
 	private CountDownLatch connectLatch = new CountDownLatch(1);
 	private CountDownLatch connectStartLatch = new CountDownLatch(1);
 	private JladderAsynForwardClientInvokeChain jladderAsynForwardClientInvokeChain = new JladderAsynForwardClientInvokeChain();
@@ -86,7 +88,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
-	public JladderAsynForwardClient writeAndFlush(ByteBuf message) throws InterruptedException {
+	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			_connect();
 		}
@@ -98,7 +100,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			}
 		});
 		
-		return this;
+		return onReceiveListener;
 	}
 
 	private Lock lock = new ReentrantLock();
@@ -120,7 +122,9 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		if (msg instanceof ByteBuf) {
-			jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf((ByteBuf) msg));
+			ByteBuf byteBuf = (ByteBuf) msg;
+			onReceiveListener.fireReadEvent(new JladderByteBuf(byteBuf));
+			jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
 		}
         ctx.fireChannelRead(msg);
 	}
@@ -165,6 +169,9 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		}
 		
 		public void addListener(JladderAsynForwardClientListener listener) {
+			if (listener == null) {
+				return ;
+			}
 			this.headerListener.add(listener);
 		}
 	}

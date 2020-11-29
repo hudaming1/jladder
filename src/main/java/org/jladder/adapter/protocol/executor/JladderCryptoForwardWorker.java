@@ -28,7 +28,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	private Channel channel;
 	private String proxyHost;
 	private int proxyPort;
-	private Map<Long, JladderOnReceiveDataListener> listenerMap = new ConcurrentHashMap<>();
+	private Map<String, JladderOnReceiveDataListener> listenerMap = new ConcurrentHashMap<>();
 	
 	public JladderCryptoForwardWorker(String proxyHost, int proxyPort) {
 		this(proxyHost, proxyPort, new NioEventLoopGroup());
@@ -77,7 +77,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
 
-		listenerMap.put(message.getId(), new JladderOnReceiveDataListener());
+		listenerMap.put(message.getClientIden(), new JladderOnReceiveDataListener());
 		
 		if (message.getBody() != null) {
 			message.getBody().retain();
@@ -89,12 +89,12 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 			log.info("http2.executor flushed");
 		});
 		
-		return listenerMap.get(message.getId());
+		return listenerMap.get(message.getClientIden());
 	}
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
-		listenerMap.get(msg.getId()).fireReadEvent(new JladderByteBuf(msg.getBody()));
+		listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(msg.getBody()));
         ctx.fireChannelRead(msg);
 	}
 }
