@@ -5,12 +5,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
+import org.jladder.adapter.protocol.JladderChannelFuture;
 import org.jladder.adapter.protocol.JladderChannelHandlerContext;
 import org.jladder.adapter.protocol.JladderMessage;
-import org.jladder.adapter.protocol.listener.JladderOnDisconnectedListener;
-import org.jladder.adapter.protocol.listener.JladderOnDisconnectedListener.JladderDisconnectEvent;
-import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
-import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener.JladderMessageReceiveEvent;
+import org.jladder.adapter.protocol.listener.JladderAsynForwardClientListener;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -46,9 +44,25 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 //			}
 //		});
 		
-		client.addListener();
-		
-//		TODO remote在onclose时，告诉也要断开inside浏览器的连接
-//		client.onClose()
+		client.addListener(new JladderAsynForwardClientListener() {
+			
+			@Override
+			public void onReceiveData(JladderByteBuf jladderByteBuf) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
+				// TODO 告知断开客户端连接(remote在onclose时，告诉也要断开inside浏览器的连接)
+				// insideCtx.writeAndFlush(msg)
+			}
+			
+			@Override
+			public void onConnect(JladderChannelFuture jladderChannelFuture) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 }
