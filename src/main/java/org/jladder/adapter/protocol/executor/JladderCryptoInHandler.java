@@ -21,8 +21,6 @@ public class JladderCryptoInHandler extends ReplayingDecoder<JladderMessage> {
 		byte[] idenBytes = new byte[idenLen];
 		in.readBytes(idenBytes);
 		String clientIden = new String(idenBytes);
-		// read id
-		long id = in.readLong();
 		// read host
 		int hostLen = in.readInt();
 		byte[] hostBytes4Encrypt = new byte[hostLen];
@@ -38,7 +36,7 @@ public class JladderCryptoInHandler extends ReplayingDecoder<JladderMessage> {
 		byte[] bodyBytes = isBodyNeedDecrypt ? aesDecrypt(sourceBodyBytes) : sourceBodyBytes;
 		ByteBuf body = Unpooled.buffer(bodyLen);
 		body.writeBytes(bodyBytes);
-		out.add(JladderMessage.buildNeedEncryptMessage(clientIden, id, new String(hostBytes), port, body));
+		out.add(JladderMessage.buildNeedEncryptMessage(clientIden, new String(hostBytes), port, body));
 	}
 
 	private byte[] aesDecrypt(byte[] bytes) {

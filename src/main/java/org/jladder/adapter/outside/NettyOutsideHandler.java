@@ -25,7 +25,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage msg) throws Exception {
 		msg.getBody().retain();
-		log.info("[request]" + msg.getClientIden() + "," + msg.getId() + "=" + msg.getBody().readableBytes());
+		log.info("[request]" + msg.getClientIden() + "=" + msg.getBody().readableBytes());
 		String clientKey = msg.getClientIden();
 		JladderAsynForwardClient client = null;
 		if (!ClientMap.containsKey(clientKey)) {
@@ -46,7 +46,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 		}
 		client = ClientMap.get(clientKey);
 		client.writeAndFlush(msg.getBody()).onReceive(jladderByteBuf -> {
-			insideCtx.writeAndFlush(JladderMessage.buildNeedEncryptMessage(msg.getClientIden(), msg.getId(), msg.getHost(), msg.getPort(), jladderByteBuf.toByteBuf().retain()));
+			insideCtx.writeAndFlush(JladderMessage.buildNeedEncryptMessage(msg.getClientIden(), msg.getHost(), msg.getPort(), jladderByteBuf.toByteBuf().retain()));
 		});
 	}
 }

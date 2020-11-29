@@ -4,16 +4,14 @@ import io.netty.buffer.ByteBuf;
 
 public class JladderMessage {
 
-	private long id;
 	private String clientIden;
 	private boolean bodyNeedEncrypt;
 	private String host;
 	private int port;
 	private ByteBuf body;
 
-	private JladderMessage(String clientIden, boolean bodyNeedEncrypt, long id, String host, int port, ByteBuf body) {
+	private JladderMessage(String clientIden, boolean bodyNeedEncrypt, String host, int port, ByteBuf body) {
 		this.clientIden = clientIden;
-		this.id = id;
 		this.host = host;
 		this.port = port;
 		this.body = body;
@@ -22,10 +20,6 @@ public class JladderMessage {
 	
 	public String getClientIden() {
 		return clientIden;
-	}
-
-	public long getId() {
-		return id;
 	}
 
 	public String getHost() {
@@ -45,15 +39,11 @@ public class JladderMessage {
 	}
 	
 	public static JladderMessage buildNeedEncryptMessage(String clientIden, String host, int port, ByteBuf body) {
-		return buildNeedEncryptMessage(clientIden, System.nanoTime(), host, port, body);
-	}
-
-	public static JladderMessage buildNeedEncryptMessage(String clientIden, long id, String host, int port, ByteBuf body) {
-		return new JladderMessage(clientIden, true, id, host, port, body);
+		return new JladderMessage(clientIden, true, host, port, body);
 	}
 
 	public static JladderMessage buildUnNeedEncryptMessage(String clientIden, String host, int port, ByteBuf body) {
-		return new JladderMessage(clientIden, false, System.nanoTime(), host, port, body);
+		return new JladderMessage(clientIden, false, host, port, body);
 	}
 
 	public static Object buildDisconnectMessage(String clientIden2) {
