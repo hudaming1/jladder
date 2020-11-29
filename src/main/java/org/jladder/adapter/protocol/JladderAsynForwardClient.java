@@ -36,18 +36,23 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private JladderAsynForwardClientInvokeChain jladderAsynForwardClientInvokeChain = new JladderAsynForwardClientInvokeChain();
 	
 	public JladderAsynForwardClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
+		this(remoteHost, remotePort, eventLoopGroup, null);
+	}
+	
+	public JladderAsynForwardClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup, JladderAsynForwardClientListener listener) {
 		this.remoteHost = remoteHost;
 		this.remotePort = remotePort;
 		this.eventLoopGroup = eventLoopGroup;
-		this.initListener();
+		this.initListener(listener);
 	}
 	
-	private void initListener() {
+	private void initListener(JladderAsynForwardClientListener listener) {
 		jladderAsynForwardClientInvokeChain.addListener(new SimpleJladderAsynForwardClientListener() {
 			public void onConnect(JladderChannelFuture jladderChannelFuture) {
 				connectLatch.countDown();
 			}
 		});
+		jladderAsynForwardClientInvokeChain.addListener(listener);
 	}
 
 	public void connect() {

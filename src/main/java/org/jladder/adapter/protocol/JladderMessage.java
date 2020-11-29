@@ -55,4 +55,9 @@ public class JladderMessage {
 	public static JladderMessage buildUnNeedEncryptMessage(String clientIden, String host, int port, ByteBuf body) {
 		return new JladderMessage(clientIden, false, System.nanoTime(), host, port, body);
 	}
+
+	public static Object buildDisconnectMessage(String clientIden2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
