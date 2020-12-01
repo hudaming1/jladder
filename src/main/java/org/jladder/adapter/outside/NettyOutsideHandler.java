@@ -49,8 +49,5 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 		}
 		client = ClientMap.get(clientKey);
 		client.writeAndFlush(msg.getBody());
-//		client.writeAndFlush(msg.getBody()).onReceive(jladderByteBuf -> {
-//			insideCtx.writeAndFlush(JladderMessage.buildNeedEncryptMessage(msg.getClientIden(), msg.getHost(), msg.getPort(), jladderByteBuf.toByteBuf().retain()));
-//		});
 	}
 }

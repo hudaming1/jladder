@@ -93,7 +93,6 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		});
 	    	}
-	    	browserCtx.fireChannelRead(msg);
 	    }
 	}
 }
