@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
+import org.jladder.adapter.protocol.JladderChannelHandlerContext;
 import org.jladder.adapter.protocol.listener.SimpleJladderAsynForwardClientListener;
 import org.junit.Test;
 
@@ -21,6 +22,11 @@ public class JladderAsynForwardClientTest {
 			@Override
 			public void onReceiveData(JladderByteBuf jladderByteBuf) {
 				System.out.println(jladderByteBuf.toByteBuf().toString(CharsetUtil.UTF_8));
+			}
+
+			@Override
+			public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
+				System.out.println("disconnect");
 			}
 		});
 		ByteBuf message = Unpooled.wrappedBuffer("GET / HTTP/1.1\r\nConnection: close\r\n\r\n".getBytes());

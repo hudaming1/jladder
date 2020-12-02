@@ -9,7 +9,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderAsynForwardClientListener;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
-import org.jladder.adapter.protocol.listener.SimpleJladderAsynForwardClientListener;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -49,10 +48,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	}
 	
 	private void initListener(JladderAsynForwardClientListener listener) {
-		jladderAsynForwardClientInvokeChain.addListener(new SimpleJladderAsynForwardClientListener() {
-			public void onConnect(JladderChannelFuture jladderChannelFuture) {
-			}
-		});
 		jladderAsynForwardClientInvokeChain.addListener(listener);
 	}
 
@@ -105,7 +100,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
 			if (!f.isSuccess()) {
-				log.error("flush error", f.cause());
+				log.error(this.channel.toString() + " flush error", f.cause());
 			}
 		});
 		
@@ -114,6 +109,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		log.info(ctx.channel().toString() + " read");
 		ByteBuf byteBuf = (ByteBuf) msg;
 //		onReceiveListener.fireReadEvent(new JladderByteBuf(byteBuf));
 		jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
@@ -122,13 +118,14 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    	log.info(this.channel.toString() + " diconnect");
     	jladderAsynForwardClientInvokeChain.onDisconnect(new JladderChannelHandlerContext(ctx));
         ctx.fireChannelInactive();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-    	log.error("remoteHost=" + remoteHost + ":" + remotePort + " error, ", cause);
+    	log.error("remoteHost=" + remoteHost + ":" + remotePort + "[" + ctx.channel().toString() + "]" + " error, ", cause);
     }
 
 	public void addListener(JladderAsynForwardClientListener listener) {

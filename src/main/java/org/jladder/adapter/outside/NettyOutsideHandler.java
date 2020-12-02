@@ -34,16 +34,15 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 			client = ClientMap.putIfAbsent(clientKey, new JladderAsynForwardClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
 				@Override
 				public void onReceiveData(JladderByteBuf jladderByteBuf) {
-					System.out.println("receive datas=" + jladderByteBuf.readableBytes());
+//					System.out.println("receive datas=" + jladderByteBuf.readableBytes());
 					insideCtx.writeAndFlush(JladderMessage.buildNeedEncryptMessage(msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf().retain()));
 				}
 				@Override
 				public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
 					// 告知断开客户端连接(remote在onclose时，告诉也要断开inside浏览器的连接)
-					// insideCtx.writeAndFlush(JladderMessage.buildDisconnectMessage(msg.getClientIden()));
-					String removeKey = clientKey;
-					ClientMap.remove(removeKey);
-					log.info("remote disconnect");
+//					 insideCtx.writeAndFlush(JladderMessage.buildDisconnectMessage(msg.getClientIden()));
+					ClientMap.remove(clientKey);
+					log.info("remote " + clientKey + " disconnect");
 				}
 			}));
 		}

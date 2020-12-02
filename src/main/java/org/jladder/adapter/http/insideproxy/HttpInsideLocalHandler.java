@@ -38,10 +38,12 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		clientIden = System.nanoTime() + "" + new Random().nextInt();
+		log.info(clientIden + " browser connect");
     }
     
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
+		log.info(clientIden + " browser read");
 
 		if (requestWrapper.host() == null || requestWrapper.host().isEmpty()) {
 			/**
@@ -86,6 +88,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
+	    	log.info(clientIden + " proxy read");
 	    	if (msg instanceof ByteBuf) {
 	    		JladderMessage request = JladderMessage.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
 	    		JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
@@ -94,5 +97,27 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    		});
 	    	}
 	    }
+
+	    @Override
+	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
+	            throws Exception {
+	    	log.error(clientIden + " proxy error", cause);
+	    }
+
+	    @Override
+	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+	    	log.error(clientIden + " proxy disconnect");
+	    }
 	}
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
+            throws Exception {
+    	log.error(clientIden + " browser error", cause);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    	log.error(clientIden + " browser disconnect");
+    }
 }
