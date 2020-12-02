@@ -31,10 +31,10 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private Channel channel;
 	private String remoteHost;
 	private int remotePort;
+	private final Lock connectConcurrencyLock = new ReentrantLock();
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private JladderOnReceiveDataListener onReceiveListener = new JladderOnReceiveDataListener();
-	private CountDownLatch connectLatch = new CountDownLatch(1);
-	private CountDownLatch connectStartLatch = new CountDownLatch(1);
+	private CountDownLatch connectFinishLatch = new CountDownLatch(1);
 	private JladderAsynForwardClientInvokeChain jladderAsynForwardClientInvokeChain = new JladderAsynForwardClientInvokeChain();
 	
 	public JladderAsynForwardClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
@@ -51,37 +51,46 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private void initListener(JladderAsynForwardClientListener listener) {
 		jladderAsynForwardClientInvokeChain.addListener(new SimpleJladderAsynForwardClientListener() {
 			public void onConnect(JladderChannelFuture jladderChannelFuture) {
-				connectLatch.countDown();
 			}
 		});
 		jladderAsynForwardClientInvokeChain.addListener(listener);
 	}
 
-	public void connect() {
+	public void connect() throws InterruptedException {
 		if (!isCanBeStart()) {
 			return ;
 		}
-		status = JladderForwardWorkerStatusEnum.Starting;
-		
-		// init bootstrap
-		Bootstrap bootstrap = new Bootstrap();
-		bootstrap.channel(NioSocketChannel.class);
-		bootstrap.group(eventLoopGroup);
-		bootstrap.handler(new ChannelInitializer<Channel>() {
-			@Override
-			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(JladderAsynForwardClient.this);
+		try {
+			connectConcurrencyLock.lock();
+			if (!isCanBeStart()) {
+				return ;
 			}
-		});	
-		ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);
-		this.channel = chanelFuture.channel();
-		connectStartLatch.countDown();
-		chanelFuture.addListener(f -> {
-			if (f.isSuccess()) {
-				status = JladderForwardWorkerStatusEnum.Running;
-			}
-			jladderAsynForwardClientInvokeChain.onConnect(new JladderChannelFuture((ChannelFuture) f));
-		});
+			status = JladderForwardWorkerStatusEnum.Starting;
+			
+			// init bootstrap
+			Bootstrap bootstrap = new Bootstrap();
+			bootstrap.channel(NioSocketChannel.class);
+			bootstrap.group(eventLoopGroup);
+			bootstrap.handler(new ChannelInitializer<Channel>() {
+				@Override
+				protected void initChannel(Channel ch) throws Exception {
+					ch.pipeline().addLast(JladderAsynForwardClient.this);
+				}
+			});	
+			ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);
+			this.channel = chanelFuture.channel();
+			chanelFuture.addListener(f -> {
+				if (f.isSuccess()) {
+					status = JladderForwardWorkerStatusEnum.Running;
+					connectFinishLatch.countDown();
+				}
+				jladderAsynForwardClientInvokeChain.onConnect(new JladderChannelFuture((ChannelFuture) f));
+			});
+
+			connectFinishLatch.await();
+		} finally {
+			connectConcurrencyLock.unlock();
+		}
 	}
 	
 	private boolean isCanBeStart() {
@@ -90,7 +99,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
 	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
-			_connect();
+			connect();
 		}
 		
 		this.channel.writeAndFlush(message).addListener(f -> {
@@ -101,22 +110,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		});
 		
 		return onReceiveListener;
-	}
-
-	private Lock lock = new ReentrantLock();
-	// 确保只有一个线程建立连接
-	private void _connect() {
-		lock.lock();
-		try {
-			if (isCanBeStart()) {
-				connect();
-				connectLatch.await();
-			}
-		} catch (InterruptedException e) {
-			log.error("", e);
-		} finally {
-			lock.unlock();
-		}
 	}
 
 	@Override
