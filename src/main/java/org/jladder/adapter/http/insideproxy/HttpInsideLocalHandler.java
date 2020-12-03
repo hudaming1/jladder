@@ -15,6 +15,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -43,7 +44,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
     
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
-		log.info(clientIden + " browser read");
+		log.info(clientIden + " browser read " + requestWrapper.host() + "_" + browserCtx.channel().toString());
 
 		if (requestWrapper.host() == null || requestWrapper.host().isEmpty()) {
 			/**
@@ -66,9 +67,12 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE.retain());
 			return ;
 		} else {
+//			log.info("write message1:" + browserCtx.channel().toString() + "-" + clientIden);
 			JladderMessage message = JladderMessage.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
 			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
+//			log.info("write message2:" + browserCtx.channel().toString() + "----->" + receiveListener);
 			receiveListener.onReceive(byteBuf -> {
+//				System.out.println(receiveListener + "------->" + browserCtx.channel().toString() + "--" + byteBuf.toByteBuf().toString(CharsetUtil.UTF_8));
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			});
 		}
@@ -88,7 +92,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
-	    	log.info(clientIden + " proxy read");
+//	    	log.info(clientIden + " proxy read");
 	    	if (msg instanceof ByteBuf) {
 	    		JladderMessage request = JladderMessage.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
 	    		JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
@@ -101,23 +105,23 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 	            throws Exception {
-	    	log.error(clientIden + " proxy error", cause);
+//	    	log.error(clientIden + " proxy error", cause);
 	    }
 
 	    @Override
 	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-	    	log.error(clientIden + " proxy disconnect");
+//	    	log.error(clientIden + " proxy disconnect");
 	    }
 	}
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
-    	log.error(clientIden + " browser error", cause);
+//    	log.error(clientIden + " browser error", cause);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	log.error(clientIden + " browser disconnect");
+//    	log.error(clientIden + " browser disconnect");
     }
 }

@@ -21,7 +21,7 @@ public class JladderMessage {
 	public String getClientIden() {
 		return clientIden;
 	}
-
+	
 	public String getHost() {
 		return host;
 	}

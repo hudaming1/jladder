@@ -63,14 +63,13 @@ public class NettyOutsideProxyServer implements Runnable {
 	
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
 		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
-		private final NettyOutsideHandler nettyServerPipeChannelHandler = new NettyOutsideHandler();
 		private final JladderCryptoOutHandler jladderCryptoHandler = new JladderCryptoOutHandler();
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			ch.pipeline().addLast(new JladderCryptoInHandler());
 			ch.pipeline().addLast(jladderCryptoHandler);
-			ch.pipeline().addLast(nettyServerPipeChannelHandler);
+			ch.pipeline().addLast(new NettyOutsideHandler());
 		}
 	}
 }

@@ -94,6 +94,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
+		log.info(msg.getClientIden() + " receive outside message");
 		listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(msg.getBody()));
         ctx.fireChannelRead(msg);
 	}

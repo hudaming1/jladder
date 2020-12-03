@@ -32,7 +32,7 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
     		monitor.increaseConnCount();
     	}
     	// print log
-    	logger.info("connected {} <-> {}", ctx.channel().localAddress(), ctx.channel().remoteAddress());
+    	// logger.info("connected {} <-> {}", ctx.channel().localAddress(), ctx.channel().remoteAddress());
         ctx.fireChannelRegistered();
     }
 	
@@ -64,7 +64,7 @@ public class NettyProxyMonitorHandler extends ChannelDuplexHandler {
     		monitor.decreaseConnCount();
     	}
     	// print log
-    	logger.info("disconnected {} <-> {}", ctx.channel().localAddress(), ctx.channel().remoteAddress());
+    	// logger.info("disconnected {} <-> {}", ctx.channel().localAddress(), ctx.channel().remoteAddress());
         ctx.fireChannelInactive();
     }
 

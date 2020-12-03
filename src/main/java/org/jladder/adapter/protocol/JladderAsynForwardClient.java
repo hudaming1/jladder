@@ -20,6 +20,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -51,16 +52,13 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		jladderAsynForwardClientInvokeChain.addListener(listener);
 	}
 
-	public void connect() throws InterruptedException {
+	public synchronized void connect() throws InterruptedException {
 		if (!isCanBeStart()) {
 			return ;
 		}
 		try {
-			connectConcurrencyLock.lock();
-			if (!isCanBeStart()) {
-				return ;
-			}
-			status = JladderForwardWorkerStatusEnum.Starting;
+//			connectConcurrencyLock.lock();
+//			status = JladderForwardWorkerStatusEnum.Starting;
 			
 			// init bootstrap
 			Bootstrap bootstrap = new Bootstrap();
@@ -75,17 +73,16 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);
 			chanelFuture.addListener(f -> {
 				if (f.isSuccess()) {
-					status = JladderForwardWorkerStatusEnum.Running;
-					connectFinishLatch.countDown();
 					this.channel = ((ChannelFuture) f).channel();
-					log.info(this.channel + " connect");
+					status = JladderForwardWorkerStatusEnum.Running;
+					jladderAsynForwardClientInvokeChain.onConnect(new JladderChannelFuture((ChannelFuture) f));
 				}
-				jladderAsynForwardClientInvokeChain.onConnect(new JladderChannelFuture((ChannelFuture) f));
+				connectFinishLatch.countDown();
 			});
 
 			connectFinishLatch.await();
 		} finally {
-			connectConcurrencyLock.unlock();
+//			connectConcurrencyLock.unlock();
 		}
 	}
 	
@@ -94,15 +91,16 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	}
 
 	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
-		if (status != JladderForwardWorkerStatusEnum.Running) {
-			connect();
+		connect();
+		if (channel == null) {
+			log.error("" + remoteHost + ":" + remotePort + " uninit...");
 		}
-		
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
 			if (!f.isSuccess()) {
 				log.error(this.channel.toString() + " flush error", f.cause());
 			}
+//			log.info("flush request=" + message.toString(CharsetUtil.UTF_8));
 		});
 		
 		return onReceiveListener;
@@ -110,8 +108,8 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		log.info(ctx.channel().toString() + " read");
 		ByteBuf byteBuf = (ByteBuf) msg;
+//		log.info(ctx.channel().toString() + " read " + byteBuf.toString(CharsetUtil.UTF_8));
 //		onReceiveListener.fireReadEvent(new JladderByteBuf(byteBuf));
 		jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
         ctx.fireChannelRead(msg);
