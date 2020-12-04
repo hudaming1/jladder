@@ -1,1 +1,3 @@
 1.inside和outside连接相互隔离，避免一个连接抛出异常，整个线程池crash掉
+2.目前HTTP的基本通常，不见阻塞和丢失，但HTTPS请求并发时还会串道
+3.Remote端断开连接时，需要给client推送断开消息
