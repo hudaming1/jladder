@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import org.jladder.common.core.config.NettyProxyConfigContent;
 import org.jladder.common.core.config.NettyProxyConfigLoader;
-import org.jladder.common.exception.NettyProxyException;
+import org.jladder.common.exception.JladderException;
 
 public class NettyProxyConfigPropertiesLoader extends NettyProxyConfigLoader {
 
@@ -31,9 +31,9 @@ public class NettyProxyConfigPropertiesLoader extends NettyProxyConfigLoader {
 		try {
 			properties = loadProperties(file.toString());
 		} catch (FileNotFoundException e1) {
-			throw new NettyProxyException("load config file error, file[" + file + "] not exists.", e1);
+			throw new JladderException("load config file error, file[" + file + "] not exists.", e1);
 		} catch (IOException e1) {
-			throw new NettyProxyException("load config file error", e1);
+			throw new JladderException("load config file error", e1);
 		}
 		
 		NettyProxyConfigContent content = new NettyProxyConfigContent();

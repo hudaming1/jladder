@@ -40,7 +40,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 				@Override
 				public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
 					// 告知断开客户端连接(remote在onclose时，告诉也要断开inside浏览器的连接)
-					insideCtx.writeAndFlush(JladderMessage.buildDisconnectMessage(msg.getClientIden()));
+					// insideCtx.writeAndFlush(JladderMessage.buildDisconnectMessage(msg.getClientIden()));
 					ClientMap.remove(clientKey);
 //					log.info("remote " + clientKey + " disconnect");
 				}

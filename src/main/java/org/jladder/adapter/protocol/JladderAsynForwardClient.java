@@ -1,5 +1,6 @@
 package org.jladder.adapter.protocol;
 
+import java.net.ConnectException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -9,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderAsynForwardClientListener;
 import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
+import org.jladder.common.exception.JladderException;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -92,7 +94,8 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
 		connect();
 		if (channel == null) {
-			log.error("" + remoteHost + ":" + remotePort + " uninit...");
+			log.error(remoteHost + ":" + remotePort + " uninit...");
+			throw new JladderException(remoteHost + ":" + remotePort + " connect failed");
 		}
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
