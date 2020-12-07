@@ -2,12 +2,13 @@ package org.jladder.adapter.protocol.listener;
 
 import org.jladder.adapter.protocol.JladderByteBuf;
 
-public class JladderOnReceiveDataListener {
+public class JladderForwardListener {
 
 	private JladderMessageReceiveEvent eventCallback;
 
-	public void onReceive(JladderMessageReceiveEvent event) {
+	public JladderForwardListener onReceive(JladderMessageReceiveEvent event) {
 		this.eventCallback = event;
+		return this;
 	}
 
 	public void fireReadEvent(JladderByteBuf jladderByteBuf) {

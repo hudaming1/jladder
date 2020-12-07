@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jladder.adapter.protocol.JladderMessage;
-import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
+import org.jladder.adapter.protocol.listener.JladderForwardListener;
+import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 
@@ -28,7 +28,7 @@ public class JladderForwardExecutor {
 		}
 	}
 
-	public JladderOnReceiveDataListener writeAndFlush(JladderMessage message) {
+	public JladderForwardListener writeAndFlush(JladderMessage message) {
 		return select().writeAndFlush(message);
 	}
 	

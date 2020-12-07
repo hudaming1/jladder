@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderAsynForwardClientListener;
-import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
+import org.jladder.adapter.protocol.listener.JladderForwardListener;
 import org.jladder.common.exception.JladderException;
 
 import io.netty.bootstrap.Bootstrap;
@@ -34,7 +34,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private int remotePort;
 	private final Lock connectConcurrencyLock = new ReentrantLock();
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
-	private JladderOnReceiveDataListener onReceiveListener = new JladderOnReceiveDataListener();
+	private JladderForwardListener onReceiveListener = new JladderForwardListener();
 	private CountDownLatch connectFinishLatch = new CountDownLatch(1);
 	private JladderAsynForwardClientInvokeChain jladderAsynForwardClientInvokeChain = new JladderAsynForwardClientInvokeChain();
 	
@@ -91,7 +91,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
-	public JladderOnReceiveDataListener writeAndFlush(ByteBuf message) throws InterruptedException {
+	public JladderForwardListener writeAndFlush(ByteBuf message) throws InterruptedException {
 		connect();
 		if (channel == null) {
 			log.error(remoteHost + ":" + remotePort + " uninit...");

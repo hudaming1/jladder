@@ -3,8 +3,8 @@ package org.jladder.test;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
+import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;

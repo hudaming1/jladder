@@ -2,7 +2,7 @@ package org.jladder.adapter.protocol.executor;
 
 import java.util.List;
 
-import org.jladder.adapter.protocol.JladderMessage;
+import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.common.util.AESCoder;
 
 import io.netty.buffer.ByteBuf;

@@ -4,9 +4,9 @@ import java.util.Random;
 
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
-import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
-import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
+import org.jladder.adapter.protocol.listener.JladderForwardListener;
+import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.common.Constant;
 
 import io.netty.buffer.ByteBuf;
@@ -68,7 +68,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		} else {
 //			log.info("write message1:" + browserCtx.channel().toString() + "-" + clientIden);
 			JladderMessage message = JladderMessage.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
-			JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
+			JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
 //			log.info("write message2:" + browserCtx.channel().toString() + "----->" + receiveListener);
 			receiveListener.onReceive(byteBuf -> {
 //				System.out.println(receiveListener + "------->" + browserCtx.channel().toString() + "--" + byteBuf.toByteBuf().toString(CharsetUtil.UTF_8));
@@ -94,7 +94,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 //	    	log.info(clientIden + " proxy read");
 	    	if (msg instanceof ByteBuf) {
 	    		JladderMessage request = JladderMessage.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
-	    		JladderOnReceiveDataListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
+	    		JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
 	    		receiveListener.onReceive(byteBuf -> {
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		});

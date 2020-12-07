@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderChannelHandlerContext;
-import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.listener.SimpleJladderAsynForwardClientListener;
+import org.jladder.adapter.protocol.message.JladderMessage;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;

@@ -4,10 +4,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jladder.adapter.protocol.JladderByteBuf;
-import org.jladder.adapter.protocol.JladderMessage;
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
-import org.jladder.adapter.protocol.listener.JladderOnReceiveDataListener;
+import org.jladder.adapter.protocol.message.JladderMessage;
+import org.jladder.adapter.protocol.listener.JladderForwardListener;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -28,7 +28,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	private Channel channel;
 	private String proxyHost;
 	private int proxyPort;
-	private Map<String, JladderOnReceiveDataListener> listenerMap = new ConcurrentHashMap<>();
+	private Map<String, JladderForwardListener> listenerMap = new ConcurrentHashMap<>();
 	
 	public JladderCryptoForwardWorker(String proxyHost, int proxyPort) {
 		this(proxyHost, proxyPort, new NioEventLoopGroup());
@@ -72,12 +72,12 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
-	public JladderOnReceiveDataListener writeAndFlush(JladderMessage message) {
+	public JladderForwardListener writeAndFlush(JladderMessage message) {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
 
-		listenerMap.put(message.getClientIden(), new JladderOnReceiveDataListener());
+		listenerMap.put(message.getClientIden(), new JladderForwardListener());
 		
 		if (message.getBody() != null) {
 			message.getBody().retain();
