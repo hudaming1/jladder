@@ -6,7 +6,8 @@ import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
 import org.jladder.adapter.protocol.listener.JladderForwardListener;
-import org.jladder.adapter.protocol.message.JladderMessage;
+import org.jladder.adapter.protocol.message.JladderDataMessage;
+import org.jladder.adapter.protocol.message.JladderMessageBuilder;
 import org.jladder.common.Constant;
 
 import io.netty.buffer.ByteBuf;
@@ -67,7 +68,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			return ;
 		} else {
 //			log.info("write message1:" + browserCtx.channel().toString() + "-" + clientIden);
-			JladderMessage message = JladderMessage.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
+			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
 			JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
 //			log.info("write message2:" + browserCtx.channel().toString() + "----->" + receiveListener);
 			receiveListener.onReceive(byteBuf -> {
@@ -93,7 +94,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
 //	    	log.info(clientIden + " proxy read");
 	    	if (msg instanceof ByteBuf) {
-	    		JladderMessage request = JladderMessage.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
+	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
 	    		JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
 	    		receiveListener.onReceive(byteBuf -> {
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());

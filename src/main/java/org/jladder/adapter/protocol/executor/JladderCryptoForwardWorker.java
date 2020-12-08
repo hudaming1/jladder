@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
-import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
-import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.adapter.protocol.listener.JladderForwardListener;
+import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
+import org.jladder.adapter.protocol.message.JladderDataMessage;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -21,7 +21,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
+public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<JladderDataMessage> {
 	
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private EventLoopGroup eventLoopGroup;
@@ -72,7 +72,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
-	public JladderForwardListener writeAndFlush(JladderMessage message) {
+	public JladderForwardListener writeAndFlush(JladderDataMessage message) {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
@@ -93,7 +93,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	}
 
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
+	protected void channelRead0(ChannelHandlerContext ctx, JladderDataMessage msg) throws Exception {
 		log.info(msg.getClientIden() + " receive outside message");
 		listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(msg.getBody()));
         ctx.fireChannelRead(msg);

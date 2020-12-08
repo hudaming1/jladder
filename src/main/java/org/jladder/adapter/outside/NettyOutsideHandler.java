@@ -7,7 +7,9 @@ import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderChannelHandlerContext;
 import org.jladder.adapter.protocol.listener.SimpleJladderAsynForwardClientListener;
+import org.jladder.adapter.protocol.message.JladderDataMessage;
 import org.jladder.adapter.protocol.message.JladderMessage;
+import org.jladder.adapter.protocol.message.JladderMessageBuilder;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
@@ -16,13 +18,13 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMessage> {
+public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderDataMessage> {
 
 	private static final EventLoopGroup HttpClientEventLoopGroup = new NioEventLoopGroup(1);
 	private static final Map<String, JladderAsynForwardClient> ClientMap = new ConcurrentHashMap<>();
 	
 	@Override
-	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage msg) throws Exception {
+	protected void channelRead0(ChannelHandlerContext insideCtx, JladderDataMessage msg) throws Exception {
 		msg.getBody().retain();
 		NettyOutsideHandler ddd = this;
 //		log.info("[request]" + insideCtx.channel() + "))))" + ddd + "----" + msg.getClientIden() + "=" + msg.getBody().readableBytes());
@@ -34,7 +36,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 				@Override
 				public void onReceiveData(JladderByteBuf jladderByteBuf) {
 //					System.out.println("receive datas=" + jladderByteBuf.readableBytes());
-					insideCtx.writeAndFlush(JladderMessage.buildNeedEncryptMessage(msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf().retain()));
+					insideCtx.writeAndFlush(JladderMessageBuilder.buildNeedEncryptMessage(msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf().retain()));
 //					log.info("flush message to inside, iden=" + msg.getClientIden() + "----" + ddd);
 				}
 				@Override

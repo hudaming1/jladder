@@ -1,6 +1,6 @@
 package org.jladder.adapter.protocol.executor;
 
-import org.jladder.adapter.protocol.message.JladderMessage;
+import org.jladder.adapter.protocol.message.JladderDataMessage;
 import org.jladder.common.util.AESCoder;
 
 import io.netty.buffer.ByteBuf;
@@ -19,8 +19,8 @@ public class JladderCryptoOutHandler extends ChannelOutboundHandlerAdapter {
 	// write -> encrypt
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-    	if (msg instanceof JladderMessage) {
-    		JladderMessage jladderMessage = (JladderMessage) msg;
+    	if (msg instanceof JladderDataMessage) {
+    		JladderDataMessage jladderMessage = (JladderDataMessage) msg;
 
     		byte[] hostBytes4Encrypt = aesEncrypt(jladderMessage.getHost().getBytes());
     		ByteBuf body = jladderMessage.getBody().retain();

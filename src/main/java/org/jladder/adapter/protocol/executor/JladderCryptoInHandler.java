@@ -3,6 +3,7 @@ package org.jladder.adapter.protocol.executor;
 import java.util.List;
 
 import org.jladder.adapter.protocol.message.JladderMessage;
+import org.jladder.adapter.protocol.message.JladderMessageBuilder;
 import org.jladder.common.util.AESCoder;
 
 import io.netty.buffer.ByteBuf;
@@ -36,7 +37,7 @@ public class JladderCryptoInHandler extends ReplayingDecoder<JladderMessage> {
 		byte[] bodyBytes = isBodyNeedDecrypt ? aesDecrypt(sourceBodyBytes) : sourceBodyBytes;
 		ByteBuf body = Unpooled.buffer(bodyLen);
 		body.writeBytes(bodyBytes);
-		out.add(JladderMessage.buildNeedEncryptMessage(clientIden, new String(hostBytes), port, body));
+		out.add(JladderMessageBuilder.buildNeedEncryptMessage(clientIden, new String(hostBytes), port, body));
 	}
 
 	private byte[] aesDecrypt(byte[] bytes) {

@@ -1,5 +1,7 @@
 package org.jladder.adapter.protocol.message;
 
+import org.jladder.adapter.protocol.enumtype.JladderMessageTypeEnum;
+
 import io.netty.buffer.ByteBuf;
 
 public class JladderDataMessage extends JladderMessage {
@@ -11,7 +13,7 @@ public class JladderDataMessage extends JladderMessage {
 	private ByteBuf body;
 
 	JladderDataMessage(String clientIden, boolean bodyNeedEncrypt, String host, int port, ByteBuf body) {
-		super(clientIden, host, port);
+		super(JladderMessageTypeEnum.Data.getCode(), clientIden, host, port);
 		this.body = body;
 		this.bodyNeedEncrypt = bodyNeedEncrypt;
 	}

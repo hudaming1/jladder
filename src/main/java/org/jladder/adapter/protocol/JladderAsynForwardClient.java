@@ -1,6 +1,5 @@
 package org.jladder.adapter.protocol;
 
-import java.net.ConnectException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
