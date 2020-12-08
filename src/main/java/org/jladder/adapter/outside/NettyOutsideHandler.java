@@ -8,7 +8,6 @@ import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderChannelHandlerContext;
 import org.jladder.adapter.protocol.listener.SimpleJladderAsynForwardClientListener;
 import org.jladder.adapter.protocol.message.JladderDataMessage;
-import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.adapter.protocol.message.JladderMessageBuilder;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -26,7 +25,6 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderData
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderDataMessage msg) throws Exception {
 		msg.getBody().retain();
-		NettyOutsideHandler ddd = this;
 //		log.info("[request]" + insideCtx.channel() + "))))" + ddd + "----" + msg.getClientIden() + "=" + msg.getBody().readableBytes());
 		String clientKey = msg.getClientIden() + "-" + msg.getHost() + ":" + msg.getPort();
 		JladderAsynForwardClient client = null;
@@ -42,7 +40,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderData
 				@Override
 				public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
 					// 告知断开客户端连接(remote在onclose时，告诉也要断开inside浏览器的连接)
-					// insideCtx.writeAndFlush(JladderMessage.buildDisconnectMessage(msg.getClientIden()));
+					insideCtx.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(msg.getClientIden()));
 					ClientMap.remove(clientKey);
 //					log.info("remote " + clientKey + " disconnect");
 				}

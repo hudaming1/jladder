@@ -11,4 +11,8 @@ public class JladderMessageBuilder {
 	public static JladderDataMessage buildUnNeedEncryptMessage(String clientIden, String host, int port, ByteBuf body) {
 		return new JladderDataMessage(clientIden, false, host, port, body);
 	}
+
+	public static JladderDisconnectMessage buildDisconnectMessage(String clientIden) {
+		return new JladderDisconnectMessage(clientIden, null, 0);
+	}
 }
