@@ -89,6 +89,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		connect();
 		if (channel == null) {
 			log.error(remoteHost + ":" + remotePort + " uninit...");
+	    	jladderAsynForwardClientInvokeChain.onDisconnect(null);
 			throw new JladderException(remoteHost + ":" + remotePort + " connect failed");
 		}
 		this.channel.writeAndFlush(message).addListener(f -> {

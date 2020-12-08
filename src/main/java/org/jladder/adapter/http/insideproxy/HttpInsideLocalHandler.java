@@ -44,7 +44,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
     
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
-		log.info(clientIden + " browser read " + requestWrapper.host() + "_" + browserCtx.channel().toString());
+		log.info(clientIden + " browser read " + requestWrapper.host() + " " + browserCtx.channel().toString());
 
 		if (requestWrapper.host() == null || requestWrapper.host().isEmpty()) {
 			/**
@@ -76,7 +76,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			}).onDisconnect(ctx -> {
 				browserCtx.close();
-				log.info("channel disconnect");
+				log.info("channel " + clientIden + " disconnect");
 			});
 		}
 	}
@@ -101,7 +101,10 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    		JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
 	    		receiveListener.onReceive(byteBuf -> {
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
-	    		});
+	    		}).onDisconnect(ctx -> {
+					browserCtx.close();
+					log.info("channel " + clientIden + " disconnect");
+				});
 	    	}
 	    }
 

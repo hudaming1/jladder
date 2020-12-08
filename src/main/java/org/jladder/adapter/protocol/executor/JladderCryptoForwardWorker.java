@@ -90,7 +90,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 			// sign writable
 			if (!f.isSuccess()) {
 				f.cause().printStackTrace();
-			}
+			} 
 			log.info("http2.executor flushed, f=" + f.isSuccess());
 		});
 		
@@ -99,7 +99,6 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
-		log.info(msg.getClientIden() + " receive outside message");
 		if (msg instanceof JladderDataMessage) {
 			listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
 			ctx.fireChannelRead(msg);
