@@ -8,6 +8,8 @@ import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderForwardListener;
 import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
 import org.jladder.adapter.protocol.message.JladderDataMessage;
+import org.jladder.adapter.protocol.message.JladderDisconnectMessage;
+import org.jladder.adapter.protocol.message.JladderMessage;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -21,7 +23,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<JladderDataMessage> {
+public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
 	
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private EventLoopGroup eventLoopGroup;
@@ -96,9 +98,15 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	}
 
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, JladderDataMessage msg) throws Exception {
+	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
 		log.info(msg.getClientIden() + " receive outside message");
-		listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(msg.getBody()));
-        ctx.fireChannelRead(msg);
+		if (msg instanceof JladderDataMessage) {
+			listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
+			ctx.fireChannelRead(msg);
+		} else if (msg instanceof JladderDisconnectMessage) {
+			listenerMap.get(msg.getClientIden()).fireDisconnectEvent((JladderDisconnectMessage) msg);
+		} else {
+			log.error("unsupport message found=" + msg.getMessageType());
+		}
 	}
 }

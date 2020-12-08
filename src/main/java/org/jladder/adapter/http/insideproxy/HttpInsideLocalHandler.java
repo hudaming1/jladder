@@ -74,6 +74,9 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			receiveListener.onReceive(byteBuf -> {
 //				System.out.println(receiveListener + "------->" + browserCtx.channel().toString() + "--" + byteBuf.toByteBuf().toString(CharsetUtil.UTF_8));
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
+			}).onDisconnect(ctx -> {
+				browserCtx.close();
+				log.info("channel disconnect");
 			});
 		}
 	}

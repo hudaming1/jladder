@@ -121,6 +121,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     	log.error("remoteHost=" + remoteHost + ":" + remotePort + "[" + ctx.channel().toString() + "]" + " error, ", cause);
+    	jladderAsynForwardClientInvokeChain.onDisconnect(new JladderChannelHandlerContext(ctx));
     }
 
 	public void addListener(JladderAsynForwardClientListener listener) {
