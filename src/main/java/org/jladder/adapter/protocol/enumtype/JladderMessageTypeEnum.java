@@ -22,6 +22,13 @@ public enum JladderMessageTypeEnum {
 		return desc;
 	}
 
+	public static JladderMessageTypeEnum getEnum(Short code) {
+		if (code == null) {
+			return null;
+		}
+		return getEnum(code.intValue());
+	}
+	
 	public static JladderMessageTypeEnum getEnum(Integer code) {
 		if (code == null) {
 			return null;
