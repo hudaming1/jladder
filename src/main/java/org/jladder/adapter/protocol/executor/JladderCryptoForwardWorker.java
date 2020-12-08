@@ -86,7 +86,10 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		this.channel.writeAndFlush(message).addListener(f -> {
 			// TODO
 			// sign writable
-			log.info("http2.executor flushed");
+			if (!f.isSuccess()) {
+				f.cause().printStackTrace();
+			}
+			log.info("http2.executor flushed, f=" + f.isSuccess());
 		});
 		
 		return listenerMap.get(message.getClientIden());

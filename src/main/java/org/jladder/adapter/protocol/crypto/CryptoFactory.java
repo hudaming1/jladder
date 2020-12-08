@@ -3,6 +3,7 @@ package org.jladder.adapter.protocol.crypto;
 public class CryptoFactory {
 	
 	private static volatile CryptoFactory instance;
+	private static final Object lock = new Object();
 	private Crypto crypto;
 	
 	private CryptoFactory() {
@@ -13,7 +14,7 @@ public class CryptoFactory {
 		if (instance != null) {
 			return instance;
 		}
-		synchronized (instance) {
+		synchronized (lock) {
 			if (instance == null) {
 				instance = new CryptoFactory();
 			}

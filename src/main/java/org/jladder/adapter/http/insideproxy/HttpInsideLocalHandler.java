@@ -105,7 +105,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 	            throws Exception {
-//	    	log.error(clientIden + " proxy error", cause);
+	    	log.error(clientIden + " proxy error", cause);
 	    }
 
 	    @Override
@@ -117,7 +117,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
-//    	log.error(clientIden + " browser error", cause);
+    	log.error(clientIden + " browser error", cause);
     }
 
     @Override

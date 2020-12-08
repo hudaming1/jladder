@@ -1,15 +1,13 @@
 package org.jladder.adapter.protocol.message;
 
-import io.netty.buffer.ByteBuf;
-
 public abstract class JladderMessage {
 
 	protected final short TRANSFER_TYPE = 0;
 	protected final long MAGIC_NUMBER = 0x90ABCDEF;
-	private String clientIden;
-	private int messageType;
-	private String host;
-	private int port;
+	protected String clientIden;
+	protected int messageType;
+	protected String host;
+	protected int port;
 
 	JladderMessage(int messageType, String clientIden, String host, int port) {
 		this.messageType = messageType;
@@ -34,5 +32,4 @@ public abstract class JladderMessage {
 		return this.messageType;
 	}
 	
-	public abstract ByteBuf toByteBuf();
 }

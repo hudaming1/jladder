@@ -3,8 +3,6 @@ package org.jladder.adapter.protocol;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderAsynForwardClientListener;
@@ -31,7 +29,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private Channel channel;
 	private String remoteHost;
 	private int remotePort;
-	private final Lock connectConcurrencyLock = new ReentrantLock();
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private JladderForwardListener onReceiveListener = new JladderForwardListener();
 	private CountDownLatch connectFinishLatch = new CountDownLatch(1);
@@ -57,7 +54,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			return ;
 		}
 		try {
-//			connectConcurrencyLock.lock();
 //			status = JladderForwardWorkerStatusEnum.Starting;
 			
 			// init bootstrap
@@ -82,7 +78,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
 			connectFinishLatch.await();
 		} finally {
-//			connectConcurrencyLock.unlock();
 		}
 	}
 	
