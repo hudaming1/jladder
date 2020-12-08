@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jladder.adapter.protocol.listener.JladderForwardListener;
-import org.jladder.adapter.protocol.message.JladderDataMessage;
+import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 
@@ -28,12 +28,11 @@ public class JladderForwardExecutor {
 		}
 	}
 
-	public JladderForwardListener writeAndFlush(JladderDataMessage message) {
+	public JladderForwardListener writeAndFlush(JladderMessage message) {
 		return select().writeAndFlush(message);
 	}
 	
-	private JladderCryptoForwardWorker select() {
-		// TODO select实现要确保，一次只服务一个客户端会话
+	protected JladderCryptoForwardWorker select() {
 		return jladderForwardWorkerList.get(RoundRobinRouter.getAndIncrement() % currentWorkerCount);
 	}
 }

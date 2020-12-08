@@ -30,7 +30,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	private Channel channel;
 	private String proxyHost;
 	private int proxyPort;
-	private Map<String, JladderForwardListener> listenerMap = new ConcurrentHashMap<>();
+	private final static Map<String, JladderForwardListener> listenerMap = new ConcurrentHashMap<>();
 	
 	public JladderCryptoForwardWorker(String proxyHost, int proxyPort) {
 		this(proxyHost, proxyPort, new NioEventLoopGroup());
@@ -74,27 +74,33 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
 	}
 
-	public JladderForwardListener writeAndFlush(JladderDataMessage message) {
+	public JladderForwardListener writeAndFlush(JladderMessage message) {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
 
 		listenerMap.put(message.getClientIden(), new JladderForwardListener());
 		
-		if (message.getBody() != null) {
-			message.getBody().retain();
+		if (message instanceof JladderDataMessage) {
+			JladderDataMessage dataMessage = (JladderDataMessage) message;
+			if (dataMessage.getBody() != null) {
+				dataMessage.getBody().retain();
+			}
 		}
 		
 		this.channel.writeAndFlush(message).addListener(f -> {
-			// TODO
-			// sign writable
 			if (!f.isSuccess()) {
-				f.cause().printStackTrace();
-			} 
-			log.info("http2.executor flushed, f=" + f.isSuccess());
+				log.error("[{}]flush message error", message.getClientIden(), f.cause());
+			} else {
+				log.info("[{}]message flushed", message.getClientIden());
+			}
 		});
 		
 		return listenerMap.get(message.getClientIden());
+	}
+	
+	public void removeClientIden(String clientIden) {
+		listenerMap.remove(clientIden);
 	}
 
 	@Override

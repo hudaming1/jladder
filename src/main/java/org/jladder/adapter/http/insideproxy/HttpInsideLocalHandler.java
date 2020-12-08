@@ -67,12 +67,9 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE.retain());
 			return ;
 		} else {
-//			log.info("write message1:" + browserCtx.channel().toString() + "-" + clientIden);
 			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
 			JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
-//			log.info("write message2:" + browserCtx.channel().toString() + "----->" + receiveListener);
 			receiveListener.onReceive(byteBuf -> {
-//				System.out.println(receiveListener + "------->" + browserCtx.channel().toString() + "--" + byteBuf.toByteBuf().toString(CharsetUtil.UTF_8));
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			}).onDisconnect(ctx -> {
 				browserCtx.close();
@@ -95,7 +92,6 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
-//	    	log.info(clientIden + " proxy read");
 	    	if (msg instanceof ByteBuf) {
 	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
 	    		JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
@@ -109,25 +105,27 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    }
 
 	    @Override
-	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-	            throws Exception {
+	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 	    	log.error(clientIden + " proxy error", cause);
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
 	    }
 
 	    @Override
 	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//	    	log.error(clientIden + " proxy disconnect");
+	    	log.info("channel " + clientIden + " disconnect");
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
 	    }
 	}
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-            throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     	log.error(clientIden + " browser error", cause);
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//    	log.error(clientIden + " browser disconnect");
+		log.info("channel " + clientIden + " disconnect");
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
     }
 }
