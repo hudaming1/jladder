@@ -12,7 +12,7 @@ public class JladderMessageBuilder {
 		return new JladderDataMessage(clientIden, false, host, port, body);
 	}
 
-	public static JladderDisconnectMessage buildDisconnectMessage(String clientIden) {
-		return new JladderDisconnectMessage(clientIden, null, 0);
+	public static JladderDisconnectMessage buildDisconnectMessage(String clientIden, String host, int port) {
+		return new JladderDisconnectMessage(clientIden, host, port);
 	}
 }

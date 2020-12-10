@@ -107,25 +107,25 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 	    	log.error(clientIden + " proxy error", cause);
-			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden, remoteHost, remotePort));
 	    }
 
 	    @Override
 	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 	    	log.info("channel " + clientIden + " disconnect");
-			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden, remoteHost, remotePort));
 	    }
 	}
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     	log.error(clientIden + " browser error", cause);
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden, "", 0));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		log.info("channel " + clientIden + " disconnect");
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden, "", 0));
     }
 }

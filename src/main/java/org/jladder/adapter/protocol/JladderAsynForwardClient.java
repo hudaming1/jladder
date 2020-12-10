@@ -118,6 +118,10 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
     	jladderAsynForwardClientInvokeChain.onDisconnect(new JladderChannelHandlerContext(ctx));
         ctx.fireChannelInactive();
     }
+    
+    public void close() {
+    	this.channel.close();
+    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
