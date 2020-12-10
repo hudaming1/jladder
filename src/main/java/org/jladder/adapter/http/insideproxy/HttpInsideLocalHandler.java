@@ -1,7 +1,5 @@
 package org.jladder.adapter.http.insideproxy;
 
-import java.util.Random;
-
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
@@ -38,12 +36,12 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		clientIden = System.nanoTime() + "" + new Random().nextInt();
-		log.info(clientIden + " browser connect");
     }
     
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
+
+		clientIden = System.nanoTime() + "#" + requestWrapper.host() + ":" + requestWrapper.port();
 		log.info(clientIden + " browser read " + requestWrapper.host() + " " + browserCtx.channel().toString());
 
 		if (requestWrapper.host() == null || requestWrapper.host().isEmpty()) {
@@ -107,25 +105,25 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 	    	log.error(clientIden + " proxy error", cause);
-			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden, remoteHost, remotePort));
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
 	    }
 
 	    @Override
 	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 	    	log.info("channel " + clientIden + " disconnect");
-			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden, remoteHost, remotePort));
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
 	    }
 	}
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     	log.error(clientIden + " browser error", cause);
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden, "", 0));
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		log.info("channel " + clientIden + " disconnect");
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden, "", 0));
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
     }
 }

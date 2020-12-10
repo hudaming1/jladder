@@ -26,7 +26,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage jladderMessage) throws Exception {
-		String clientKey = jladderMessage.getClientIden() + "-" + jladderMessage.getHost() + ":" + jladderMessage.getPort();
+		String clientKey = jladderMessage.getClientIden();
 		if (jladderMessage instanceof JladderDataMessage) {
 			JladderDataMessage msg = (JladderDataMessage) jladderMessage;
 			msg.getBody().retain();
