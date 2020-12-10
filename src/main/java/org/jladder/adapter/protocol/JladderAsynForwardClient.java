@@ -54,8 +54,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			return ;
 		}
 		try {
-//			status = JladderForwardWorkerStatusEnum.Starting;
-			
 			// init bootstrap
 			Bootstrap bootstrap = new Bootstrap();
 			bootstrap.channel(NioSocketChannel.class);
@@ -106,8 +104,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf byteBuf = (ByteBuf) msg;
-//		log.info(ctx.channel().toString() + " read " + byteBuf.toString(CharsetUtil.UTF_8));
-//		onReceiveListener.fireReadEvent(new JladderByteBuf(byteBuf));
 		jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
         ctx.fireChannelRead(msg);
 	}
@@ -120,6 +116,9 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
     }
     
     public void close() {
+    	if (this.channel == null) {
+    		return ;
+    	}
     	this.channel.close();
     }
 

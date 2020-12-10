@@ -32,7 +32,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		HTTPS_CONNECTED_LINE.writeBytes(Constant.ConnectedLine.getBytes());
 	}
 	
-	private String clientIden;
+	private volatile String clientIden;
 	
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -45,11 +45,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		log.info(clientIden + " browser read " + requestWrapper.host() + " " + browserCtx.channel().toString());
 
 		if (requestWrapper.host() == null || requestWrapper.host().isEmpty()) {
-			/**
-			 * 这里不要close，否则用Chrome访问news.baidu.com会导致EmptyResponse
-			 * 在调试时发现，decode第一个请求正常，但第二个请求则不是一个正常的http请求，此时disscard比close更有利于后面处理
-			 */
-			// browserCtx.close(); 
+			browserCtx.close(); 
 			return;
 		}
 		
