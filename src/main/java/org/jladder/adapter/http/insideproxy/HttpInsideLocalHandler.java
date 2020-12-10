@@ -1,5 +1,7 @@
 package org.jladder.adapter.http.insideproxy;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
@@ -27,7 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
 	private static final ByteBuf HTTPS_CONNECTED_LINE = PooledByteBufAllocator.DEFAULT.directBuffer();
-	private final static JladderForwardExecutor JladderForwardExecutor = new JladderForwardExecutor();
+	private static final JladderForwardExecutor JladderForwardExecutor = new JladderForwardExecutor();
+	private static final AtomicInteger Counter = new AtomicInteger(0);
 	static {
 		HTTPS_CONNECTED_LINE.writeBytes(Constant.ConnectedLine.getBytes());
 	}
@@ -36,14 +39,13 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		clientIden = "FD-" + Counter.incrementAndGet();
     }
     
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
-
-		clientIden = System.nanoTime() + "#" + requestWrapper.host() + ":" + requestWrapper.port();
 		log.info(clientIden + " browser read " + requestWrapper.host() + " " + browserCtx.channel().toString());
-
+		
 		if (requestWrapper.host() == null || requestWrapper.host().isEmpty()) {
 			browserCtx.close(); 
 			return;

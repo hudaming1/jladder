@@ -26,14 +26,14 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage jladderMessage) throws Exception {
-		String clientKey = jladderMessage.getClientIden();
+		String forwardClientKey = jladderMessage.getClientIden() + "#" + jladderMessage.getHost() + ":" + jladderMessage.getPort();
 		if (jladderMessage instanceof JladderDataMessage) {
 			JladderDataMessage msg = (JladderDataMessage) jladderMessage;
 			msg.getBody().retain();
 			JladderAsynForwardClient client = null;
-			if (!ClientMap.containsKey(clientKey)) {
+			if (!ClientMap.containsKey(forwardClientKey)) {
 				// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
-				client = ClientMap.putIfAbsent(clientKey, new JladderAsynForwardClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
+				client = ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
 						insideCtx.writeAndFlush(JladderMessageBuilder.buildNeedEncryptMessage(msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf().retain()));
@@ -41,20 +41,20 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 					@Override
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
 						insideCtx.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(msg.getClientIden()));
-						ClientMap.remove(clientKey);
-						log.info("remote " + clientKey + " disconnect");
+						ClientMap.remove(forwardClientKey);
+						log.info("remote " + forwardClientKey + " disconnect");
 					}
 				}));
 			}
-			client = ClientMap.get(clientKey);
+			client = ClientMap.get(forwardClientKey);
 			client.writeAndFlush(msg.getBody());
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
-			JladderAsynForwardClient client = ClientMap.get(clientKey);
+			JladderAsynForwardClient client = ClientMap.get(forwardClientKey);
 			if (client != null) {
-				log.info("disconnect, clientKey=" + clientKey);
+				log.info("disconnect, clientKey=" + forwardClientKey);
 				client.close();
 			} else {
-				log.warn("disconnect failed, clientKey={}, map={}", clientKey, ClientMap);
+				log.warn("disconnect failed, clientKey={}, map={}", forwardClientKey, ClientMap);
 			}
 		}
 	}

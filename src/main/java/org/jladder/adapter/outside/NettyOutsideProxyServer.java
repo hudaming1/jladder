@@ -3,6 +3,7 @@ package org.jladder.adapter.outside;
 import org.jladder.adapter.protocol.executor.JladderCryptoInHandler;
 import org.jladder.adapter.protocol.executor.JladderCryptoOutHandler;
 import org.jladder.common.NamedThreadFactory;
+import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
@@ -32,6 +33,7 @@ public class NettyOutsideProxyServer implements Runnable {
 
 	public NettyOutsideProxyServer(JladderConfig config) {
 		this.config = config;
+		NettyProxyContext.regist(config);
 		serverBootstrap = new ServerBootstrap();
 		httpChannelInitializer = new HttpChannelInitializer();
 	}
