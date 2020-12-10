@@ -13,6 +13,6 @@ public class JladderMessageBuilder {
 	}
 
 	public static JladderDisconnectMessage buildDisconnectMessage(String clientIden) {
-		return new JladderDisconnectMessage(clientIden, null, 0);
+		return new JladderDisconnectMessage(clientIden, "", 0);
 	}
 }

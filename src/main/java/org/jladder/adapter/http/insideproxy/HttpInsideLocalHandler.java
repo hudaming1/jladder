@@ -44,7 +44,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
     
 	@Override
 	protected void channelRead0(ChannelHandlerContext browserCtx, HttpRequestWrapper requestWrapper) throws Exception {
-		log.info(clientIden + " browser read " + requestWrapper.host() + " " + browserCtx.channel().toString());
+		log.info(clientIden + " browser read " + requestWrapper.host() + ":" + requestWrapper.port() + " " + browserCtx.channel().toString());
 		
 		if (requestWrapper.host() == null || requestWrapper.host().isEmpty()) {
 			browserCtx.close(); 
@@ -89,6 +89,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
 	    	if (msg instanceof ByteBuf) {
+	    		log.info(clientIden + " browser read " + remoteHost + ":" + remotePort + " " + browserCtx.channel().toString());
 	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
 	    		JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
 	    		receiveListener.onReceive(byteBuf -> {
