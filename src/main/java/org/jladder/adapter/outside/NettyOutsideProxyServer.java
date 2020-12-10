@@ -3,12 +3,9 @@ package org.jladder.adapter.outside;
 import org.jladder.adapter.protocol.executor.JladderCryptoInHandler;
 import org.jladder.adapter.protocol.executor.JladderCryptoOutHandler;
 import org.jladder.common.NamedThreadFactory;
-import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
-import org.jladder.compoment.monitor.NettyProxyMonitorHandler;
-import org.jladder.compoment.monitor.NettyProxyMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,15 +28,12 @@ public class NettyOutsideProxyServer implements Runnable {
 	
 	private final ServerBootstrap serverBootstrap;
 	private final HttpChannelInitializer httpChannelInitializer;
-	private final NettyProxyMonitorManager nettyProxyMonitorManager;
 	private final JladderConfig config;
 
 	public NettyOutsideProxyServer(JladderConfig config) {
 		this.config = config;
 		serverBootstrap = new ServerBootstrap();
 		httpChannelInitializer = new HttpChannelInitializer();
-		nettyProxyMonitorManager = new NettyProxyMonitorManager();
-		NettyProxyContext.regist(config, nettyProxyMonitorManager);
 	}
 	
 	@Override
@@ -62,11 +56,9 @@ public class NettyOutsideProxyServer implements Runnable {
 	}
 	
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
-		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		private final JladderCryptoOutHandler jladderCryptoHandler = new JladderCryptoOutHandler();
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			ch.pipeline().addLast(new JladderCryptoInHandler());
 			ch.pipeline().addLast(jladderCryptoHandler);
 			ch.pipeline().addLast(new NettyOutsideHandler());

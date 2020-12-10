@@ -3,12 +3,9 @@ package org.jladder.adapter.http.insideproxy;
 import org.jladder.adapter.http.common.HttpConstant;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.common.NamedThreadFactory;
-import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
-import org.jladder.compoment.monitor.NettyProxyMonitorHandler;
-import org.jladder.compoment.monitor.NettyProxyMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +28,11 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	private final String HttpInsideServerThreadNamePrefix = RunModeEnum.HttpInsideServer.getName();
 	
 	private final ServerBootstrap serverBootstrap;
-	private final NettyProxyMonitorManager nettyProxyMonitorManager;
 	private final HttpInsideChannelInitializer httpChannelInitializer;
 	private final JladderConfig config;
 
 	public NettyHttpInsideProxyServer(JladderConfig config) {
 		this.config = config;
-		nettyProxyMonitorManager = new NettyProxyMonitorManager();
-		NettyProxyContext.regist(config, nettyProxyMonitorManager);
 		serverBootstrap = new ServerBootstrap();
 		httpChannelInitializer = new HttpInsideChannelInitializer();
 	}
@@ -63,11 +57,9 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	}
 	
 	private static class HttpInsideChannelInitializer extends ChannelInitializer<Channel> {
-		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			ch.pipeline().addLast(new io.netty.handler.codec.http.HttpRequestDecoder());
 			ch.pipeline().addLast(new HttpObjectAggregator(HttpConstant.HTTP_OBJECT_AGGREGATOR_LEN));
 			ch.pipeline().addLast(new HttpRequestWrapperHandler());

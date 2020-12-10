@@ -6,7 +6,6 @@ import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
-import org.jladder.compoment.monitor.NettyProxyMonitorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +58,10 @@ public class NettyHttpSimpleProxyServer implements Runnable  {
 	
 	private static class HttpChannelInitializer extends ChannelInitializer<Channel> {
 
-		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		private HttpProxyProcessHandler httpProxyProcessHandler = new HttpProxyProcessHandler();
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			ch.pipeline().addLast(new HttpRequestDecoder());
 			ch.pipeline().addLast(httpProxyProcessHandler);
 		}

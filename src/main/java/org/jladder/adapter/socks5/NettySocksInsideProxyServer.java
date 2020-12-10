@@ -2,12 +2,9 @@ package org.jladder.adapter.socks5;
 
 import org.jladder.adapter.socks5.handler.SocksProxyProcessHandler;
 import org.jladder.common.NamedThreadFactory;
-import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
-import org.jladder.compoment.monitor.NettyProxyMonitorHandler;
-import org.jladder.compoment.monitor.NettyProxyMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +28,11 @@ public class NettySocksInsideProxyServer implements Runnable {
 	private final String SocksServerThreadNamePrefix = RunModeEnum.SocksInsideServer.getName();
 	private final ServerBootstrap serverBootstrap;
 	private final ChannelInitializer<Channel> channelInitializer;
-	private final NettyProxyMonitorManager nettyProxyMonitorManager;
 	private final JladderConfig config;
 
 
 	public NettySocksInsideProxyServer(JladderConfig config) {
 		this.config = config;
-		nettyProxyMonitorManager = new NettyProxyMonitorManager();
-		NettyProxyContext.regist(config, nettyProxyMonitorManager);
 		serverBootstrap = new ServerBootstrap();
 		channelInitializer = new SocksInsideChannelInitializer();
 	}
@@ -63,11 +57,9 @@ public class NettySocksInsideProxyServer implements Runnable {
 	}
 	
 	private static class SocksInsideChannelInitializer extends ChannelInitializer<Channel> {
-		private final NettyProxyMonitorHandler nettyProxyMonitorHandler = new NettyProxyMonitorHandler();
 		private SocksProxyProcessHandler socksProxyProcessHandler = new SocksProxyProcessHandler();
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
-			ch.pipeline().addFirst(nettyProxyMonitorHandler);
 			ch.pipeline().addLast(new SocksInitRequestDecoder());
 			ch.pipeline().addLast(new SocksMessageEncoder());
 			ch.pipeline().addLast(socksProxyProcessHandler);
