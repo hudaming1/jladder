@@ -32,8 +32,6 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 		log.info(forwardClientKey + " join...");
 		if (jladderMessage instanceof JladderDataMessage) {
 			JladderDataMessage msg = (JladderDataMessage) jladderMessage;
-			msg.getBody().retain();
-			JladderAsynForwardClient client = null;
 			if (!ClientMap.containsKey(forwardClientKey)) {
 				// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
 				ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
@@ -49,8 +47,7 @@ public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMess
 					}
 				}));
 			}
-			client = ClientMap.get(forwardClientKey);
-			client.writeAndFlush(msg.getBody());
+			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody().retain());
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
 			Iterator<Entry<String, JladderAsynForwardClient>> iterator = ClientMap.entrySet().iterator();
 			while (iterator.hasNext()) {

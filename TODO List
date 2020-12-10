@@ -1,3 +1,3 @@
 1.inside和outside连接相互隔离，避免一个连接抛出异常，整个线程池crash掉
-2.目前HTTP的基本通常，不见阻塞和丢失，但HTTPS请求并发时还会串道
-3.Remote端断开连接时，需要给client推送断开消息
+2.不能访问http://news.cssn.cn/images/mobile_v2020.js
+3.HTTP基本稳了，HTTPS个别串道，用百度首页就能复现
