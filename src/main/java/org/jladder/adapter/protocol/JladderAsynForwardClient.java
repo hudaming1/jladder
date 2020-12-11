@@ -19,6 +19,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -90,8 +91,10 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	    	jladderAsynForwardClientInvokeChain.onDisconnect(null);
 			throw new JladderException(remoteHost + ":" + remotePort + " connect failed");
 		}
+		if (remoteHost.equals("news.cssn.cn")) {
+			log.info(channel + "\t" + message.toString(CharsetUtil.UTF_8));
+		}
 		this.channel.writeAndFlush(message).addListener(f -> {
-			// TODO
 			if (!f.isSuccess()) {
 				log.error(this.channel.toString() + " flush error", f.cause());
 			}

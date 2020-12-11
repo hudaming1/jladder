@@ -2,6 +2,8 @@ package org.jladder.adapter.http.wrapper;
 
 import java.util.Map.Entry;
 
+import org.jladder.common.Constant;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -79,18 +81,18 @@ public class HttpRequestWrapper {
 		body.writeBytes(" ".getBytes());
 		body.writeBytes(request.protocolVersion().protocolName().getBytes());
 		body.writeBytes(("/" + request.protocolVersion().majorVersion() + "." + request.protocolVersion().minorVersion()).getBytes());
-		body.writeBytes("\r\n".getBytes());
+		body.writeBytes(Constant.RETURN_LINE.getBytes());
 		// request-header
 		for (Entry<String, String> header : request.headers()) {
 			body.writeBytes(header.getKey().getBytes());
 			body.writeBytes(":".getBytes());
 			body.writeBytes(header.getValue().getBytes());
-			body.writeBytes("\r\n".getBytes());
+			body.writeBytes(Constant.RETURN_LINE.getBytes());
 		}
-		body.writeBytes("\r\n".getBytes());
+		body.writeBytes(Constant.RETURN_LINE.getBytes());
 		// request-body
 		body.writeBytes(request.content());
-		body.writeBytes("\r\n".getBytes());
+		body.writeBytes(Constant.RETURN_LINE.getBytes());
 		
 		return body;
 	}
