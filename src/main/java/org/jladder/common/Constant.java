@@ -9,7 +9,7 @@ public class Constant {
 	public static final String HTTPS_METHOD = "CONNECT";
 	public static final String HTTP_PROXY_HEADER = "Proxy-Connection";
 	public static final String HTTP_HOST_HEADER = "Host";
-	public static final String ConnectedLine = "HTTP/1.1 200 Connection established\r\n";
+	public static final String ConnectedLine = "HTTP/1.1 200 Connection established" + RETURN_LINE + RETURN_LINE;
 	public static final int DEFAULT_HTTP_PORT = 80;
 	public static final int DEFAULT_HTTPS_PORT = 443;
 }
