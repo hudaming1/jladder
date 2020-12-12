@@ -17,7 +17,7 @@ public class JladderAsynForwardClientTest {
 
 	@Test
 	public void test1() throws IOException, InterruptedException {
-		JladderAsynForwardClient client = new JladderAsynForwardClient("www.baidu.com", 80, new NioEventLoopGroup(1));
+		JladderAsynForwardClient client = new JladderAsynForwardClient("1", "www.baidu.com", 80, new NioEventLoopGroup(1));
 		client.addListener(new SimpleJladderAsynForwardClientListener() {
 			@Override
 			public void onReceiveData(JladderByteBuf jladderByteBuf) {
@@ -37,7 +37,7 @@ public class JladderAsynForwardClientTest {
 	
 	@Test
 	public void test2() throws IOException, InterruptedException {
-		JladderAsynForwardClient client = new JladderAsynForwardClient("news.cssn.cn", 80, new NioEventLoopGroup(1));
+		JladderAsynForwardClient client = new JladderAsynForwardClient("1", "news.cssn.cn", 80, new NioEventLoopGroup(1));
 		client.addListener(new SimpleJladderAsynForwardClientListener() {
 			@Override
 			public void onReceiveData(JladderByteBuf jladderByteBuf) {

@@ -29,16 +29,18 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private Channel channel;
 	private String remoteHost;
 	private int remotePort;
+	private String id;
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private JladderForwardListener onReceiveListener = new JladderForwardListener();
 	private CountDownLatch connectFinishLatch = new CountDownLatch(1);
 	private JladderAsynForwardClientInvokeChain jladderAsynForwardClientInvokeChain = new JladderAsynForwardClientInvokeChain();
 	
-	public JladderAsynForwardClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
-		this(remoteHost, remotePort, eventLoopGroup, null);
+	public JladderAsynForwardClient(String id, String remoteHost, int remotePort, EventLoopGroup eventLoopGroup) {
+		this(id, remoteHost, remotePort, eventLoopGroup, null);
 	}
 	
-	public JladderAsynForwardClient(String remoteHost, int remotePort, EventLoopGroup eventLoopGroup, JladderAsynForwardClientListener listener) {
+	public JladderAsynForwardClient(String id, String remoteHost, int remotePort, EventLoopGroup eventLoopGroup, JladderAsynForwardClientListener listener) {
+		this.id = id;
 		this.remoteHost = remoteHost;
 		this.remotePort = remotePort;
 		this.eventLoopGroup = eventLoopGroup;
@@ -92,7 +94,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		}
 		this.channel.writeAndFlush(message).addListener(f -> {
 			if (!f.isSuccess()) {
-				log.error(this.channel.toString() + " flush error", f.cause());
+				log.error("(" + id + ")" + this.channel.toString() + " flush error", f.cause());
 			}
 //			log.info("flush request=" + message.toString(CharsetUtil.UTF_8));
 		});
@@ -109,7 +111,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	log.info(this.channel.toString() + " diconnect");
+    	log.info(this.channel.toString() + "(" + id + ")" + " diconnect");
     	jladderAsynForwardClientInvokeChain.onDisconnect(new JladderChannelHandlerContext(ctx));
         ctx.fireChannelInactive();
     }
@@ -123,7 +125,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-    	log.error("remoteHost=" + remoteHost + ":" + remotePort + "[" + ctx.channel().toString() + "]" + " error, ", cause);
+    	log.error("[{}], remoteHost=" + remoteHost + ":" + remotePort + "[" + ctx.channel().toString() + "]" + " error, ", id, cause);
     	jladderAsynForwardClientInvokeChain.onDisconnect(new JladderChannelHandlerContext(ctx));
     }
 
