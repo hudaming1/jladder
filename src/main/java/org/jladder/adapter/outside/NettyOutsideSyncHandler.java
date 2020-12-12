@@ -36,6 +36,8 @@ public class NettyOutsideSyncHandler extends SimpleChannelInboundHandler<Jladder
 					ch.pipeline().addLast(new SimpleForwardHandler(insideCtx.channel(), jladderMessage.getClientIden()));
 				}
 			});	
+			JladderDataMessage jdm = (JladderDataMessage) jladderMessage;
+			log.info("aa.len=" + jdm.getBody().readableBytes());
 			bootstrap.connect(jladderMessage.getHost(), jladderMessage.getPort()).addListener(f -> {
 				log.info("connect " + jladderMessage.getHost() + ":" + jladderMessage.getPort() + " success");
 				if (!f.isSuccess()) {
@@ -43,7 +45,6 @@ public class NettyOutsideSyncHandler extends SimpleChannelInboundHandler<Jladder
 				}
 				ChannelFuture cf = (ChannelFuture) f;
 				insideCtx.pipeline().remove(this);
-				JladderDataMessage jdm = (JladderDataMessage) jladderMessage;
 				cf.channel().writeAndFlush(jdm.getBody());
 			});
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
