@@ -1,6 +1,8 @@
 【OK】不能访问http://news.cssn.cn/images/mobile_v2020.js   【奇怪，用\n替换\r\n就可以了】
 
 【P0】HTTP基本稳了，HTTPS个别串道，用百度首页就能复现
+【P0】下载时Outside端还是会OutOfDirectMemory
+【P0】由于worker数量=1，因此多任务并行时会互相影响
 【P1】inside-outside的重连机制
 【P2】inside和outside连接相互隔离，避免一个连接抛出异常，整个线程池crash掉
 【P3】暂时先用\N吧

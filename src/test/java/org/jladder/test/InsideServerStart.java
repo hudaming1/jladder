@@ -8,7 +8,7 @@ public class InsideServerStart {
 
 	public static void main(String[] args) {
 		JladderConfig jladderConfig = new JladderConfig(RunModeEnum.HttpInsideServer, 10086);
-		jladderConfig.setOutsideProxyHost("localhost");
+		jladderConfig.setOutsideProxyHost("47.75.102.227");
 		jladderConfig.setOutsideProxyPort(5432);
 		ServerRunProxyFactory.create(RunModeEnum.HttpInsideServer).start(jladderConfig);
 	}

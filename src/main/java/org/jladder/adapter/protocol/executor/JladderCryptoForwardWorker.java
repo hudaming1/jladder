@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jladder.adapter.protocol.JladderByteBuf;
+import org.jladder.adapter.protocol.JladderChannelFuture;
 import org.jladder.adapter.protocol.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.adapter.protocol.listener.JladderForwardListener;
 import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
@@ -43,6 +44,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	}
 
 	public JladderOnConnectedListener connect() {
+		JladderOnConnectedListener jladderOnConnectedListener = new JladderOnConnectedListener();
 		if (!isCanBeStart()) {
 			throw new IllegalStateException("worker cann't be connect, current_status=" + status);
 		}
@@ -63,11 +65,15 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		ChannelFuture chanelFuture = bootstrap.connect(proxyHost, proxyPort);
 		this.channel = chanelFuture.channel();
 		chanelFuture.addListener(f -> {
+			System.out.println("connect outside success");
 			if (f.isSuccess()) {
 				status = JladderForwardWorkerStatusEnum.Running;
+			} else {
+				log.error("connect outside failed", f.cause());
 			}
+			jladderOnConnectedListener.fireReadEvent(new JladderChannelFuture((ChannelFuture) f));
 		});
-		return new JladderOnConnectedListener();
+		return jladderOnConnectedListener;
 	}
 	
 	private boolean isCanBeStart() {
