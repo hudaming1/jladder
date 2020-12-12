@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 
 import org.jladder.ServerRun.Starter;
 import org.jladder.adapter.http.insideproxy.NettyHttpInsideProxyServer;
-import org.jladder.adapter.outside.NettyOutsideProxyServer;
+import org.jladder.adapter.outside.JladderOutsideProxyServer;
 import org.jladder.adapter.socks5.NettySocksInsideProxyServer;
 import org.jladder.common.NamedThreadFactory;
 import org.jladder.common.core.config.JladderConfig;
@@ -69,7 +69,7 @@ class OutsideProxyStarter extends AbstractNettyPorxyStarter {
 	
 	@Override
 	public void _start(JladderConfig config) {
-		ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyOutsideProxyServer(config));
+		ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new JladderOutsideProxyServer(config));
 	}
 }
 

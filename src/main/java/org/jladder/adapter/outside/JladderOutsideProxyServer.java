@@ -22,16 +22,16 @@ import io.netty.util.concurrent.GenericFutureListener;
  * 翻墙双服务器（墙外服务器）
  * @author hudaming
  */
-public class NettyOutsideProxyServer implements Runnable {
+public class JladderOutsideProxyServer implements Runnable {
 
-	private static final Logger logger = LoggerFactory.getLogger(NettyOutsideProxyServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(JladderOutsideProxyServer.class);
 	private final String OutSideServerThreadNamePrefix = RunModeEnum.OutsideServer.getName();
 	
 	private final ServerBootstrap serverBootstrap;
 	private final HttpChannelInitializer httpChannelInitializer;
 	private final JladderConfig config;
 
-	public NettyOutsideProxyServer(JladderConfig config) {
+	public JladderOutsideProxyServer(JladderConfig config) {
 		this.config = config;
 		NettyProxyContext.regist(config);
 		serverBootstrap = new ServerBootstrap();
@@ -63,7 +63,7 @@ public class NettyOutsideProxyServer implements Runnable {
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addLast(new JladderCryptoInHandler());
 			ch.pipeline().addLast(jladderCryptoHandler);
-			ch.pipeline().addLast(new NettyOutsideHandler());
+			ch.pipeline().addLast(new JladderOutsideHandler());
 //			ch.pipeline().addLast(new NettyOutsideSyncHandler());
 		}
 	}

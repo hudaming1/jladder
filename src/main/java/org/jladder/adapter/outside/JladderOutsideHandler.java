@@ -21,7 +21,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class NettyOutsideHandler extends SimpleChannelInboundHandler<JladderMessage> {
+public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMessage> {
 
 	private static final EventLoopGroup HttpClientEventLoopGroup = new NioEventLoopGroup(8);
 	private static final Map<String, JladderAsynForwardClient> ClientMap = new ConcurrentHashMap<>();
