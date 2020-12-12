@@ -17,7 +17,7 @@ public class JladderForwardExecutor {
 	
 	private List<JladderCryptoForwardWorker> jladderForwardWorkerList = new ArrayList<>();
 	private AtomicInteger RoundRobinRouter = new AtomicInteger(0);
-	private int currentWorkerCount = 20;
+	private int currentWorkerCount = 1;
 	
 	public JladderForwardExecutor() {
 		JladderConfig config = NettyProxyContext.getConfig();

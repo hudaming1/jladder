@@ -20,6 +20,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Deprecated
 public class NettyOutsideSyncHandler extends SimpleChannelInboundHandler<JladderMessage> {
 
 	private static final EventLoopGroup EventLoopGroup = new NioEventLoopGroup(16);
@@ -33,7 +34,7 @@ public class NettyOutsideSyncHandler extends SimpleChannelInboundHandler<Jladder
 			bootstrap.handler(new ChannelInitializer<Channel>() {
 				@Override
 				protected void initChannel(Channel ch) throws Exception {
-					ch.pipeline().addLast(new SimpleForwardHandler(insideCtx.channel(), jladderMessage.getClientIden()));
+					ch.pipeline().addLast(new JladderForwardHandler(insideCtx.channel(), jladderMessage.getClientIden()));
 				}
 			});	
 			JladderDataMessage jdm = (JladderDataMessage) jladderMessage;
@@ -43,21 +44,24 @@ public class NettyOutsideSyncHandler extends SimpleChannelInboundHandler<Jladder
 				if (!f.isSuccess()) {
 					log.error("connect " + jladderMessage.getHost() + ":" + jladderMessage.getPort() + " failed", f.cause());
 				}
-				ChannelFuture cf = (ChannelFuture) f;
+				ChannelFuture remoteChannel = (ChannelFuture) f;
 				insideCtx.pipeline().remove(this);
-				cf.channel().writeAndFlush(jdm.getBody());
+				insideCtx.pipeline().addLast(new SimpleForwardHandler(remoteChannel.channel(), jladderMessage.getClientIden()));
+				remoteChannel.channel().writeAndFlush(jdm.getBody()).addListener(f2 -> {
+					System.out.println(f2.isSuccess());
+				});
 			});
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
 		}
 	}
 	
-	private static class SimpleForwardHandler extends ChannelInboundHandlerAdapter {
+	private static class JladderForwardHandler extends ChannelInboundHandlerAdapter {
 		
 		private Channel channel;
 		private String iden;
 		private static final SimpleJladderSerialization Serialization = new SimpleJladderSerialization();
 		
-		public SimpleForwardHandler(Channel channel, String iden) {
+		public JladderForwardHandler(Channel channel, String iden) {
 			this.channel = channel;
 			this.iden = iden;
 		}
@@ -68,6 +72,34 @@ public class NettyOutsideSyncHandler extends SimpleChannelInboundHandler<Jladder
 	    	log.info("b.len=" + b.readableBytes());
 	    	JladderDataMessage message = JladderMessageBuilder.buildUnNeedEncryptMessage(iden, "", 0, b);
 	        channel.writeAndFlush(Serialization.serial(message)).addListener(f -> {
+	        	if (!f.isSuccess()) {
+	        		log.error("flush error", f.cause());
+	        	} else {
+	        		log.info("flush success");
+	        	}
+	        });
+	    }
+
+	    @Override
+	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    		log.error("channel " + iden + " error", cause);
+	    }
+	}
+
+	private static class SimpleForwardHandler extends SimpleChannelInboundHandler<JladderMessage> {
+		
+		private Channel channel;
+		private String iden;
+		
+		public SimpleForwardHandler(Channel channel, String iden) {
+			this.channel = channel;
+			this.iden = iden;
+		}
+
+		@Override
+		protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage jladderMessage) throws Exception {
+			JladderDataMessage jdm = (JladderDataMessage) jladderMessage;
+	        channel.writeAndFlush(jdm.getBody()).addListener(f -> {
 	        	if (!f.isSuccess()) {
 	        		log.error("flush error", f.cause());
 	        	} else {
