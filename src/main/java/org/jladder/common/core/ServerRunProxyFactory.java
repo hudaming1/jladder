@@ -5,12 +5,12 @@ import java.util.concurrent.Executors;
 
 import org.jladder.ServerRun.Starter;
 import org.jladder.adapter.http.insideproxy.NettyHttpInsideProxyServer;
-import org.jladder.adapter.http.simpleproxy.NettyHttpSimpleProxyServer;
 import org.jladder.adapter.outside.NettyOutsideProxyServer;
 import org.jladder.adapter.socks5.NettySocksInsideProxyServer;
 import org.jladder.common.NamedThreadFactory;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;
+import org.jladder.common.exception.JladderException;
 
 public class ServerRunProxyFactory {
 	
@@ -53,7 +53,7 @@ class NettyHttpSimpleStarter extends AbstractNettyPorxyStarter {
 	
 	@Override
 	public void _start(JladderConfig config) {
-		ServerRunProxyFactory.EXECUTOR_SERVICE.execute(new NettyHttpSimpleProxyServer(config));
+		throw new JladderException("unsupport");
 	}
 }
 

@@ -1,19 +1,12 @@
 package org.jladder.common.util;
 
-import java.util.Map.Entry;
-
 import org.jladder.common.core.config.JladderConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelOption;
 
 public class NettyBootstrapUtil {
 
-	private static final Logger logger = LoggerFactory.getLogger(NettyBootstrapUtil.class);
-	
 	public static void initTcpServerOptions(ServerBootstrap serverBootstrap, JladderConfig config) {
 		// init server-options
 //		if (config.getTcpServerOptions() != null && !config.getTcpServerOptions().isEmpty()) {

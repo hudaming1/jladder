@@ -7,12 +7,8 @@ import org.jladder.common.core.ServerRunProxyFactory;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.core.config.proploader.NettyProxyConfigPropertiesLoader;
 import org.jladder.common.enumtype.RunModeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ServerRun {
-	
-	private static final Logger logger = LoggerFactory.getLogger(ServerRun.class);
 	
 	public static interface Starter {
 		void start(JladderConfig args);
