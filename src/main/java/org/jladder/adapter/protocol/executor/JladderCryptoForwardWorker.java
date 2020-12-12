@@ -26,12 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
 	
+	private final static Map<String, JladderForwardListener> listenerMap = new ConcurrentHashMap<>();
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
 	private EventLoopGroup eventLoopGroup;
 	private Channel channel;
 	private String proxyHost;
 	private int proxyPort;
-	private final static Map<String, JladderForwardListener> listenerMap = new ConcurrentHashMap<>();
 	
 	public JladderCryptoForwardWorker(String proxyHost, int proxyPort) {
 		this(proxyHost, proxyPort, new NioEventLoopGroup());

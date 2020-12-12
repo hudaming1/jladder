@@ -6,3 +6,7 @@
 【P1】inside-outside的重连机制
 【P2】inside和outside连接相互隔离，避免一个连接抛出异常，整个线程池crash掉
 【P3】暂时先用\N吧
+
+
+测试网址：
+https://tieba.baidu.com/p/1934517275#!/l/p1

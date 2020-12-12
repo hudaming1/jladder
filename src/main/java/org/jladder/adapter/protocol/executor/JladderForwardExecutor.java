@@ -10,6 +10,7 @@ import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 
+import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -22,6 +23,7 @@ public class JladderForwardExecutor {
 	private List<JladderCryptoForwardWorker> jladderForwardWorkerList = new ArrayList<>();
 	private AtomicInteger RoundRobinRouter = new AtomicInteger(0);
 	private int currentWorkerCount = 1;
+	private final static NioEventLoopGroup loopGroup = new NioEventLoopGroup(16);
 	private final CountDownLatch latch = new CountDownLatch(currentWorkerCount);
 	
 	public JladderForwardExecutor() {
@@ -42,6 +44,18 @@ public class JladderForwardExecutor {
 
 	public JladderForwardListener writeAndFlush(JladderMessage message) {
 		return select().writeAndFlush(message);
+//		JladderConfig config = NettyProxyContext.getConfig();
+//		CountDownLatch latch = new CountDownLatch(1);
+//		JladderCryptoForwardWorker jladderCryptoForwardWorker = new JladderCryptoForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort(), loopGroup);
+//		jladderCryptoForwardWorker.connect().onConnect(e -> {
+//			latch.countDown();
+//		});
+//		try {
+//			latch.await();
+//		} catch (InterruptedException e1) {
+//			e1.printStackTrace();
+//		}
+//		return jladderCryptoForwardWorker.writeAndFlush(message);
 	}
 	
 	protected JladderCryptoForwardWorker select() {

@@ -66,7 +66,6 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
 			JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
 			receiveListener.onReceive(byteBuf -> {
-				log.info("read bytebuf.len=" + byteBuf.readableBytes());
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			}).onDisconnect(ctx -> {
 				browserCtx.close();
