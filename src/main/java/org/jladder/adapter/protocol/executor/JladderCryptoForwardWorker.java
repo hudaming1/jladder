@@ -84,7 +84,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
-
+		
 		listenerMap.putIfAbsent(message.getClientIden(), new JladderForwardListener());
 		
 		if (message instanceof JladderDataMessage) {

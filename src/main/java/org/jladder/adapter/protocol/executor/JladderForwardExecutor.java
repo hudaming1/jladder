@@ -29,7 +29,7 @@ public class JladderForwardExecutor {
 	public JladderForwardExecutor() {
 		JladderConfig config = NettyProxyContext.getConfig();
 		for (int i = 0 ;i < currentWorkerCount; i ++) {
-			JladderCryptoForwardWorker jladderForwardWorker = new JladderCryptoForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort());
+			JladderCryptoForwardWorker jladderForwardWorker = new JladderCryptoForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort(), loopGroup);
 			jladderForwardWorker.connect().onConnect(event -> {
 				latch.countDown();
 			});
