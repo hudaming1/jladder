@@ -22,13 +22,13 @@ public class JladderForwardExecutor {
 	
 	private List<JladderCryptoForwardWorker> jladderForwardWorkerList = new ArrayList<>();
 	private AtomicInteger RoundRobinRouter = new AtomicInteger(0);
-	private int currentWorkerCount = 1;
-	private final static NioEventLoopGroup loopGroup = new NioEventLoopGroup(16);
-	private final CountDownLatch latch = new CountDownLatch(currentWorkerCount);
+	private int outsideChannelCount = 16;
+	private final static NioEventLoopGroup loopGroup = new NioEventLoopGroup(1);
+	private final CountDownLatch latch = new CountDownLatch(outsideChannelCount);
 	
 	public JladderForwardExecutor() {
 		JladderConfig config = NettyProxyContext.getConfig();
-		for (int i = 0 ;i < currentWorkerCount; i ++) {
+		for (int i = 0 ;i < outsideChannelCount; i ++) {
 			JladderCryptoForwardWorker jladderForwardWorker = new JladderCryptoForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort(), loopGroup);
 			jladderForwardWorker.connect().onConnect(event -> {
 				latch.countDown();
@@ -37,6 +37,7 @@ public class JladderForwardExecutor {
 		}
 		try {
 			latch.await();
+			log.info(outsideChannelCount + " ForwardWorker inited...");
 		} catch (InterruptedException e) {
 			log.error("init worker failed..", e);
 		}
@@ -59,6 +60,6 @@ public class JladderForwardExecutor {
 	}
 	
 	protected JladderCryptoForwardWorker select() {
-		return jladderForwardWorkerList.get(RoundRobinRouter.getAndIncrement() % currentWorkerCount);
+		return jladderForwardWorkerList.get(RoundRobinRouter.getAndIncrement() % outsideChannelCount);
 	}
 }

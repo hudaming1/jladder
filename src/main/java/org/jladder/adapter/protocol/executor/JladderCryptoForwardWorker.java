@@ -65,7 +65,6 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		ChannelFuture chanelFuture = bootstrap.connect(proxyHost, proxyPort);
 		this.channel = chanelFuture.channel();
 		chanelFuture.addListener(f -> {
-			System.out.println("connect outside success");
 			if (f.isSuccess()) {
 				status = JladderForwardWorkerStatusEnum.Running;
 			} else {
