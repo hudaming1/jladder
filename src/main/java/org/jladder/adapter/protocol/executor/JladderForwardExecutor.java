@@ -46,9 +46,9 @@ public class JladderForwardExecutor {
 	}
 
 	public JladderForwardListener writeAndFlush(JladderMessage message) {
-		if (message instanceof JladderDataMessage) {
-			log.info("flushmessage=" + ((JladderDataMessage) message).getBody().toString(CharsetUtil.UTF_8));
-		}
+//		if (message instanceof JladderDataMessage) {
+//			log.info("flushmessage=" + ((JladderDataMessage) message).getBody().toString(CharsetUtil.UTF_8));
+//		}
 		return select().writeAndFlush(message);
 //		JladderConfig config = NettyProxyContext.getConfig();
 //		CountDownLatch latch = new CountDownLatch(1);

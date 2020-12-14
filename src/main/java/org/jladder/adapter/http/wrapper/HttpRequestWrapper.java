@@ -92,10 +92,10 @@ public class HttpRequestWrapper {
 			body.writeBytes(header.getValue().getBytes());
 			body.writeBytes(Constant.RETURN_LINE.getBytes());
 		}
+		body.writeBytes(Constant.RETURN_LINE.getBytes());
 		// request-body
 		if (request.content() != null) {
 			body.writeBytes(request.content());
-			body.writeBytes(Constant.RETURN_LINE.getBytes());
 		}
 		
 		return body;
