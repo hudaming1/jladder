@@ -70,7 +70,7 @@ public class Test1 {
 	}
 	
 	@Test
-	public void test3() throws UnknownHostException, IOException {
+	public void test3() throws UnknownHostException, IOException, InterruptedException {
 		String request = "GET / HTTP/1.1\r\n" + 
 				"Host:www.baidu.com\r\n"
 				+ "\r\n";
@@ -87,6 +87,7 @@ public class Test1 {
 			}
 		}
 		
+		Thread.sleep(3000);
 
 		socket.getOutputStream().write(request.getBytes());
 		socket.getOutputStream().flush();

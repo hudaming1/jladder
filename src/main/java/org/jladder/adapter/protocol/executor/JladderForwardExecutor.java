@@ -6,11 +6,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jladder.adapter.protocol.listener.JladderForwardListener;
+import org.jladder.adapter.protocol.message.JladderDataMessage;
 import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.common.core.NettyProxyContext;
 import org.jladder.common.core.config.JladderConfig;
 
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -44,6 +46,9 @@ public class JladderForwardExecutor {
 	}
 
 	public JladderForwardListener writeAndFlush(JladderMessage message) {
+		if (message instanceof JladderDataMessage) {
+			log.info("flushmessage=" + ((JladderDataMessage) message).getBody().toString(CharsetUtil.UTF_8));
+		}
 		return select().writeAndFlush(message);
 //		JladderConfig config = NettyProxyContext.getConfig();
 //		CountDownLatch latch = new CountDownLatch(1);

@@ -5,10 +5,13 @@ import java.util.Map.Entry;
 import org.jladder.common.Constant;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpVersion;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -89,12 +92,25 @@ public class HttpRequestWrapper {
 			body.writeBytes(header.getValue().getBytes());
 			body.writeBytes(Constant.RETURN_LINE.getBytes());
 		}
-		body.writeBytes(Constant.RETURN_LINE.getBytes());
 		// request-body
-		body.writeBytes(request.content());
-		body.writeBytes(Constant.RETURN_LINE.getBytes());
+		if (request.content() != null) {
+			body.writeBytes(request.content());
+			body.writeBytes(Constant.RETURN_LINE.getBytes());
+		}
 		
 		return body;
+	}
+	
+	public static void main(String[] args) {
+		DefaultFullHttpRequest fullRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+		fullRequest.headers().set("Host", "www.baidu.com");
+		
+		ByteBuf byteBuf = new HttpRequestWrapper(fullRequest).toByteBuf();
+		byte[] bytes = new byte[byteBuf.readableBytes()];
+		byteBuf.readBytes(bytes);
+		System.out.println("================");
+		System.out.print(new String(bytes));
+		System.out.println("================");
 	}
 
     @Getter

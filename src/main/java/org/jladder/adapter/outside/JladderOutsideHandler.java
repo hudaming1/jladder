@@ -18,6 +18,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -29,9 +30,9 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 	@Override
 	protected void channelRead0(ChannelHandlerContext insideCtx, JladderMessage jladderMessage) throws Exception {
 		String forwardClientKey = jladderMessage.getClientIden() + "#" + jladderMessage.getHost() + ":" + jladderMessage.getPort();
-		log.info(forwardClientKey + " join...");
 		if (jladderMessage instanceof JladderDataMessage) {
 			JladderDataMessage msg = (JladderDataMessage) jladderMessage;
+			log.info(forwardClientKey + " join..."  + msg.getBody().toString(CharsetUtil.UTF_8));
 			if (!ClientMap.containsKey(forwardClientKey)) {
 				// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
 				ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(forwardClientKey, msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
