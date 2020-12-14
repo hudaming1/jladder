@@ -112,7 +112,6 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
 		if (msg instanceof JladderDataMessage) {
 			listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
-			ctx.fireChannelRead(msg);
 		} else if (msg instanceof JladderDisconnectMessage) {
 			listenerMap.get(msg.getClientIden()).fireDisconnectEvent((JladderDisconnectMessage) msg);
 		} else {

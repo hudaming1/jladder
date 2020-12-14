@@ -32,19 +32,20 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 		String forwardClientKey = jladderMessage.getClientIden() + "#" + jladderMessage.getHost() + ":" + jladderMessage.getPort();
 		if (jladderMessage instanceof JladderDataMessage) {
 			JladderDataMessage msg = (JladderDataMessage) jladderMessage;
-			log.info(forwardClientKey + " join..."  + msg.getBody().toString(CharsetUtil.UTF_8));
+			log.info(forwardClientKey + " join..."  + msg.getBody().readableBytes());
 			if (!ClientMap.containsKey(forwardClientKey)) {
 				// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
 				ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(forwardClientKey, msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
+						log.info(msg.getClientIden() + " flush len=" + jladderByteBuf.toByteBuf().readableBytes());
 						insideCtx.writeAndFlush(JladderMessageBuilder.buildNeedEncryptMessage(msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf().retain()));
 					}
 					@Override
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
 						insideCtx.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(msg.getClientIden()));
 						ClientMap.remove(forwardClientKey);
-						log.info("remote " + forwardClientKey + " disconnect");
+						log.info("remote " + forwardClientKey + " disconnect by remote_server");
 					}
 				}));
 			}
@@ -55,7 +56,7 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 				Entry<String, JladderAsynForwardClient> clientEntry = iterator.next();
 				if (clientEntry.getKey().startsWith(jladderMessage.getClientIden() + "#")) {
 					clientEntry.getValue().close();
-					log.info("disconnect, clientKey=" + clientEntry.getKey());
+					log.info("disconnect, clientKey=" + clientEntry.getKey() + " by browser");
 					iterator.remove();
 				}
 			}
