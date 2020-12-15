@@ -22,7 +22,7 @@ public class JladderForwardExecutor {
 	
 	private List<JladderCryptoForwardWorker> jladderForwardWorkerList = new ArrayList<>();
 	private AtomicInteger RoundRobinRouter = new AtomicInteger(0);
-	private int outsideChannelCount = 16;
+	private int outsideChannelCount = 2;
 	private final static NioEventLoopGroup loopGroup = new NioEventLoopGroup(1);
 	private final CountDownLatch latch = new CountDownLatch(outsideChannelCount);
 	

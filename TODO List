@@ -13,3 +13,10 @@
 测试网址：
 https://tieba.baidu.com/p/1934517275#!/l/p1
 http://static.bshare.cn/frame/images/logos/mp2/sprite/top_logos_sprite.gif
+
+
+
+1.不能使用worker-pool；共用一个worker处理没有问题 or 为每个请求单独创建一个worker发生错误概率明显会减少
+2.inside的write和outisde的receive发现对不上
+3.出现问题的请求大部分隶属于同一个域名，例如百度首页的 dss0.baidu.com
+4.目前发现只有HTTPS有这个问题，HTTP的目前都正常

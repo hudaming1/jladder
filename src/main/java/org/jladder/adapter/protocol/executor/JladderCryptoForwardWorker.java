@@ -92,7 +92,6 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 				dataMessage.getBody().retain();
 			}
 		}
-		
 		this.channel.writeAndFlush(message).addListener(f -> {
 			if (!f.isSuccess()) {
 				log.error("[{}]flush message error", message.getClientIden(), f.cause());
