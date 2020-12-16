@@ -3,7 +3,6 @@ package org.jladder.adapter.protocol.executor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jladder.adapter.protocol.listener.JladderForwardListener;
 import org.jladder.adapter.protocol.message.JladderMessage;
@@ -21,8 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JladderForwardExecutor {
 	
 	private List<JladderCryptoForwardWorker> jladderForwardWorkerList = new ArrayList<>();
-	private AtomicInteger RoundRobinRouter = new AtomicInteger(0);
-	private int outsideChannelCount = 2;
+	private int outsideChannelCount = 16;
 	private final static NioEventLoopGroup loopGroup = new NioEventLoopGroup(1);
 	private final CountDownLatch latch = new CountDownLatch(outsideChannelCount);
 	
@@ -47,7 +45,7 @@ public class JladderForwardExecutor {
 //		if (message instanceof JladderDataMessage) {
 //			log.info("flushmessage=" + ((JladderDataMessage) message).getBody().toString(CharsetUtil.UTF_8));
 //		}
-		return select().writeAndFlush(message);
+		return select(message).writeAndFlush(message);
 //		JladderConfig config = NettyProxyContext.getConfig();
 //		CountDownLatch latch = new CountDownLatch(1);
 //		JladderCryptoForwardWorker jladderCryptoForwardWorker = new JladderCryptoForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort(), loopGroup);
@@ -62,7 +60,7 @@ public class JladderForwardExecutor {
 //		return jladderCryptoForwardWorker.writeAndFlush(message);
 	}
 	
-	protected JladderCryptoForwardWorker select() {
-		return jladderForwardWorkerList.get(RoundRobinRouter.getAndIncrement() % outsideChannelCount);
+	protected JladderCryptoForwardWorker select(JladderMessage message) {
+		return jladderForwardWorkerList.get(message.getClientIden().hashCode() % outsideChannelCount);
 	}
 }
