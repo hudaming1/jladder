@@ -29,7 +29,7 @@ public class ServerRun {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public static void main2(String[] args) throws FileNotFoundException, IOException {
+	public static void main(String[] args) throws FileNotFoundException, IOException {
 //		args = "nettyproxy.runmode=100 nettyproxy.port=5432 nettyproxy.workercnt=96".split(" ");
 //		args = "nettyproxy.enableauthority=1 nettyproxy.runmode=11 nettyproxy.port=51996 nettyproxy.outside_proxy_host=47.75.102.227 nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=8 nettyproxy.http_server_port=80 nettyproxy.http_server_url=http://hudaming.com nettyproxy.intercept-redirect=hudaming.com->39.96.83.46".split(" ");
 //		args = "nettyproxy.enableauthority=1 nettyproxy.runmode=12 nettyproxy.port=52996 nettyproxy.outside_proxy_host=47.75.102.227 nettyproxy.outside_proxy_port=5432 nettyproxy.workercnt=96 nettyproxy.http_server_port=80 nettyproxy.http_server_url=http://127.0.0.1:80".split(" ");
@@ -48,7 +48,8 @@ public class ServerRun {
 		ServerRunProxyFactory.create(serverRunArg.getRunMode()).start(serverRunArg);
 	}
 	
-	public static void main(String[] args) throws FileNotFoundException, IOException {
+	public static void main2(String[] args) throws FileNotFoundException, IOException {
 		ServerRunProxyFactory.create(RunModeEnum.OutsideServer).start(new JladderConfig(RunModeEnum.OutsideServer, 5432));
 	}
 }
+
