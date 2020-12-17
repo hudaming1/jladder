@@ -1,8 +1,10 @@
 【OK】不能访问http://news.cssn.cn/images/mobile_v2020.js   【奇怪，用\n替换\r\n就可以了】
 【P0】HTTP基本稳了，HTTPS个别串道，用百度首页就能复现 【解决了，多个worker发送消息时，消息先发后置的原因】
 【P0】就是 workerCount的问题，设置成1个会稳，但是会慢，且阻塞时会导致全部请求block住；如果设置多个，就会相互串道，导致请求无响应返回，或收到rst包。【解决了，多个worker发送消息时，消息先发后置的原因】
-
 【P0】下载时Outside端还是会OutOfDirectMemory
+【P0】使用一段时间后，会有短暂阻塞，过10+秒后会自行恢复
+【P0】下载时不能访问其他网页，且无法中断下载
+
 【P1】inside-outside的重连机制
 【P1】removeListstenr问题
 【P2】inside和outside连接相互隔离，避免一个连接抛出异常，整个线程池crash掉
