@@ -86,12 +86,6 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		
 		listenerMap.putIfAbsent(message.getClientIden(), new JladderForwardListener());
 		
-		if (message instanceof JladderDataMessage) {
-			JladderDataMessage dataMessage = (JladderDataMessage) message;
-			if (dataMessage.getBody() != null) {
-				dataMessage.getBody();
-			}
-		}
 		this.channel.writeAndFlush(message).addListener(f -> {
 			if (!f.isSuccess()) {
 				log.error("[{}]flush message error", message.getClientIden(), f.cause());
@@ -103,8 +97,10 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		return listenerMap.get(message.getClientIden());
 	}
 	
+	// TODO 
 	public void removeClientIden(String clientIden) {
 		listenerMap.remove(clientIden);
+		log.info("remove listener, residue listener.count=" + listenerMap.size());
 	}
 
 	@Override
@@ -113,6 +109,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 			listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
 		} else if (msg instanceof JladderDisconnectMessage) {
 			listenerMap.get(msg.getClientIden()).fireDisconnectEvent((JladderDisconnectMessage) msg);
+//			removeClientIden(msg.getClientIden());
 		} else {
 			log.error("unsupport message found=" + msg.getMessageType());
 		}

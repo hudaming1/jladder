@@ -64,8 +64,8 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			return ;
 		} else {
 			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
-			JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(message);
-			receiveListener.onReceive(byteBuf -> {
+			JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(message);
+			listener.onReceive(byteBuf -> {
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
 			}).onDisconnect(ctx -> {
 				browserCtx.close();
@@ -91,8 +91,8 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    	if (msg instanceof ByteBuf) {
 	    		log.info(clientIden + " browser read " + remoteHost + ":" + remotePort + " " + browserCtx.channel().toString() + ", writelen=" + ((ByteBuf) msg).readableBytes());
 	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
-	    		JladderForwardListener receiveListener = JladderForwardExecutor.writeAndFlush(request);
-	    		receiveListener.onReceive(byteBuf -> {
+	    		JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(request);
+	    		listener.onReceive(byteBuf -> {
 	    			log.info("[" + clientIden + "]readlen=" + byteBuf.toByteBuf().readableBytes());
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		}).onDisconnect(ctx -> {

@@ -4,6 +4,7 @@
 
 【P0】下载时Outside端还是会OutOfDirectMemory
 【P1】inside-outside的重连机制
+【P1】removeListstenr问题
 【P2】inside和outside连接相互隔离，避免一个连接抛出异常，整个线程池crash掉
 【P3】暂时先用\N吧
 
