@@ -39,7 +39,7 @@ public class SimpleJladderSerialization implements JladderSerialization {
 	private ByteBuf toJladdeDataMessage(JladderMessage message) {
 		JladderDataMessage dataMsg = ((JladderDataMessage) message);
 		byte[] hostBytes4Encrypt = CryptoFactory.get().encrypt(dataMsg.getHost().getBytes());
-		ByteBuf body = dataMsg.getBody().retain();
+		ByteBuf body = dataMsg.getBody();
 		
 		byte[] bodyArr = new byte[body.readableBytes()];
 		body.readBytes(bodyArr);

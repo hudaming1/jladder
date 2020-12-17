@@ -89,7 +89,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		if (message instanceof JladderDataMessage) {
 			JladderDataMessage dataMessage = (JladderDataMessage) message;
 			if (dataMessage.getBody() != null) {
-				dataMessage.getBody().retain();
+				dataMessage.getBody();
 			}
 		}
 		this.channel.writeAndFlush(message).addListener(f -> {

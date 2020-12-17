@@ -106,7 +106,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf byteBuf = (ByteBuf) msg;
 		jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
-        ctx.fireChannelRead(msg);
+        ctx.fireChannelRead(byteBuf.retain());
 	}
 
     @Override

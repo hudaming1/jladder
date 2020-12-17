@@ -38,7 +38,7 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
 						log.info(msg.getClientIden() + " flush len=" + jladderByteBuf.toByteBuf().readableBytes());
-						insideCtx.writeAndFlush(JladderMessageBuilder.buildNeedEncryptMessage(msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf().retain()));
+						insideCtx.writeAndFlush(JladderMessageBuilder.buildNeedEncryptMessage(msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()));
 					}
 					@Override
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
@@ -48,7 +48,8 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 					}
 				}));
 			}
-			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody().retain());
+			log.info("msg.refCnt=" + msg.getBody().refCnt());
+			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody());
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
 			Iterator<Entry<String, JladderAsynForwardClient>> iterator = ClientMap.entrySet().iterator();
 			while (iterator.hasNext()) {

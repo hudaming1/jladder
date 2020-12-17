@@ -42,22 +42,7 @@ public class JladderForwardExecutor {
 	}
 
 	public JladderForwardListener writeAndFlush(JladderMessage message) {
-//		if (message instanceof JladderDataMessage) {
-//			log.info("flushmessage=" + ((JladderDataMessage) message).getBody().toString(CharsetUtil.UTF_8));
-//		}
 		return select(message).writeAndFlush(message);
-//		JladderConfig config = NettyProxyContext.getConfig();
-//		CountDownLatch latch = new CountDownLatch(1);
-//		JladderCryptoForwardWorker jladderCryptoForwardWorker = new JladderCryptoForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort(), loopGroup);
-//		jladderCryptoForwardWorker.connect().onConnect(e -> {
-//			latch.countDown();
-//		});
-//		try {
-//			latch.await();
-//		} catch (InterruptedException e1) {
-//			e1.printStackTrace();
-//		}
-//		return jladderCryptoForwardWorker.writeAndFlush(message);
 	}
 	
 	protected JladderCryptoForwardWorker select(JladderMessage message) {
