@@ -2,6 +2,7 @@ package org.jladder.adapter.protocol.executor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 import org.jladder.adapter.protocol.JladderByteBuf;
 import org.jladder.adapter.protocol.JladderChannelFuture;
@@ -11,6 +12,7 @@ import org.jladder.adapter.protocol.listener.JladderOnConnectedListener;
 import org.jladder.adapter.protocol.message.JladderDataMessage;
 import org.jladder.adapter.protocol.message.JladderDisconnectMessage;
 import org.jladder.adapter.protocol.message.JladderMessage;
+import org.jladder.common.exception.JladderException;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -109,9 +111,15 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 			listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
 		} else if (msg instanceof JladderDisconnectMessage) {
 			listenerMap.get(msg.getClientIden()).fireDisconnectEvent((JladderDisconnectMessage) msg);
-//			removeClientIden(msg.getClientIden());
 		} else {
 			log.error("unsupport message found=" + msg.getMessageType());
 		}
 	}
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    	status = JladderForwardWorkerStatusEnum.Terminated;
+    	log.info("outside disconnect");
+    }
+
 }

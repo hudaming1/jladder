@@ -106,14 +106,12 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf byteBuf = (ByteBuf) msg;
 		jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
-//        ctx.fireChannelRead(byteBuf.retain());
 	}
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
     	log.info(this.channel.toString() + "(" + id + ")" + " diconnect");
     	jladderAsynForwardClientInvokeChain.onDisconnect(new JladderChannelHandlerContext(ctx));
-//        ctx.fireChannelInactive();
     }
     
     public void close() {
