@@ -23,8 +23,7 @@ public class ServerRun {
 	}
 	
 //	这是我在47.75.102.227启动参数
-//	public static void main2(String[] args) throws FileNotFoundException, IOException {
+//	public static void main(String[] args) throws FileNotFoundException, IOException {
 //		ServerRunProxyFactory.create(RunModeEnum.OutsideServer).start(new JladderConfig(RunModeEnum.OutsideServer, 5432));
 //	}
 }
-
