@@ -16,16 +16,13 @@ import org.jladder.adapter.protocol.message.JladderMessage;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -54,7 +51,6 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast(new IdleStateHandler(6, 2, 3, TimeUnit.SECONDS));
 				ch.pipeline().addLast(new JladderCryptoInHandler());
 				ch.pipeline().addLast(new JladderCryptoOutHandler());
 				ch.pipeline().addLast(JladderCryptoForwardWorker.this);
@@ -104,7 +100,6 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		return listenerMap.get(message.getClientIden());
 	}
 	
-	// TODO 
 	public void removeClientIden(String clientIden) {
 		listenerMap.remove(clientIden);
 		log.info("remove listener, residue listener.count=" + listenerMap.size());
@@ -130,31 +125,15 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
         loop.schedule(new Runnable() {
             @Override
             public void run() {
-                System.err.println("服务端链接不上，开始重连操作...");
+                log.error("prepare reconnect....");
                 connect().onConnect(f -> {
                 	if (!f.isSuccess()) {
                 		channelInactive(ctx);
                 	} else {
-                		System.out.println("重连成功");
+                		log.info("connected success");
                 	}
                 });
             }
         }, 5L, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        super.userEventTriggered(ctx, evt);
-        if (evt instanceof IdleStateEvent) {
-            IdleStateEvent event = (IdleStateEvent) evt;
-            if (event.state().equals(IdleState.READER_IDLE)) {
-            	//可以选择重新连接
-                System.out.println("长期没收到服务器推送数据");
-            } else if (event.state().equals(IdleState.WRITER_IDLE)) {
-                System.out.println("长期未向服务器发送数据");
-            } else if (event.state().equals(IdleState.ALL_IDLE)) {
-                System.out.println("ALL");
-            }
-        }
     }
 }
