@@ -21,6 +21,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -28,12 +29,12 @@ import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Sharable
 public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<JladderMessage> {
 	
 	private final static Map<String, JladderForwardListener> listenerMap = new ConcurrentHashMap<>();
 	private final Bootstrap bootstrap = new Bootstrap();
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
-	private volatile boolean isInitHandler = false;
 	private EventLoopGroup eventLoopGroup;
 	private Channel channel;
 	private String proxyHost;
@@ -53,14 +54,10 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				if (isInitHandler) {
-					return ;
-				}
 				ch.pipeline().addLast(new IdleStateHandler(6, 2, 3, TimeUnit.SECONDS));
 				ch.pipeline().addLast(new JladderCryptoInHandler());
 				ch.pipeline().addLast(new JladderCryptoOutHandler());
 				ch.pipeline().addLast(JladderCryptoForwardWorker.this);
-				isInitHandler = true;
 			}
 		});	
 	}
