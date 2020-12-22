@@ -40,6 +40,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		clientIden = "FD-" + Counter.incrementAndGet();
+		log.info(ctx.channel() + " connected");
     }
     
 	@Override
