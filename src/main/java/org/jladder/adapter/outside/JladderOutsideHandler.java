@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jladder.adapter.protocol.JladderAsynForwardClient;
 import org.jladder.adapter.protocol.JladderByteBuf;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMessage> {
 
+	private static final AtomicInteger IdCenter = new AtomicInteger(1);
 	private static final EventLoopGroup HttpClientEventLoopGroup = new NioEventLoopGroup(8);
 	private static final Map<String, JladderAsynForwardClient> ClientMap = new ConcurrentHashMap<>();
 	
@@ -38,11 +40,11 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
 						log.info(msg.getClientIden() + " flush len=" + jladderByteBuf.toByteBuf().readableBytes());
-						insideCtx.writeAndFlush(JladderMessageBuilder.buildNeedEncryptMessage(msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()));
+						insideCtx.writeAndFlush(JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()));
 					}
 					@Override
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
-						insideCtx.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(msg.getClientIden()));
+						insideCtx.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), msg.getClientIden()));
 						ClientMap.remove(forwardClientKey);
 						log.info("remote " + forwardClientKey + " disconnect by remote_server");
 					}

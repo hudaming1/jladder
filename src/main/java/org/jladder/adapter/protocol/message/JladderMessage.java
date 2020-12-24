@@ -8,12 +8,14 @@ public abstract class JladderMessage {
 	protected int messageType;
 	protected String host;
 	protected int port;
+	protected long msgId;
 
-	JladderMessage(int messageType, String clientIden, String host, int port) {
+	JladderMessage(long msgId, int messageType, String clientIden, String host, int port) {
 		this.messageType = messageType;
 		this.clientIden = clientIden;
 		this.host = host;
 		this.port = port;
+		this.msgId = msgId;
 	}
 	
 	public String getClientIden() {
@@ -32,4 +34,7 @@ public abstract class JladderMessage {
 		return this.messageType;
 	}
 	
+	public long getMsgId() {
+		return msgId;
+	}
 }

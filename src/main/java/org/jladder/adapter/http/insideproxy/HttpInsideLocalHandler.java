@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
+	private static final AtomicInteger IdCenter = new AtomicInteger(1);
 	private static final ByteBuf HTTPS_CONNECTED_LINE = PooledByteBufAllocator.DEFAULT.directBuffer();
 	private static final JladderForwardExecutor JladderForwardExecutor = new JladderForwardExecutor();
 	private static final AtomicInteger Counter = new AtomicInteger(0);
@@ -64,7 +65,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE.retain());
 			return ;
 		} else {
-			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
+			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
 			JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(message);
 			listener.onReceive(byteBuf -> {
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
@@ -91,11 +92,12 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
 	    	if (msg instanceof ByteBuf) {
 	    		log.info(clientIden + " browser read " + remoteHost + ":" + remotePort + " " + browserCtx.channel().toString() + ", writelen=" + ((ByteBuf) msg).readableBytes());
-	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(clientIden, remoteHost, remotePort, (ByteBuf) msg);
+	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(IdCenter.getAndIncrement(), clientIden, remoteHost, remotePort, (ByteBuf) msg);
 	    		JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(request);
 	    		listener.onReceive(byteBuf -> {
 	    			log.info("[" + clientIden + "]readlen=" + byteBuf.toByteBuf().readableBytes());
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
+	    			log.info("[" + clientIden + "]forward browser，len=" + byteBuf.toByteBuf().readableBytes());
 	    		}).onDisconnect(ctx -> {
 					browserCtx.close();
 					log.info("channel " + clientIden + " disconnect by remote_server");
@@ -106,25 +108,25 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 	    	log.error(clientIden + " proxy error", cause);
-			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
 	    }
 
 	    @Override
 	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 	    	log.info("channel " + clientIden + " disconnect by browser");
-			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
 	    }
 	}
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     	log.error(clientIden + " browser error", cause);
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		log.info("channel " + clientIden + " disconnect");
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(clientIden));
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
     }
 }

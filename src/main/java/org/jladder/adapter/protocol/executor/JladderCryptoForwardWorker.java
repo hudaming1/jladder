@@ -16,6 +16,7 @@ import org.jladder.adapter.protocol.message.JladderMessage;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -89,13 +90,18 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		
 		listenerMap.putIfAbsent(message.getClientIden(), new JladderForwardListener());
 		
-		this.channel.writeAndFlush(message).addListener(f -> {
-			if (!f.isSuccess()) {
-				log.error("[{}]flush message error", message.getClientIden(), f.cause());
-			} else {
-				log.info("[{}]message flushed", message.getClientIden());
-			}
+		this.channel.writeAndFlush(message).addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture f) throws Exception {
+            	System.out.println("asfasfasfasdfasdf");
+            	if (!f.isSuccess()) {
+    				log.error("[{}]flush message error", message.getClientIden(), f.cause());
+    			} else {
+    				log.info("[{}]message flushed2", message.getClientIden());
+    			}
+            }
 		});
+		log.info("[{}]message flushed", message.getClientIden());
 		
 		return listenerMap.get(message.getClientIden());
 	}

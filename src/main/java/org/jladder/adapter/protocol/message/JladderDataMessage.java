@@ -9,8 +9,8 @@ public class JladderDataMessage extends JladderMessage {
 	private boolean bodyNeedEncrypt;
 	private ByteBuf body;
 
-	JladderDataMessage(String clientIden, boolean bodyNeedEncrypt, String host, int port, ByteBuf body) {
-		super(JladderMessageTypeEnum.Data.getCode(), clientIden, host, port);
+	JladderDataMessage(long msgId, String clientIden, boolean bodyNeedEncrypt, String host, int port, ByteBuf body) {
+		super(msgId, JladderMessageTypeEnum.Data.getCode(), clientIden, host, port);
 		this.body = body;
 		this.bodyNeedEncrypt = bodyNeedEncrypt;
 	}

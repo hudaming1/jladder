@@ -49,6 +49,7 @@ public class SimpleJladderSerialization implements JladderSerialization {
 		
 		ByteBuf buf = Unpooled.buffer();
 		buf.writeLong(MAGIC_NUMBER);
+		buf.writeLong(message.getMsgId());
 		buf.writeShort(dataMsg.getMessageType());
 		buf.writeInt(dataMsg.getClientIden().length());
 		buf.writeBytes(dataMsg.getClientIden().getBytes());
@@ -65,6 +66,7 @@ public class SimpleJladderSerialization implements JladderSerialization {
 	public JladderMessage deserial(ByteBuf in) {
 		in.skipBytes(8); // skip magic_number
 		short msgType = in.readShort();
+		long msgId = in.readLong();
 		JladderMessageTypeEnum messageType = JladderMessageTypeEnum.getEnum(msgType);
 		if (messageType == JladderMessageTypeEnum.Data) {
 			// read client_iden
@@ -87,13 +89,13 @@ public class SimpleJladderSerialization implements JladderSerialization {
 			byte[] bodyBytes = isBodyNeedDecrypt ? CryptoFactory.get().decrypt(sourceBodyBytes) : sourceBodyBytes;
 			ByteBuf body = Unpooled.buffer(bodyLen);
 			body.writeBytes(bodyBytes);
-			return JladderMessageBuilder.buildNeedEncryptMessage(clientIden, new String(hostBytes), port, body);
+			return JladderMessageBuilder.buildNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body);
 		} else if (messageType == JladderMessageTypeEnum.Disconnect) {
 			int idenLen = in.readInt();
 			byte[] idenBytes = new byte[idenLen];
 			in.readBytes(idenBytes);
 			String clientIden = new String(idenBytes);
-			return JladderMessageBuilder.buildDisconnectMessage(clientIden);
+			return JladderMessageBuilder.buildDisconnectMessage(msgId, clientIden);
 		} else {
 			log.error("unsupport message-type found: " + msgType);
 			return null;
