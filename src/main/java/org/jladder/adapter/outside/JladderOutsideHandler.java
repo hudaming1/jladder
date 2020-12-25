@@ -33,14 +33,15 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 		String forwardClientKey = jladderMessage.getClientIden() + "#" + jladderMessage.getHost() + ":" + jladderMessage.getPort();
 		if (jladderMessage instanceof JladderDataMessage) {
 			JladderDataMessage msg = (JladderDataMessage) jladderMessage;
-			log.info(forwardClientKey + " join..."  + msg.getBody().readableBytes());
+			log.info("[msg" + jladderMessage.getMsgId() + "][" + forwardClientKey + "] read-len="  + msg.getBody().readableBytes());
 			if (!ClientMap.containsKey(forwardClientKey)) {
 				// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
 				ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(forwardClientKey, msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
-						log.info(msg.getClientIden() + " flush len=" + jladderByteBuf.toByteBuf().readableBytes());
-						insideCtx.writeAndFlush(JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()));
+						JladderDataMessage outMsg = JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
+						log.info("[msg" + outMsg.getMsgId() + "]" + msg.getClientIden() + " flush-len=" + jladderByteBuf.toByteBuf().readableBytes());
+						insideCtx.writeAndFlush(outMsg);
 					}
 					@Override
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
@@ -50,7 +51,6 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 					}
 				}));
 			}
-			log.info("msg.refCnt=" + msg.getBody().refCnt());
 			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody());
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
 			Iterator<Entry<String, JladderAsynForwardClient>> iterator = ClientMap.entrySet().iterator();

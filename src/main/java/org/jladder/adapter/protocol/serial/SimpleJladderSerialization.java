@@ -30,6 +30,7 @@ public class SimpleJladderSerialization implements JladderSerialization {
 		JladderDisconnectMessage disconnectMessage = ((JladderDisconnectMessage) message);
 		ByteBuf buf = Unpooled.buffer();
 		buf.writeLong(MAGIC_NUMBER);
+		buf.writeLong(message.getMsgId());
 		buf.writeShort(disconnectMessage.getMessageType());
 		buf.writeInt(disconnectMessage.getClientIden().length());
 		buf.writeBytes(disconnectMessage.getClientIden().getBytes());
@@ -65,8 +66,8 @@ public class SimpleJladderSerialization implements JladderSerialization {
 	@Override
 	public JladderMessage deserial(ByteBuf in) {
 		in.skipBytes(8); // skip magic_number
-		short msgType = in.readShort();
 		long msgId = in.readLong();
+		short msgType = in.readShort();
 		JladderMessageTypeEnum messageType = JladderMessageTypeEnum.getEnum(msgType);
 		if (messageType == JladderMessageTypeEnum.Data) {
 			// read client_iden

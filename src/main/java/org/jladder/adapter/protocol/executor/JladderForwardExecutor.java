@@ -46,6 +46,6 @@ public class JladderForwardExecutor {
 	}
 	
 	protected JladderCryptoForwardWorker select(JladderMessage message) {
-		return jladderForwardWorkerList.get(message.getClientIden().hashCode() % outsideChannelCount);
+		return jladderForwardWorkerList.get(Math.abs(message.getClientIden().hashCode()) % outsideChannelCount);
 	}
 }

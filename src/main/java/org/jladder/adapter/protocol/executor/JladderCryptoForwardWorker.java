@@ -93,7 +93,6 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		this.channel.writeAndFlush(message).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture f) throws Exception {
-            	System.out.println("asfasfasfasdfasdf");
             	if (!f.isSuccess()) {
     				log.error("[{}]flush message error", message.getClientIden(), f.cause());
     			} else {
@@ -114,6 +113,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
 		if (msg instanceof JladderDataMessage) {
+			log.info("[msg" + msg.getMsgId() + "][" + msg.getClientIden() + "] read message-len=" + ((JladderDataMessage) msg).getBody().readableBytes());
 			listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
 		} else if (msg instanceof JladderDisconnectMessage) {
 			listenerMap.get(msg.getClientIden()).fireDisconnectEvent((JladderDisconnectMessage) msg);
