@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import org.jladder.common.core.ServerRunProxyFactory;
 import org.jladder.common.core.config.JladderConfig;
-import org.jladder.common.core.config.proploader.NettyProxyConfigPropertiesLoader;
 import org.jladder.common.enumtype.RunModeEnum;
 
 public class ServerRun {
@@ -15,7 +14,9 @@ public class ServerRun {
 	}
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		JladderConfig serverRunArg = new NettyProxyConfigPropertiesLoader().load(ServerRun.class.getResource("/nettyproxy_http_simpleproxy.properties").getFile());
+		JladderConfig serverRunArg = new JladderConfig();
+		serverRunArg.setPort(52007);
+		serverRunArg.setWorkerCnt(4);
 		serverRunArg.setOutsideProxyHost("47.75.102.227");
 		serverRunArg.setOutsideProxyPort(5432);
 		serverRunArg.setRunMode(RunModeEnum.HttpInsideServer);
