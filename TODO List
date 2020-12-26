@@ -6,8 +6,6 @@
 【OK】下载时不能访问其他网页，且无法中断下载
 【OK】inside的重连机制
 
-【P0】为了能解决问题，以及后续优化，需要对整个inside-outside代理链路进行监控
-【P0】使用一段时间后，发现inside解码器Blocked？无法处理请求了。
 【P1】实现outside心跳探活机制
 【P1】removeListstenr问题
 【P2】inside和outside连接相互隔离，避免一个连接抛出异常，整个线程池crash掉

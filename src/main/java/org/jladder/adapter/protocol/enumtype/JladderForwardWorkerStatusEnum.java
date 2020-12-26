@@ -2,8 +2,7 @@ package org.jladder.adapter.protocol.enumtype;
 
 public enum JladderForwardWorkerStatusEnum {
 	
-	Running(1, "启动"),
-	Starting(2, "启动中"),
+	Running(1, "运行中"),
 	Terminated(-1, "停止"),
 	;
 

@@ -65,7 +65,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	}
 
 	public synchronized void connect() throws InterruptedException {
-		if (!isCanBeStart()) {
+		if (status == JladderForwardWorkerStatusEnum.Running) {
 			return;
 		}
 		// init bootstrap
@@ -82,10 +82,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		connectFinishLatch.await();
 	}
 	
-	private boolean isCanBeStart() {
-		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
-	}
-
 	public JladderForwardListener writeAndFlush(ByteBuf message) throws InterruptedException {
 		connect();
 		if (channel == null) {

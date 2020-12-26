@@ -2,6 +2,7 @@ package org.jladder.adapter.protocol.executor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.jladder.adapter.protocol.JladderByteBuf;
@@ -59,13 +60,11 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		});	
 	}
 
-	public JladderOnConnectedListener connect() {
+	public synchronized JladderOnConnectedListener connect() {
 		JladderOnConnectedListener jladderOnConnectedListener = new JladderOnConnectedListener();
 		if (!isCanBeStart()) {
 			throw new IllegalStateException("worker cann't be connect, current_status=" + status);
 		}
-		status = JladderForwardWorkerStatusEnum.Starting;
-		
 		ChannelFuture chanelFuture = bootstrap.connect(proxyHost, proxyPort);
 		this.channel = chanelFuture.channel();
 		chanelFuture.addListener(f -> {
@@ -79,14 +78,30 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 		return jladderOnConnectedListener;
 	}
 	
+	private void ensureConnected() {
+		if (status == JladderForwardWorkerStatusEnum.Running) {
+			return ;
+		}
+		
+		log.debug("");
+		CountDownLatch latch = new CountDownLatch(1);
+		connect().onConnect(event -> {
+			latch.countDown();
+		});
+		try {
+			latch.await();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private boolean isCanBeStart() {
-		return status != JladderForwardWorkerStatusEnum.Running && status != JladderForwardWorkerStatusEnum.Starting;
+		return status != JladderForwardWorkerStatusEnum.Running;
 	}
 
 	public JladderForwardListener writeAndFlush(JladderMessage message) {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
-			// TODO 如果非runing状态，则重连(因为没有heartbeat机制，所以服务端「偷偷」close连接时，客户端无感知，这里需要重连)
-			throw new IllegalStateException("channel not connect or has closed.");
+			ensureConnected();
 		}
 		
 		listenerMap.putIfAbsent(message.getClientIden(), new JladderForwardListener());
@@ -126,18 +141,18 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
     	status = JladderForwardWorkerStatusEnum.Terminated;
-    	log.debug("outside disconnect");
+    	log.warn("outside disconnect");
     	
     	final EventLoop loop = ctx.channel().eventLoop();
         loop.schedule(new Runnable() {
             @Override
             public void run() {
-                log.debug("prepare reconnect....");
+                log.info("prepare reconnect....");
                 connect().onConnect(f -> {
                 	if (!f.isSuccess()) {
                 		channelInactive(ctx);
                 	} else {
-                		log.debug("connected success");
+                		log.info("connected success");
                 	}
                 });
             }

@@ -28,6 +28,7 @@ public class JladderForwardExecutor {
 		JladderConfig config = NettyProxyContext.getConfig();
 		for (int i = 0 ;i < outsideChannelCount; i ++) {
 			JladderCryptoForwardWorker jladderForwardWorker = new JladderCryptoForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort(), loopGroup);
+			// init connection
 			jladderForwardWorker.connect().onConnect(event -> {
 				latch.countDown();
 			});
@@ -36,7 +37,7 @@ public class JladderForwardExecutor {
 		try {
 			latch.await();
 			log.debug(outsideChannelCount + " ForwardWorker inited...");
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			log.error("init worker failed..", e);
 		}
 	}
