@@ -114,6 +114,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 	    	log.debug("channel " + clientIden + " disconnect by browser");
 			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
+			JladderForwardExecutor.clearClientIden(clientIden);
 	    }
 	}
 
@@ -127,5 +128,6 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		log.debug("channel " + clientIden + " disconnect");
 		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
+		JladderForwardExecutor.clearClientIden(clientIden);
     }
 }

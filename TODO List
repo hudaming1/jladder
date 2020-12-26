@@ -5,11 +5,9 @@
 【OK】使用一段时间后，会有短暂阻塞，过10+秒后会自行恢复
 【OK】下载时不能访问其他网页，且无法中断下载
 【OK】inside的重连机制
+【OK】流量监控
 
-【P1】实现outside心跳探活机制
-【P1】removeListstenr问题
-【P2】inside和outside连接相互隔离，避免一个连接抛出异常，整个线程池crash掉
-【P3】暂时先用\N吧
+【P1】outside端实现心跳探活机制，检测无效inside连接，并踢出
 【P3】后续池化用ApacheCommonPool实现：https://blog.csdn.net/nazeniwaresakini/article/details/108379725
 
 
@@ -17,9 +15,3 @@
 https://tieba.baidu.com/p/1934517275#!/l/p1
 http://static.bshare.cn/frame/images/logos/mp2/sprite/top_logos_sprite.gif
 
-
-
-1.不能使用worker-pool；共用一个worker处理没有问题 or 为每个请求单独创建一个worker发生错误概率明显会减少
-2.inside的write和outisde的receive发现对不上
-3.出现问题的请求大部分隶属于同一个域名，例如百度首页的 dss0.baidu.com
-4.目前发现只有HTTPS有这个问题，HTTP的目前都正常

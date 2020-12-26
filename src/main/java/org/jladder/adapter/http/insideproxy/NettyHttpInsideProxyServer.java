@@ -62,6 +62,8 @@ public class NettyHttpInsideProxyServer implements Runnable {
 		
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
+			// 流量监控
+			// ch.pipeline().addLast(new ConnectionMonitor());
 			ch.pipeline().addLast(new io.netty.handler.codec.http.HttpRequestDecoder());
 			ch.pipeline().addLast(new HttpObjectAggregator(HttpConstant.HTTP_OBJECT_AGGREGATOR_LEN));
 			ch.pipeline().addLast(new HttpRequestWrapperHandler());

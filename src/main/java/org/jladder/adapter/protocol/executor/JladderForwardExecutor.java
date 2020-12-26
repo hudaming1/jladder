@@ -43,10 +43,14 @@ public class JladderForwardExecutor {
 	}
 
 	public JladderForwardListener writeAndFlush(JladderMessage message) {
-		return select(message).writeAndFlush(message);
+		return select(message.getClientIden()).writeAndFlush(message);
 	}
 	
-	protected JladderCryptoForwardWorker select(JladderMessage message) {
-		return jladderForwardWorkerList.get(Math.abs(message.getClientIden().hashCode()) % outsideChannelCount);
+	public void clearClientIden(String iden) {
+		select(iden).removeClientIden(iden);
+	}
+	
+	protected JladderCryptoForwardWorker select(String clientIden) {
+		return jladderForwardWorkerList.get(Math.abs(clientIden.hashCode()) % outsideChannelCount);
 	}
 }
