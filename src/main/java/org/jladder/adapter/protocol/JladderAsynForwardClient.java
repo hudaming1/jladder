@@ -110,7 +110,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	log.info(this.channel.toString() + "(" + id + ")" + " diconnect");
+    	log.debug(this.channel.toString() + "(" + id + ")" + " diconnect");
     	jladderAsynForwardClientInvokeChain.onDisconnect(new JladderChannelHandlerContext(ctx));
     }
     

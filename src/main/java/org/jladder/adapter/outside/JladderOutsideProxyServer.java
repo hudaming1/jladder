@@ -52,7 +52,7 @@ public class JladderOutsideProxyServer implements Runnable {
 		serverBootstrap.bind(config.getPort()).addListener(new GenericFutureListener<Future<? super Void>>() {
 			@Override
 			public void operationComplete(Future<? super Void> future) throws Exception {
-				logger.info("outside-server started, listening port: " + config.getPort());
+				logger.debug("outside-server started, listening port: " + config.getPort());
 			}
 		});
 	}
@@ -64,7 +64,6 @@ public class JladderOutsideProxyServer implements Runnable {
 			ch.pipeline().addLast(new JladderCryptoInHandler());
 			ch.pipeline().addLast(jladderCryptoHandler);
 			ch.pipeline().addLast(new JladderOutsideHandler());
-//			ch.pipeline().addLast(new NettyOutsideSyncHandler());
 		}
 	}
 }

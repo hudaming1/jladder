@@ -33,21 +33,21 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 		String forwardClientKey = jladderMessage.getClientIden() + "#" + jladderMessage.getHost() + ":" + jladderMessage.getPort();
 		if (jladderMessage instanceof JladderDataMessage) {
 			JladderDataMessage msg = (JladderDataMessage) jladderMessage;
-			log.info("[msg" + jladderMessage.getMsgId() + "][" + forwardClientKey + "] read-len="  + msg.getBody().readableBytes());
+			log.debug("[msg" + jladderMessage.getMsgId() + "][" + forwardClientKey + "] read-len="  + msg.getBody().readableBytes());
 			if (!ClientMap.containsKey(forwardClientKey)) {
 				// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
 				ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(forwardClientKey, msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
 						JladderDataMessage outMsg = JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
-						log.info("[msg" + outMsg.getMsgId() + "]" + msg.getClientIden() + " flush-len=" + jladderByteBuf.toByteBuf().readableBytes());
+						log.debug("[msg" + outMsg.getMsgId() + "]" + msg.getClientIden() + " flush-len=" + jladderByteBuf.toByteBuf().readableBytes());
 						insideCtx.writeAndFlush(outMsg);
 					}
 					@Override
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
 						insideCtx.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), msg.getClientIden()));
 						ClientMap.remove(forwardClientKey);
-						log.info("remote " + forwardClientKey + " disconnect by remote_server");
+						log.debug("remote " + forwardClientKey + " disconnect by remote_server");
 					}
 				}));
 			}
@@ -58,7 +58,7 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 				Entry<String, JladderAsynForwardClient> clientEntry = iterator.next();
 				if (clientEntry.getKey().startsWith(jladderMessage.getClientIden() + "#")) {
 					clientEntry.getValue().close();
-					log.info("disconnect, clientKey=" + clientEntry.getKey() + " by browser");
+					log.debug("disconnect, clientKey=" + clientEntry.getKey() + " by browser");
 					iterator.remove();
 				}
 			}

@@ -85,6 +85,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 
 	public JladderForwardListener writeAndFlush(JladderMessage message) {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
+			// TODO 如果非runing状态，则重连(因为没有heartbeat机制，所以服务端「偷偷」close连接时，客户端无感知，这里需要重连)
 			throw new IllegalStateException("channel not connect or has closed.");
 		}
 		
@@ -96,24 +97,24 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
             	if (!f.isSuccess()) {
     				log.error("[{}]flush message error", message.getClientIden(), f.cause());
     			} else {
-    				log.info("[{}]message flushed2", message.getClientIden());
+    				log.debug("[{}]message flushed2", message.getClientIden());
     			}
             }
 		});
-		log.info("[{}]message flushed", message.getClientIden());
+		log.debug("[{}]message flushed", message.getClientIden());
 		
 		return listenerMap.get(message.getClientIden());
 	}
 	
 	public void removeClientIden(String clientIden) {
 		listenerMap.remove(clientIden);
-		log.info("remove listener, residue listener.count=" + listenerMap.size());
+		log.debug("remove listener, residue listener.count=" + listenerMap.size());
 	}
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, JladderMessage msg) throws Exception {
 		if (msg instanceof JladderDataMessage) {
-			log.info("[msg" + msg.getMsgId() + "][" + msg.getClientIden() + "] read message-len=" + ((JladderDataMessage) msg).getBody().readableBytes());
+			log.debug("[msg" + msg.getMsgId() + "][" + msg.getClientIden() + "] read message-len=" + ((JladderDataMessage) msg).getBody().readableBytes());
 			listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
 		} else if (msg instanceof JladderDisconnectMessage) {
 			listenerMap.get(msg.getClientIden()).fireDisconnectEvent((JladderDisconnectMessage) msg);
@@ -125,18 +126,18 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
     	status = JladderForwardWorkerStatusEnum.Terminated;
-    	log.info("outside disconnect");
+    	log.debug("outside disconnect");
     	
     	final EventLoop loop = ctx.channel().eventLoop();
         loop.schedule(new Runnable() {
             @Override
             public void run() {
-                log.error("prepare reconnect....");
+                log.debug("prepare reconnect....");
                 connect().onConnect(f -> {
                 	if (!f.isSuccess()) {
                 		channelInactive(ctx);
                 	} else {
-                		log.info("connected success");
+                		log.debug("connected success");
                 	}
                 });
             }

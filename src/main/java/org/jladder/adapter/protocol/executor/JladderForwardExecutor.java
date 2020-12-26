@@ -35,7 +35,7 @@ public class JladderForwardExecutor {
 		}
 		try {
 			latch.await();
-			log.info(outsideChannelCount + " ForwardWorker inited...");
+			log.debug(outsideChannelCount + " ForwardWorker inited...");
 		} catch (InterruptedException e) {
 			log.error("init worker failed..", e);
 		}
