@@ -69,12 +69,15 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			return;
 		}
 		// init bootstrap
+		long connectStart = System.currentTimeMillis();
 		ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);
 		chanelFuture.addListener(f -> {
 			if (f.isSuccess()) {
 				this.channel = ((ChannelFuture) f).channel();
 				status = JladderForwardWorkerStatusEnum.Running;
 				jladderAsynForwardClientInvokeChain.onConnect(new JladderChannelFuture((ChannelFuture) f));
+			} else {
+				log.error("connect remote[" + remoteHost + ":" + remotePort + "] error, cost_time=" + (System.currentTimeMillis() - connectStart) + " ms", f.cause());
 			}
 			connectFinishLatch.countDown();
 		});
