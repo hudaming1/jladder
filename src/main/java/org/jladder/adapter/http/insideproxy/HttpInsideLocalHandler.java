@@ -49,6 +49,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 		
 		if (requestWrapper.host() == null || requestWrapper.host().isEmpty()) {
 			browserCtx.close(); 
+			log.warn("request is invaild, or version is http/1.0, request=" + requestWrapper.toRequest());
 			return;
 		}
 		
@@ -106,7 +107,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 
 	    @Override
 	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-	    	log.error(clientIden + " proxy error", cause);
+	    	log.error(clientIden + " proxy error, host=" + remoteHost + ":" + remotePort, cause);
 			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
 	    }
 
