@@ -1,7 +1,6 @@
 package org.jladder.adapter.http.insideproxy;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
+import org.jladder.adapter.common.IdCenter;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.common.Constant;
@@ -28,10 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequestWrapper> {
 
-	private static final AtomicInteger IdCenter = new AtomicInteger(1);
 	private static final ByteBuf HTTPS_CONNECTED_LINE = PooledByteBufAllocator.DEFAULT.directBuffer();
 	private static final JladderForwardExecutor JladderForwardExecutor = new JladderForwardExecutor();
-	private static final AtomicInteger FDCounter = new AtomicInteger(0);
 	static {
 		HTTPS_CONNECTED_LINE.writeBytes(Constant.ConnectedLine.getBytes());
 	}
@@ -40,7 +37,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		clientIden = "FD-" + FDCounter.incrementAndGet();
+		clientIden = IdCenter.gen("FD");
 		log.debug(ctx.channel() + " connected");
     }
     
@@ -65,7 +62,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE.retain());
 			return ;
 		} else {
-			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
+			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(System.nanoTime(), clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
 			log.debug("[msg" + message.getMsgId() + "][" + clientIden + "] flush to outside, host=" + requestWrapper.host() + ", msgLen=" + message.getBody().readableBytes());
 			JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(message);
 			listener.onReceive(byteBuf -> {
@@ -92,7 +89,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
 	    	if (msg instanceof ByteBuf) {
-	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(IdCenter.getAndIncrement(), clientIden, remoteHost, remotePort, (ByteBuf) msg);
+	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(System.nanoTime(), clientIden, remoteHost, remotePort, (ByteBuf) msg);
 	    		log.debug("[msg" + request.getMsgId() + "]" + clientIden + " browser read " + remoteHost + ":" + remotePort + " " + browserCtx.channel().toString() + ", writelen=" + ((ByteBuf) msg).readableBytes());
 	    		JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(request);
 	    		listener.onReceive(byteBuf -> {
@@ -108,13 +105,16 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 	    	log.error(clientIden + " proxy error, host=" + remoteHost + ":" + remotePort, cause);
-			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
+	    	if (ctx.channel().isActive()) {
+	    		ctx.channel().close();
+	    	}
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
 	    }
 
 	    @Override
 	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 	    	log.debug("channel " + clientIden + " disconnect by browser");
-			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
+			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
 			JladderForwardExecutor.clearClientIden(clientIden);
 	    }
 	}
@@ -122,13 +122,16 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     	log.error(clientIden + " browser error", cause);
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
+    	if (ctx.channel().isActive()) {
+    		ctx.channel().close();
+    	}
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		log.debug("channel " + clientIden + " disconnect");
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), clientIden));
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
 		JladderForwardExecutor.clearClientIden(clientIden);
     }
 }

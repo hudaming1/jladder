@@ -1,6 +1,6 @@
 package org.jladder.adapter.socks5;
 
-import org.jladder.adapter.socks5.handler.SocksProxyProcessHandler;
+import org.jladder.adapter.socks5.handler.SocksHandshakeProcessHandler;
 import org.jladder.common.NamedThreadFactory;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
@@ -59,7 +59,7 @@ public class NettySocksInsideProxyServer implements Runnable {
 	}
 	
 	private static class SocksInsideChannelInitializer extends ChannelInitializer<Channel> {
-		private SocksProxyProcessHandler socksProxyProcessHandler = new SocksProxyProcessHandler();
+		private SocksHandshakeProcessHandler socksProxyProcessHandler = new SocksHandshakeProcessHandler();
 		@Override
 		protected void initChannel(Channel ch) throws Exception {
 			ch.pipeline().addLast(new SocksInitRequestDecoder());

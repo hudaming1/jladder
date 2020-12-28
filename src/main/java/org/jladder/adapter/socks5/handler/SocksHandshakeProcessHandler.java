@@ -16,9 +16,9 @@ import io.netty.handler.codec.socks.SocksInitResponse;
 import io.netty.handler.codec.socks.SocksRequest;
 
 @Sharable
-public class SocksProxyProcessHandler extends SimpleChannelInboundHandler<SocksRequest>{
+public class SocksHandshakeProcessHandler extends SimpleChannelInboundHandler<SocksRequest>{
 
-	private static final Logger logger = LoggerFactory.getLogger(SocksProxyProcessHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(SocksHandshakeProcessHandler.class);
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, SocksRequest msg) throws Exception {

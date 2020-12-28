@@ -8,8 +8,8 @@
 【OK】流量监控
 
 【P1】outside端实现心跳探活机制，检测无效inside连接，并踢出
+【P2】messageId最好也用IdCenter生成，不要用System.nanoTime
 【P3】后续池化用ApacheCommonPool实现：https://blog.csdn.net/nazeniwaresakini/article/details/108379725
-
 
 测试网址：
 https://tieba.baidu.com/p/1934517275#!/l/p1
