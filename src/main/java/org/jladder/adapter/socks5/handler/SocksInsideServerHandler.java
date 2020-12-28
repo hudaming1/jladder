@@ -36,7 +36,7 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 
 		clientIden = "FD-" + FDCounter.incrementAndGet();
 		browserCtx.pipeline().remove(this);
-		browserCtx.pipeline().addLast(new SocksHandler(clientIden, browserCtx, msg));
+		browserCtx.pipeline().addLast(new SocksHandler(browserCtx, msg));
 		browserCtx.channel().writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, SocksAddressType.IPv4));
 		log.info("flush success-message");
 	}
@@ -48,14 +48,12 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
         }
     }
 	
-	private static class SocksHandler extends ChannelInboundHandlerAdapter {
+	private class SocksHandler extends ChannelInboundHandlerAdapter {
 		
 		private ChannelHandlerContext browserCtx;
 		private SocksCmdRequest req;
-		private String clientIden;
 		
-		public SocksHandler(String clientIden, ChannelHandlerContext browserCtx, SocksCmdRequest req) {
-			this.clientIden = clientIden;
+		public SocksHandler(ChannelHandlerContext browserCtx, SocksCmdRequest req) {
 			this.browserCtx = browserCtx;
 			this.req = req;
 		}
