@@ -7,7 +7,7 @@ import java.util.concurrent.CountDownLatch;
 import org.jladder.adapter.protocol.listener.JladderForwardListener;
 import org.jladder.adapter.protocol.message.JladderMessage;
 import org.jladder.common.core.JladderContext;
-import org.jladder.common.core.config.JladderConfig;
+import org.jladder.common.core.config.JladderFullConfig;
 
 import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class JladderForwardExecutor {
 	private final CountDownLatch latch = new CountDownLatch(outsideChannelCount);
 	
 	public JladderForwardExecutor() {
-		JladderConfig config = JladderContext.getConfig();
+		JladderFullConfig config = JladderContext.getConfig();
 		for (int i = 0 ;i < outsideChannelCount; i ++) {
 			JladderCryptoForwardWorker jladderForwardWorker = new JladderCryptoForwardWorker(config.getOutsideProxyHost(), config.getOutsideProxyPort(), loopGroup);
 			// init connection

@@ -1,13 +1,13 @@
 package org.jladder.common.util;
 
-import org.jladder.common.core.config.JladderConfig;
+import org.jladder.common.core.config.JladderFullConfig;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 
 public class NettyBootstrapUtil {
 
-	public static void initTcpServerOptions(ServerBootstrap serverBootstrap, JladderConfig config) {
+	public static void initTcpServerOptions(ServerBootstrap serverBootstrap, JladderFullConfig config) {
 		// init server-options
 //		if (config.getTcpServerOptions() != null && !config.getTcpServerOptions().isEmpty()) {
 //			for (Entry<String, String> tcpOption : config.getTcpServerOptions().entrySet()) {
@@ -41,7 +41,7 @@ public class NettyBootstrapUtil {
 //		}
 	}
 
-	public static void initTcpServerOptions(Bootstrap bootstrap, JladderConfig config) {
+	public static void initTcpServerOptions(Bootstrap bootstrap, JladderFullConfig config) {
 		// init server-options
 //		if (config.getTcpServerOptions() != null && !config.getTcpServerOptions().isEmpty()) {
 //			for (Entry<String, String> tcpOption : config.getTcpServerOptions().entrySet()) {

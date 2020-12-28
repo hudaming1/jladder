@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
 import org.jladder.adapter.protocol.message.JladderMessageBuilder;
 import org.jladder.common.core.JladderContext;
-import org.jladder.common.core.config.JladderConfig;
+import org.jladder.common.core.config.JladderFullConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class Test1 {
 	
 	@Test
 	public void test1() throws IOException, InterruptedException {
-		JladderConfig jladderConfig = new JladderConfig(RunModeEnum.HttpInsideServer, 10086);
+		JladderFullConfig jladderConfig = new JladderFullConfig(RunModeEnum.HttpInsideServer, 10086);
 		jladderConfig.setOutsideProxyHost("localhost");
 		jladderConfig.setOutsideProxyPort(5432);
 		JladderContext.regist(jladderConfig);
@@ -46,7 +46,7 @@ public class Test1 {
 
 	@Test
 	public void test2() throws IOException, InterruptedException {
-		JladderConfig jladderConfig = new JladderConfig(RunModeEnum.HttpInsideServer, 10086);
+		JladderFullConfig jladderConfig = new JladderFullConfig(RunModeEnum.HttpInsideServer, 10086);
 		jladderConfig.setOutsideProxyHost("localhost");
 		jladderConfig.setOutsideProxyPort(5432);
 		JladderContext.regist(jladderConfig);

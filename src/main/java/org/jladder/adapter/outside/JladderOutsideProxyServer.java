@@ -4,7 +4,7 @@ import org.jladder.adapter.protocol.executor.JladderCryptoInHandler;
 import org.jladder.adapter.protocol.executor.JladderCryptoOutHandler;
 import org.jladder.common.NamedThreadFactory;
 import org.jladder.common.core.JladderContext;
-import org.jladder.common.core.config.JladderConfig;
+import org.jladder.common.core.config.JladderFullConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
 import org.slf4j.Logger;
@@ -29,9 +29,9 @@ public class JladderOutsideProxyServer implements Runnable {
 	
 	private final ServerBootstrap serverBootstrap;
 	private final HttpChannelInitializer httpChannelInitializer;
-	private final JladderConfig config;
+	private final JladderFullConfig config;
 
-	public JladderOutsideProxyServer(JladderConfig config) {
+	public JladderOutsideProxyServer(JladderFullConfig config) {
 		this.config = config;
 		JladderContext.regist(config);
 		serverBootstrap = new ServerBootstrap();

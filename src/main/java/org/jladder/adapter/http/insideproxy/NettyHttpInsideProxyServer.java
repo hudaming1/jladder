@@ -4,7 +4,7 @@ import org.jladder.adapter.http.common.HttpConstant;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.common.NamedThreadFactory;
 import org.jladder.common.core.JladderContext;
-import org.jladder.common.core.config.JladderConfig;
+import org.jladder.common.core.config.JladderFullConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
 import org.slf4j.Logger;
@@ -30,9 +30,9 @@ public class NettyHttpInsideProxyServer implements Runnable {
 	
 	private final ServerBootstrap serverBootstrap;
 	private final HttpInsideChannelInitializer httpChannelInitializer;
-	private final JladderConfig config;
+	private final JladderFullConfig config;
 
-	public NettyHttpInsideProxyServer(JladderConfig config) {
+	public NettyHttpInsideProxyServer(JladderFullConfig config) {
 		this.config = config;
 		JladderContext.regist(config);
 		serverBootstrap = new ServerBootstrap();

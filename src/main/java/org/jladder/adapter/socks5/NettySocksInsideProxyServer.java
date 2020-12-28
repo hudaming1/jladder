@@ -3,7 +3,7 @@ package org.jladder.adapter.socks5;
 import org.jladder.adapter.socks5.handler.SocksProxyProcessHandler;
 import org.jladder.common.NamedThreadFactory;
 import org.jladder.common.core.JladderContext;
-import org.jladder.common.core.config.JladderConfig;
+import org.jladder.common.core.config.JladderFullConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
 import org.slf4j.Logger;
@@ -29,10 +29,10 @@ public class NettySocksInsideProxyServer implements Runnable {
 	private final String SocksServerThreadNamePrefix = RunModeEnum.SocksInsideServer.getName();
 	private final ServerBootstrap serverBootstrap;
 	private final ChannelInitializer<Channel> channelInitializer;
-	private final JladderConfig config;
+	private final JladderFullConfig config;
 
 
-	public NettySocksInsideProxyServer(JladderConfig config) {
+	public NettySocksInsideProxyServer(JladderFullConfig config) {
 		this.config = config;
 		JladderContext.regist(config);
 		serverBootstrap = new ServerBootstrap();

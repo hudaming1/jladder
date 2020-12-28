@@ -12,9 +12,9 @@ public abstract class JladderConfigLoader {
 	 * @param content
 	 * @return
 	 */
-	public JladderConfig load(Object content) {
+	public JladderFullConfig load(Object content) {
 		JladderConfigContent configContent = loadConfig(content);
-		JladderConfig config = new JladderConfig();
+		JladderFullConfig config = new JladderFullConfig();
 		setRunMode(config, configContent.getRunMode());
 		setWorkerCnt(config, configContent.getWorkerCnt());
 		setPort(config, configContent.getPort());
@@ -22,7 +22,7 @@ public abstract class JladderConfigLoader {
 		return config;
 	}
 
-	private void setOutsideProxyHost(JladderConfig config, Object outsideProxyHost) {
+	private void setOutsideProxyHost(JladderFullConfig config, Object outsideProxyHost) {
 		if ((config.getRunMode() == RunModeEnum.HttpInsideServer || config.getRunMode() == RunModeEnum.SocksInsideServer) && outsideProxyHost == null) {
 			throw new IllegalArgumentException("param \"outsideProxyHost\" mustn't be null when server on inside mode");
 		} else if (outsideProxyHost == null) {
@@ -37,7 +37,7 @@ public abstract class JladderConfigLoader {
 		config.setOutsideProxyPort(parseInt(arr[1], "param \"outsideProxyHost\" port invaild, port value=" + arr[1]));
 	}
 
-	private void setPort(JladderConfig config, Object port) {
+	private void setPort(JladderFullConfig config, Object port) {
 		if (port == null) {
 			throw new IllegalArgumentException("param \"port\" mustn't be null");
 		}
@@ -46,7 +46,7 @@ public abstract class JladderConfigLoader {
 
 	protected abstract JladderConfigContent loadConfig(Object content);
 	
-	private void setRunMode(JladderConfig config, Object val) {
+	private void setRunMode(JladderFullConfig config, Object val) {
 		if (val == null) {
 			throw new IllegalArgumentException("param[\"runMode\"] mustn't be null");
 		}
@@ -57,7 +57,7 @@ public abstract class JladderConfigLoader {
 		config.setRunMode(runMode);
 	}
 	
-	private void setWorkerCnt(JladderConfig config, Object val) {
+	private void setWorkerCnt(JladderFullConfig config, Object val) {
 		if (val == null) {
 			config.setWorkerCnt(Runtime.getRuntime().availableProcessors() * 4);
 		} else {
