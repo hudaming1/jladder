@@ -17,7 +17,7 @@ public class ServerRun {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		JladderConfig serverRunArg = new JladderConfig();
 		serverRunArg.setPort(52007);
-		serverRunArg.setWorkerCnt(4);
+		serverRunArg.setWorkerCnt(Runtime.getRuntime().availableProcessors());
 		serverRunArg.setOutsideProxyHost("47.75.102.227");
 		serverRunArg.setOutsideProxyPort(5432);
 		serverRunArg.setRunMode(RunModeEnum.HttpInsideServer);
@@ -28,7 +28,7 @@ public class ServerRun {
 //	public static void main(String[] args) throws FileNotFoundException, IOException {
 //		JladderConfig serverRunArg = new JladderConfig();
 //		serverRunArg.setPort(52007);
-//		serverRunArg.setWorkerCnt(4);
+//		serverRunArg.setWorkerCnt(Runtime.getRuntime().availableProcessors());
 //		serverRunArg.setOutsideProxyHost("47.75.102.227");
 //		serverRunArg.setOutsideProxyPort(5432);
 //		serverRunArg.setRunMode(RunModeEnum.SocksInsideServer);

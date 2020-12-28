@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 
-public class NettyProxyContext {
+public class JladderContext {
 	
 	private final static ConcurrentHashMap<String, JladderConfig> CONFIG_MAP = new ConcurrentHashMap<String, JladderConfig>();
 	private final static InheritableThreadLocal<JladderConfig> CONFIG_CONTEXT = new InheritableThreadLocal<JladderConfig>();

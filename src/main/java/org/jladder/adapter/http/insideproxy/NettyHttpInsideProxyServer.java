@@ -3,7 +3,7 @@ package org.jladder.adapter.http.insideproxy;
 import org.jladder.adapter.http.common.HttpConstant;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.common.NamedThreadFactory;
-import org.jladder.common.core.NettyProxyContext;
+import org.jladder.common.core.JladderContext;
 import org.jladder.common.core.config.JladderConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
@@ -34,7 +34,7 @@ public class NettyHttpInsideProxyServer implements Runnable {
 
 	public NettyHttpInsideProxyServer(JladderConfig config) {
 		this.config = config;
-		NettyProxyContext.regist(config);
+		JladderContext.regist(config);
 		serverBootstrap = new ServerBootstrap();
 		httpChannelInitializer = new HttpInsideChannelInitializer();
 	}

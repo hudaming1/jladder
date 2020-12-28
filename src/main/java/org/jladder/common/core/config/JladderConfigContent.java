@@ -6,7 +6,7 @@ import lombok.Data;
  * NettyProxyConfig内容标准对象
  */
 @Data
-public class NettyProxyConfigContent {
+public class JladderConfigContent {
 	private Object runMode;
 	private Object port;
 	private Object consolePort;

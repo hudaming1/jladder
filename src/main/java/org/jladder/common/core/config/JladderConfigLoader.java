@@ -5,7 +5,7 @@ import org.jladder.common.enumtype.RunModeEnum;
 /**
  * NettyProxy配置加载器
  */
-public abstract class NettyProxyConfigLoader {
+public abstract class JladderConfigLoader {
 	
 	/**
 	 * 加载配置
@@ -13,7 +13,7 @@ public abstract class NettyProxyConfigLoader {
 	 * @return
 	 */
 	public JladderConfig load(Object content) {
-		NettyProxyConfigContent configContent = loadConfig(content);
+		JladderConfigContent configContent = loadConfig(content);
 		JladderConfig config = new JladderConfig();
 		setRunMode(config, configContent.getRunMode());
 		setWorkerCnt(config, configContent.getWorkerCnt());
@@ -44,7 +44,7 @@ public abstract class NettyProxyConfigLoader {
 		config.setPort(parseInt(port.toString(), "param \"port\" is invaild, value=" + port));
 	}
 
-	protected abstract NettyProxyConfigContent loadConfig(Object content);
+	protected abstract JladderConfigContent loadConfig(Object content);
 	
 	private void setRunMode(JladderConfig config, Object val) {
 		if (val == null) {

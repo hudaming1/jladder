@@ -6,11 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.jladder.common.core.config.NettyProxyConfigContent;
-import org.jladder.common.core.config.NettyProxyConfigLoader;
+import org.jladder.common.core.config.JladderConfigContent;
+import org.jladder.common.core.config.JladderConfigLoader;
 import org.jladder.common.exception.JladderException;
 
-public class NettyProxyConfigPropertiesLoader extends NettyProxyConfigLoader {
+public class NettyProxyConfigPropertiesLoader extends JladderConfigLoader {
 
 	/**
 	 * 加载配置文件
@@ -21,7 +21,7 @@ public class NettyProxyConfigPropertiesLoader extends NettyProxyConfigLoader {
 	 * @throws FileNotFoundException
 	 */
 	@Override
-	protected NettyProxyConfigContent loadConfig(Object file) {
+	protected JladderConfigContent loadConfig(Object file) {
 		if (file == null) {
 			throw new IllegalArgumentException("file mustn't be null");
 		} else if (!(file instanceof String)) {
@@ -36,7 +36,7 @@ public class NettyProxyConfigPropertiesLoader extends NettyProxyConfigLoader {
 			throw new JladderException("load config file error", e1);
 		}
 		
-		NettyProxyConfigContent content = new NettyProxyConfigContent();
+		JladderConfigContent content = new JladderConfigContent();
 		if (properties.containsKey("runMode")) {
 			content.setRunMode(properties.getProperty("runMode"));
 		}
