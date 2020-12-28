@@ -31,7 +31,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	private static final AtomicInteger IdCenter = new AtomicInteger(1);
 	private static final ByteBuf HTTPS_CONNECTED_LINE = PooledByteBufAllocator.DEFAULT.directBuffer();
 	private static final JladderForwardExecutor JladderForwardExecutor = new JladderForwardExecutor();
-	private static final AtomicInteger Counter = new AtomicInteger(0);
+	private static final AtomicInteger FDCounter = new AtomicInteger(0);
 	static {
 		HTTPS_CONNECTED_LINE.writeBytes(Constant.ConnectedLine.getBytes());
 	}
@@ -40,7 +40,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		clientIden = "FD-" + Counter.incrementAndGet();
+		clientIden = "FD-" + FDCounter.incrementAndGet();
 		log.debug(ctx.channel() + " connected");
     }
     

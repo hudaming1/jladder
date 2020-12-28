@@ -19,7 +19,6 @@ import io.netty.handler.codec.socks.SocksRequest;
 public class SocksProxyProcessHandler extends SimpleChannelInboundHandler<SocksRequest>{
 
 	private static final Logger logger = LoggerFactory.getLogger(SocksProxyProcessHandler.class);
-	private final SocksInsideServerHandler socksInsideServerHandler = new SocksInsideServerHandler();
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, SocksRequest msg) throws Exception {
@@ -36,7 +35,7 @@ public class SocksProxyProcessHandler extends SimpleChannelInboundHandler<SocksR
 			SocksCmdRequest req = (SocksCmdRequest) msg;
 			if (req.cmdType() == SocksCmdType.CONNECT) {
 				logger.info("prepare connect {}:{}", req.host(), req.port());
-				ctx.pipeline().addLast(socksInsideServerHandler);
+				ctx.pipeline().addLast(new SocksInsideServerHandler());
 				ctx.pipeline().remove(this);
 				ctx.fireChannelRead(msg);
 			} else {
