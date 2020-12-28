@@ -26,22 +26,19 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 	private volatile String clientIden;
 	
 	@Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		clientIden = "FD-" + FDCounter.incrementAndGet();
-		log.debug(ctx.channel() + " connected");
-    }
-	
-	@Override
 	protected void channelRead0(final ChannelHandlerContext browserCtx, final SocksCmdRequest msg) throws Exception {
 
+		log.info("read message, host={}, port={}", msg.host(), msg.port());
 		if (msg.host() == null || msg.host().isEmpty()) {
 			browserCtx.close();
 			return;
 		}
 
+		clientIden = "FD-" + FDCounter.incrementAndGet();
 		browserCtx.pipeline().remove(this);
 		browserCtx.pipeline().addLast(new SocksHandler(clientIden, browserCtx, msg));
 		browserCtx.channel().writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, SocksAddressType.IPv4));
+		log.info("flush success-message");
 	}
 
     @Override
@@ -74,9 +71,10 @@ public class SocksInsideServerHandler extends SimpleChannelInboundHandler<SocksC
 		@Override
 	    public void channelRead(ChannelHandlerContext outsideProxyCtx, Object msg) throws Exception {
 			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), clientIden, req.host(), req.port(), (ByteBuf) msg);
-			log.debug("[msg" + message.getMsgId() + "][" + clientIden + "] flush to outside, host=" + req.host() + ", msgLen=" + message.getBody().readableBytes());
+			log.info("[msg" + message.getMsgId() + "][" + clientIden + "] flush to outside, host=" + req.host() + ", msgLen=" + message.getBody().readableBytes());
 			JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(message);
 			listener.onReceive(receiveByteBuf -> {
+				log.info("receive message");
 				browserCtx.writeAndFlush(receiveByteBuf.toByteBuf());
 			}).onDisconnect(ctx -> {
 				browserCtx.close();
