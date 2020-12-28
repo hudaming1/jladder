@@ -2,10 +2,10 @@ package org.jladder.test;
 
 import java.io.IOException;
 
-import org.jladder.adapter.protocol.JladderAsynForwardClient;
-import org.jladder.adapter.protocol.JladderByteBuf;
-import org.jladder.adapter.protocol.JladderChannelHandlerContext;
-import org.jladder.adapter.protocol.listener.SimpleJladderAsynForwardClientListener;
+import org.jladder.core.JladderAsynForwardClient;
+import org.jladder.core.JladderByteBuf;
+import org.jladder.core.JladderChannelHandlerContext;
+import org.jladder.core.listener.SimpleJladderAsynForwardClientListener;
 import org.junit.Test;
 
 import io.netty.buffer.ByteBuf;

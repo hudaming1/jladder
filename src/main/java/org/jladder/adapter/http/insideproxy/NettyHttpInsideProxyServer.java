@@ -3,10 +3,10 @@ package org.jladder.adapter.http.insideproxy;
 import org.jladder.adapter.http.common.HttpConstant;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.common.NamedThreadFactory;
-import org.jladder.common.core.JladderContext;
-import org.jladder.common.core.config.JladderFullConfig;
 import org.jladder.common.enumtype.RunModeEnum;
 import org.jladder.common.util.NettyBootstrapUtil;
+import org.jladder.config.JladderContext;
+import org.jladder.config.JladderFullConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

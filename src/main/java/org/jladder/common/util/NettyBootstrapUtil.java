@@ -1,6 +1,6 @@
 package org.jladder.common.util;
 
-import org.jladder.common.core.config.JladderFullConfig;
+import org.jladder.config.JladderFullConfig;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;

@@ -3,8 +3,8 @@ package org.jladder;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.jladder.common.core.ServerRunProxyFactory;
-import org.jladder.common.core.config.impl.HttpInsideJladderConfig;
+import org.jladder.config.ServerRunProxyFactory;
+import org.jladder.config.impl.HttpInsideJladderConfig;
 
 public class ServerRun {
 	

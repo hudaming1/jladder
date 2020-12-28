@@ -7,11 +7,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
-import org.jladder.adapter.protocol.message.JladderMessageBuilder;
-import org.jladder.common.core.JladderContext;
-import org.jladder.common.core.config.JladderFullConfig;
 import org.jladder.common.enumtype.RunModeEnum;
+import org.jladder.config.JladderContext;
+import org.jladder.config.JladderFullConfig;
+import org.jladder.core.executor.JladderForwardExecutor;
+import org.jladder.core.message.JladderMessageBuilder;
 import org.junit.Test;
 
 import io.netty.buffer.ByteBuf;

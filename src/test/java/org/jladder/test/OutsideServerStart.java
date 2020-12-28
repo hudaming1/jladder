@@ -1,8 +1,8 @@
 package org.jladder.test;
 
-import org.jladder.common.core.ServerRunProxyFactory;
-import org.jladder.common.core.config.JladderFullConfig;
 import org.jladder.common.enumtype.RunModeEnum;
+import org.jladder.config.JladderFullConfig;
+import org.jladder.config.ServerRunProxyFactory;
 
 public class OutsideServerStart {
 

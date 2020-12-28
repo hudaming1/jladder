@@ -2,7 +2,7 @@ package io.netty.test;
 
 import java.io.IOException;
 
-import org.jladder.adapter.protocol.executor.JladderCryptoForwardWorker;
+import org.jladder.core.executor.JladderCryptoForwardWorker;
 import org.junit.Test;
 
 import io.netty.channel.nio.NioEventLoopGroup;

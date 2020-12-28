@@ -2,10 +2,10 @@ package org.jladder.adapter.socks5.handler;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jladder.adapter.protocol.executor.JladderForwardExecutor;
-import org.jladder.adapter.protocol.listener.JladderForwardListener;
-import org.jladder.adapter.protocol.message.JladderDataMessage;
-import org.jladder.adapter.protocol.message.JladderMessageBuilder;
+import org.jladder.core.executor.JladderForwardExecutor;
+import org.jladder.core.listener.JladderForwardListener;
+import org.jladder.core.message.JladderDataMessage;
+import org.jladder.core.message.JladderMessageBuilder;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
