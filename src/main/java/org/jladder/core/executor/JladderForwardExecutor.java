@@ -21,7 +21,7 @@ public class JladderForwardExecutor {
 	
 	private List<JladderCryptoForwardWorker> jladderForwardWorkerList = new ArrayList<>();
 	private int outsideChannelCount = 16;
-	private final static NioEventLoopGroup loopGroup = new NioEventLoopGroup(1);
+	private final static NioEventLoopGroup loopGroup = new NioEventLoopGroup(16);
 	private final CountDownLatch latch = new CountDownLatch(outsideChannelCount);
 	
 	public JladderForwardExecutor() {
@@ -36,7 +36,7 @@ public class JladderForwardExecutor {
 		}
 		try {
 			latch.await();
-			log.debug(outsideChannelCount + " ForwardWorker inited...");
+			log.info(outsideChannelCount + " ForwardWorker inited...");
 		} catch (Exception e) {
 			log.error("init worker failed..", e);
 		}

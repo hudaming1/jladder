@@ -3,6 +3,7 @@ package org.jladder.core.enumtype;
 public enum JladderForwardWorkerStatusEnum {
 	
 	Running(1, "运行中"),
+	Connecting(2, "连接中"),
 	Terminated(-1, "停止"),
 	;
 

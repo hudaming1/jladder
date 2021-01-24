@@ -62,15 +62,17 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 
 	public synchronized JladderOnConnectedListener connect() {
 		JladderOnConnectedListener jladderOnConnectedListener = new JladderOnConnectedListener();
-		if (status == JladderForwardWorkerStatusEnum.Running) {
+		if (status == JladderForwardWorkerStatusEnum.Running || status == JladderForwardWorkerStatusEnum.Connecting) {
 			throw new IllegalStateException("worker cann't be connect, current_status=" + status);
 		}
+		status = JladderForwardWorkerStatusEnum.Connecting;
 		ChannelFuture chanelFuture = bootstrap.connect(proxyHost, proxyPort);
 		this.channel = chanelFuture.channel();
 		chanelFuture.addListener(f -> {
 			if (f.isSuccess()) {
 				status = JladderForwardWorkerStatusEnum.Running;
 			} else {
+				status = JladderForwardWorkerStatusEnum.Terminated;
 				log.error("connect outside failed", f.cause());
 			}
 			jladderOnConnectedListener.fireReadEvent(new JladderChannelFuture((ChannelFuture) f));
@@ -98,7 +100,9 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 			ensureConnected();
 		}
 		
-		listenerMap.putIfAbsent(message.getClientIden(), new JladderForwardListener());
+		if (!listenerMap.containsKey(message.getClientIden())) {
+			listenerMap.putIfAbsent(message.getClientIden(), new JladderForwardListener());
+		}
 		
 		this.channel.writeAndFlush(message).addListener(new ChannelFutureListener() {
             @Override
@@ -110,7 +114,6 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
     			}
             }
 		});
-		log.debug("[{}]message flushed", message.getClientIden());
 		
 		return listenerMap.get(message.getClientIden());
 	}
@@ -125,10 +128,14 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 			if (listenerMap.containsKey(msg.getClientIden())) {
 				log.debug("[msg" + msg.getMsgId() + "][" + msg.getClientIden() + "] read message-len=" + ((JladderDataMessage) msg).getBody().readableBytes());
 				listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
+			} else {
+				log.error("listener is not exists, iden=" + msg.getClientIden());
 			}
 		} else if (msg instanceof JladderDisconnectMessage) {
 			if (listenerMap.containsKey(msg.getClientIden())) {
 				listenerMap.get(msg.getClientIden()).fireDisconnectEvent((JladderDisconnectMessage) msg);
+			} else {
+				log.error("listener is not exists, iden=" + msg.getClientIden());
 			}
 		} else {
 			log.error("unsupport message found=" + msg.getMessageType());

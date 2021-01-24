@@ -6,13 +6,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class IdCenter {
 
-	public static final String IDEN = System.currentTimeMillis() + "";
+	public static final String Machine = System.nanoTime() + "";
 	private static final Map<String, AtomicInteger> CENTER = new ConcurrentHashMap<>();
 	
 	public static String gen(String prefix) {
 		if (!CENTER.containsKey(prefix)) {
 			CENTER.put(prefix, new AtomicInteger(0));
 		}
-		return IDEN + "-" + prefix + "-" + CENTER.get(prefix).getAndIncrement();
+		return Machine + "-" + prefix + "-" + CENTER.get(prefix).getAndIncrement();
 	}
 }
