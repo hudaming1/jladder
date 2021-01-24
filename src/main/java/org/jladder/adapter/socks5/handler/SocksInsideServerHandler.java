@@ -1,6 +1,6 @@
 package org.jladder.adapter.socks5.handler;
 
-import org.jladder.adapter.common.IdCenter;
+import org.jladder.common.IdCenter;
 import org.jladder.core.executor.JladderForwardExecutor;
 import org.jladder.core.listener.JladderForwardListener;
 import org.jladder.core.message.JladderDataMessage;

@@ -1,9 +1,9 @@
 package org.jladder.adapter.http.insideproxy;
 
-import org.jladder.adapter.common.IdCenter;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapper;
 import org.jladder.adapter.http.wrapper.HttpRequestWrapperHandler;
 import org.jladder.common.Constant;
+import org.jladder.common.IdCenter;
 import org.jladder.core.executor.JladderForwardExecutor;
 import org.jladder.core.listener.JladderForwardListener;
 import org.jladder.core.message.JladderDataMessage;

@@ -1,4 +1,4 @@
-package org.jladder.adapter.common;
+package org.jladder.common;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
