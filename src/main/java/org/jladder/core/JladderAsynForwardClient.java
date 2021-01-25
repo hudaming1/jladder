@@ -86,7 +86,9 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	}
 	
 	public JladderForwardListener writeAndFlush(ByteBuf message) throws InterruptedException {
-		connect();
+		if (status != JladderForwardWorkerStatusEnum.Running) {
+			connect();
+		}
 		if (channel == null) {
 			log.error(remoteHost + ":" + remotePort + " uninit...");
 	    	jladderAsynForwardClientInvokeChain.onDisconnect(null);

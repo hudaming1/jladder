@@ -135,7 +135,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 			if (listenerMap.containsKey(msg.getClientIden())) {
 				listenerMap.get(msg.getClientIden()).fireDisconnectEvent((JladderDisconnectMessage) msg);
 			} else {
-				log.error("listener is not exists, iden=" + msg.getClientIden());
+				log.debug("listener is has exited, iden=" + msg.getClientIden());
 			}
 		} else {
 			log.error("unsupport message found=" + msg.getMessageType());
