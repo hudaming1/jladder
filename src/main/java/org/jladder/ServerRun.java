@@ -3,6 +3,8 @@ package org.jladder;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.jladder.common.enumtype.RunModeEnum;
+import org.jladder.config.JladderFullConfig;
 import org.jladder.config.ServerRunProxyFactory;
 import org.jladder.config.impl.HttpInsideJladderConfig;
 
@@ -11,7 +13,7 @@ public class ServerRun {
 //	本地启动HTTP代理
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		HttpInsideJladderConfig serverRunArg = new HttpInsideJladderConfig();
-		serverRunArg.port(52007).workerCnt(Runtime.getRuntime().availableProcessors()).outsideProxyHost("47.75.102.227").outsideProxyPort(5432);
+		serverRunArg.port(52007).workerCnt(64).outsideProxyHost("47.75.102.227").outsideProxyPort(5432);
 		ServerRunProxyFactory.create(serverRunArg.build()).start();
 	}
 
@@ -28,6 +30,8 @@ public class ServerRun {
 	
 //	这是我在47.75.102.227启动参数
 //	public static void main(String[] args) throws FileNotFoundException, IOException {
-//		ServerRunProxyFactory.create(RunModeEnum.OutsideServer).start(new JladderFullConfig(RunModeEnum.OutsideServer, 5432));
+//		JladderFullConfig jladderFullConfig = new JladderFullConfig(RunModeEnum.OutsideServer, 5432);
+//		jladderFullConfig.setWorkerCnt(64);
+//		ServerRunProxyFactory.create(new JladderFullConfig(RunModeEnum.OutsideServer, 5432)).start();
 //	}
 }

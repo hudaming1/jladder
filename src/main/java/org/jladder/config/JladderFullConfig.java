@@ -21,7 +21,7 @@ public class JladderFullConfig {
 	 * Netty中worker线程数量
 	 * 启动参数样例：nettyproxy.workercnt=80
 	 */
-	private int workerCnt = Runtime.getRuntime().availableProcessors();
+	private int workerCnt = Runtime.getRuntime().availableProcessors() * 8;
 	/**
 	 * 墙外服务器地址，只有runmode=11、12时该参数才生效
 	 * 启动参数样例：nettyproxy.outside_proxy_host=57.12.39.152
