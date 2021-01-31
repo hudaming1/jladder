@@ -17,6 +17,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,8 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private void initBootStrap() {
 		bootstrap.channel(NioSocketChannel.class);
 		bootstrap.group(eventLoopGroup);
+		// TODO 做成可配置的，避免长时阻塞，默认不配置的情况下，好像是30s
+		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
