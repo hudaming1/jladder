@@ -7,7 +7,6 @@ import java.util.concurrent.CountDownLatch;
 import org.jladder.common.exception.JladderException;
 import org.jladder.core.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.core.listener.JladderAsynForwardClientListener;
-import org.jladder.core.listener.JladderForwardListener;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -22,6 +21,14 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * XXX Client需要再优化优化，目前不是纯异步，writeAndFlush时的connect会阻塞当前线程。
+ * 改进方案：
+ *    1.client内部维护起一个waitSendMessage队列，writeAndFlush方法只是将message刷到队列中
+ *    2.connect后立刻返回，异步监听connectComplete事件，成功后开始监听
+ *    3.另一个线程监听队列，有消息时取出并flush出去
+ * @author hudaming
+ */
 @Slf4j
 @Sharable
 public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
@@ -33,7 +40,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private String id;
 	private final Bootstrap bootstrap = new Bootstrap();
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
-	private JladderForwardListener onReceiveListener = new JladderForwardListener();
 	private CountDownLatch connectFinishLatch = new CountDownLatch(1);
 	private JladderAsynForwardClientInvokeChain jladderAsynForwardClientInvokeChain = new JladderAsynForwardClientInvokeChain();
 	
@@ -88,7 +94,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		connectFinishLatch.await();
 	}
 	
-	public JladderForwardListener writeAndFlush(ByteBuf message) throws InterruptedException {
+	public void writeAndFlush(ByteBuf message) throws InterruptedException {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			connect();
 		}
@@ -102,8 +108,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 				log.error("(" + id + ")" + this.channel.toString() + " flush error", f.cause());
 			}
 		});
-		
-		return onReceiveListener;
 	}
 
 	@Override
