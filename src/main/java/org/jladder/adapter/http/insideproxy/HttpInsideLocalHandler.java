@@ -38,7 +38,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		clientIden = IdCenter.gen("FD");
-		log.debug(ctx.channel() + " connected");
+		log.info(clientIden + " connected");
     }
     
 	@Override
@@ -73,6 +73,29 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			});
 		}
 	}
+
+    /**
+     * 【建立连接阶段】客户端报错
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    	log.error(clientIden + " browser error", cause);
+    	if (ctx.channel().isActive()) {
+    		ctx.channel().close();
+    	}
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
+    }
+
+
+    /**
+     * 【建立连接阶段】客户端主动断开连接
+     */
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		log.debug("channel " + clientIden + " disconnect");
+		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
+		JladderForwardExecutor.clearClientIden(clientIden);
+    }
 	
 	private static class SimpleForwardChannelHandler extends ChannelInboundHandlerAdapter {
 		
@@ -102,6 +125,9 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    	}
 	    }
 
+	    /**
+	     * 【传输数据阶段】客户端报错
+	     */
 	    @Override
 	    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 	    	log.error(clientIden + " proxy error, host=" + remoteHost + ":" + remotePort, cause);
@@ -111,27 +137,14 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
 	    }
 
+	    /**
+	     * 【传输数据阶段】客户度主动断开连接
+	     */
 	    @Override
 	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-	    	log.debug("channel " + clientIden + " disconnect by browser");
+	    	log.info("channel " + clientIden + " disconnect by browser");
 			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
 			JladderForwardExecutor.clearClientIden(clientIden);
 	    }
 	}
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-    	log.error(clientIden + " browser error", cause);
-    	if (ctx.channel().isActive()) {
-    		ctx.channel().close();
-    	}
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		log.debug("channel " + clientIden + " disconnect");
-		JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
-		JladderForwardExecutor.clearClientIden(clientIden);
-    }
 }

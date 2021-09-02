@@ -120,6 +120,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	
 	public void removeClientIden(String clientIden) {
 		listenerMap.remove(clientIden);
+		log.info("listener removed, iden=" + clientIden);
 	}
 
 	@Override
