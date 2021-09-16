@@ -15,6 +15,7 @@ import org.jladder.core.message.JladderDisconnectMessage;
 import org.jladder.core.message.JladderMessage;
 import org.jladder.core.message.JladderMessageBuilder;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -45,13 +46,24 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 					}
 					@Override
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
-						insideCtx.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), msg.getClientIden()));
-						ClientMap.remove(forwardClientKey);
+						insideCtx.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), msg.getClientIden())).addListener(f -> {
+							if (f.isSuccess()) {
+								ClientMap.remove(forwardClientKey);
+							}
+						});
 						log.debug("remote " + forwardClientKey + " disconnect by remote_server");
 					}
 				}));
 			}
-			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody());
+			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody()).addListener(f -> {
+				if (!f.isSuccess()) {
+					ChannelFuture cf = (ChannelFuture) f;
+					if (!cf.channel().isActive()) {
+						ClientMap.get(forwardClientKey).close();
+						log.error("(" + msg.getClientIden() + ")" + cf.channel().toString() + " flush error", f.cause());
+					}
+				}
+			});
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
 			Iterator<Entry<String, JladderAsynForwardClient>> iterator = ClientMap.entrySet().iterator();
 			while (iterator.hasNext()) {

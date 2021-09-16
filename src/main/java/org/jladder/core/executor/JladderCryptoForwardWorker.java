@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.jladder.common.exception.JladderException;
 import org.jladder.core.JladderByteBuf;
 import org.jladder.core.JladderChannelFuture;
 import org.jladder.core.enumtype.JladderForwardWorkerStatusEnum;
@@ -13,6 +14,7 @@ import org.jladder.core.listener.JladderOnConnectedListener;
 import org.jladder.core.message.JladderDataMessage;
 import org.jladder.core.message.JladderDisconnectMessage;
 import org.jladder.core.message.JladderMessage;
+import org.jladder.core.message.JladderMessageBuilder;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -61,10 +63,10 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 	}
 
 	public synchronized JladderOnConnectedListener connect() {
-		JladderOnConnectedListener jladderOnConnectedListener = new JladderOnConnectedListener();
 		if (status == JladderForwardWorkerStatusEnum.Running || status == JladderForwardWorkerStatusEnum.Connecting) {
 			throw new IllegalStateException("worker cann't be connect, current_status=" + status);
 		}
+		JladderOnConnectedListener jladderOnConnectedListener = new JladderOnConnectedListener();
 		status = JladderForwardWorkerStatusEnum.Connecting;
 		ChannelFuture chanelFuture = bootstrap.connect(proxyHost, proxyPort);
 		this.channel = chanelFuture.channel();
@@ -130,6 +132,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 				listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
 			} else {
 				log.error("listener is not exists, iden=" + msg.getClientIden());
+				throw new JladderException("listeners is not exists, iden=" + msg.getClientIden());
 			}
 		} else if (msg instanceof JladderDisconnectMessage) {
 			if (listenerMap.containsKey(msg.getClientIden())) {

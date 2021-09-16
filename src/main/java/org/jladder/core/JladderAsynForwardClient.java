@@ -7,7 +7,6 @@ import java.util.concurrent.CountDownLatch;
 import org.jladder.common.exception.JladderException;
 import org.jladder.core.enumtype.JladderForwardWorkerStatusEnum;
 import org.jladder.core.listener.JladderAsynForwardClientListener;
-import org.jladder.core.listener.JladderForwardListener;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -33,7 +32,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	private String id;
 	private final Bootstrap bootstrap = new Bootstrap();
 	private volatile JladderForwardWorkerStatusEnum status = JladderForwardWorkerStatusEnum.Terminated;
-	private JladderForwardListener onReceiveListener = new JladderForwardListener();
 	private CountDownLatch connectFinishLatch = new CountDownLatch(1);
 	private JladderAsynForwardClientInvokeChain jladderAsynForwardClientInvokeChain = new JladderAsynForwardClientInvokeChain();
 	
@@ -88,7 +86,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		connectFinishLatch.await();
 	}
 	
-	public JladderForwardListener writeAndFlush(ByteBuf message) throws InterruptedException {
+	public ChannelFuture writeAndFlush(ByteBuf message) throws InterruptedException {
 		if (status != JladderForwardWorkerStatusEnum.Running) {
 			connect();
 		}
@@ -97,19 +95,12 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	    	jladderAsynForwardClientInvokeChain.onDisconnect(null);
 			throw new JladderException(remoteHost + ":" + remotePort + " connect failed");
 		}
-		this.channel.writeAndFlush(message).addListener(f -> {
-			if (!f.isSuccess()) {
-				log.error("(" + id + ")" + this.channel.toString() + " flush error", f.cause());
-			}
-		});
-		
-		return onReceiveListener;
+		return this.channel.writeAndFlush(message);
 	}
 
 	@Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		ByteBuf byteBuf = (ByteBuf) msg;
-		jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf((ByteBuf) msg));
 	}
 
     @Override

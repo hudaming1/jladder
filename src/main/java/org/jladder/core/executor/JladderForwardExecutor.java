@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public class JladderForwardExecutor {
 	
 	private List<JladderCryptoForwardWorker> jladderForwardWorkerList = new ArrayList<>();
-	private int outsideChannelCount = 16;
-	private final static NioEventLoopGroup loopGroup = new NioEventLoopGroup(16);
+	private final static int outsideChannelCount = 16;
+	private final static NioEventLoopGroup loopGroup = new NioEventLoopGroup(outsideChannelCount);
 	private final CountDownLatch latch = new CountDownLatch(outsideChannelCount);
 	
 	public JladderForwardExecutor() {
