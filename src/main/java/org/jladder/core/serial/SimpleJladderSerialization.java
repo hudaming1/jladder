@@ -37,7 +37,7 @@ public class SimpleJladderSerialization implements JladderSerialization {
 		buf.writeBytes(disconnectMessage.getClientIden().getBytes());
 		return buf;
 	}
-
+	
 	private ByteBuf toJladdeDataMessage(JladderMessage message) {
 		JladderDataMessage dataMsg = ((JladderDataMessage) message);
 		byte[] hostBytes4Encrypt = CryptoFactory.get().encrypt(dataMsg.getHost().getBytes());
@@ -49,7 +49,7 @@ public class SimpleJladderSerialization implements JladderSerialization {
 		// TODO 如果不需要加密，则直接用CompositeByteBuf组合即可
 		byte[] bodyBytes4Encrypt = dataMsg.isBodyNeedEncrypt() ? CryptoFactory.get().encrypt(bodyArr) : bodyArr;
 		
-		ByteBuf buf = Unpooled.buffer();
+		ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer();
 		buf.writeLong(MAGIC_NUMBER);
 		buf.writeLong(message.getMsgId());
 		buf.writeShort(dataMsg.getMessageType());
