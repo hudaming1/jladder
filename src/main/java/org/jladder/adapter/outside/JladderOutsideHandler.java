@@ -40,6 +40,7 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
 						if (!ClientMap.containsKey(forwardClientKey)) {
+							// TODO JladderAsynForwardClient.close() 调用不了啊
 							log.info(forwardClientKey + " has closed...");
 							return ;
 						}
@@ -67,6 +68,7 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody());
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
 			Iterator<Entry<String, JladderAsynForwardClient>> iterator = ClientMap.entrySet().iterator();
+			// 按照inside客户端连接维度cloes，而非连接+host维度关闭
 			while (iterator.hasNext()) {
 				Entry<String, JladderAsynForwardClient> clientEntry = iterator.next();
 				if (clientEntry.getKey().startsWith(jladderMessage.getClientIden() + "#")) {
