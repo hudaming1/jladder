@@ -67,6 +67,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(message);
 			listener.onReceive(byteBuf -> {
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
+				byteBuf.release();
 			}).onDisconnect(ctx -> {
 				browserCtx.close();
 				log.debug("channel " + clientIden + " disconnect");

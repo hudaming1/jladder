@@ -11,11 +11,16 @@ import org.jladder.config.impl.HttpInsideJladderConfig;
 public class ServerRun {
 	
 //	本地启动HTTP代理
-	public static void main(String[] args) throws FileNotFoundException, IOException {
-		HttpInsideJladderConfig serverRunArg = new HttpInsideJladderConfig();
-		serverRunArg.port(52007).workerCnt(64).outsideProxyHost("47.75.102.227").outsideProxyPort(5432);
-		ServerRunProxyFactory.create(serverRunArg.build()).start();
-	}
+//	public static void main(String[] args) throws FileNotFoundException, IOException {
+//		HttpInsideJladderConfig serverRunArg = new HttpInsideJladderConfig();
+//		serverRunArg.port(52007).workerCnt(64).outsideProxyHost("47.75.102.227").outsideProxyPort(5432);
+//		ServerRunProxyFactory.create(serverRunArg.build()).start();
+//	}
+//	public static void main(String[] args) throws FileNotFoundException, IOException {
+//		HttpInsideJladderConfig serverRunArg = new HttpInsideJladderConfig();
+//		serverRunArg.port(52007).workerCnt(64).outsideProxyHost("localhost").outsideProxyPort(5432);
+//		ServerRunProxyFactory.create(serverRunArg.build()).start();
+//	}
 
 //	本地启动Socks代理
 //	public static void main(String[] args) throws FileNotFoundException, IOException {
@@ -29,9 +34,9 @@ public class ServerRun {
 //	}
 	
 //	这是我在47.75.102.227启动参数
-//	public static void main(String[] args) throws FileNotFoundException, IOException {
-//		JladderFullConfig jladderFullConfig = new JladderFullConfig(RunModeEnum.OutsideServer, 5432);
-//		jladderFullConfig.setWorkerCnt(64);
-//		ServerRunProxyFactory.create(new JladderFullConfig(RunModeEnum.OutsideServer, 5432)).start();
-//	}
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		JladderFullConfig jladderFullConfig = new JladderFullConfig(RunModeEnum.OutsideServer, 5432);
+		jladderFullConfig.setWorkerCnt(64);
+		ServerRunProxyFactory.create(new JladderFullConfig(RunModeEnum.OutsideServer, 5432)).start();
+	}
 }

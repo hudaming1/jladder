@@ -101,6 +101,9 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			if (!f.isSuccess()) {
 				log.error("(" + id + ")" + this.channel.toString() + " flush error", f.cause());
 			}
+//			if (message.refCnt() > 0) {
+//				ReferenceCountUtil.release(message);
+//			}
 		});
 		
 		return onReceiveListener;
@@ -109,7 +112,13 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf byteBuf = (ByteBuf) msg;
-		jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
+		try {
+			jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
+		} finally {
+//			if (byteBuf.refCnt() > 0) {
+//				byteBuf.release();
+//			}
+		}
 	}
 
     @Override

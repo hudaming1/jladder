@@ -49,6 +49,8 @@ public class SimpleJladderSerialization implements JladderSerialization {
 		// TODO 如果不需要加密，则直接用CompositeByteBuf组合即可
 		byte[] bodyBytes4Encrypt = dataMsg.isBodyNeedEncrypt() ? CryptoFactory.get().encrypt(bodyArr) : bodyArr;
 		
+		log.info("toJladdeDataMessage.bodySize=" + bodyBytes4Encrypt.length);
+		
 		ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer();
 		buf.writeLong(MAGIC_NUMBER);
 		buf.writeLong(message.getMsgId());

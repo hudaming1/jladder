@@ -39,9 +39,18 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 				ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(forwardClientKey, msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
+						if (!ClientMap.containsKey(forwardClientKey)) {
+							log.info(forwardClientKey + " has closed...");
+							return ;
+						}
 						JladderDataMessage outMsg = msg.isBodyNeedEncrypt() ? JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()) : JladderMessageBuilder.buildUnNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
 						log.debug("[msg" + outMsg.getMsgId() + "]" + msg.getClientIden() + " flush-len=" + jladderByteBuf.toByteBuf().readableBytes());
-						insideCtx.writeAndFlush(outMsg);
+						insideCtx.writeAndFlush(outMsg).addListener(f -> {
+							if (jladderByteBuf.toByteBuf().refCnt() > 0) {
+								jladderByteBuf.toByteBuf().release();
+								log.info("release bytebuf");
+							}
+						});
 					}
 					@Override
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
@@ -58,7 +67,7 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 				Entry<String, JladderAsynForwardClient> clientEntry = iterator.next();
 				if (clientEntry.getKey().startsWith(jladderMessage.getClientIden() + "#")) {
 					clientEntry.getValue().close();
-					log.debug("disconnect, clientKey=" + clientEntry.getKey() + " by browser");
+					log.info("disconnect, clientKey=" + clientEntry.getKey() + " by browser");
 					iterator.remove();
 				}
 			}
