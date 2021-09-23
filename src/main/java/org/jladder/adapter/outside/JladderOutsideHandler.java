@@ -39,7 +39,7 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 				ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(forwardClientKey, msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
-						JladderDataMessage outMsg = JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
+						JladderDataMessage outMsg = msg.isBodyNeedEncrypt() ? JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()) : JladderMessageBuilder.buildUnNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
 						log.debug("[msg" + outMsg.getMsgId() + "]" + msg.getClientIden() + " flush-len=" + jladderByteBuf.toByteBuf().readableBytes());
 						insideCtx.writeAndFlush(outMsg);
 					}
