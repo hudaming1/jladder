@@ -8,6 +8,7 @@ import org.jladder.core.message.JladderMessage;
 import org.jladder.core.message.JladderMessageBuilder;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 
@@ -88,7 +89,7 @@ public class SimpleJladderSerialization implements JladderSerialization {
 			byte[] sourceBodyBytes = new byte[bodyLen];
 			in.readBytes(sourceBodyBytes);
 			byte[] bodyBytes = isBodyNeedDecrypt ? CryptoFactory.get().decrypt(sourceBodyBytes) : sourceBodyBytes;
-			ByteBuf body = Unpooled.buffer(bodyLen);
+			ByteBuf body = PooledByteBufAllocator.DEFAULT.buffer(bodyLen);
 			body.writeBytes(bodyBytes);
 			return isBodyNeedDecrypt ? JladderMessageBuilder.buildNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body) :
 				JladderMessageBuilder.buildUnNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body);
