@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import org.jladder.common.Constant;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
@@ -76,7 +77,7 @@ public class HttpRequestWrapper {
 
 	public ByteBuf toByteBuf() {
 		// TODO CompositeByteBuf
-		ByteBuf body = Unpooled.buffer();
+		ByteBuf body = PooledByteBufAllocator.DEFAULT.buffer();
 		// request-line
 		body.writeBytes(request.method().asciiName().toByteArray());
 		body.writeBytes(" ".getBytes());
