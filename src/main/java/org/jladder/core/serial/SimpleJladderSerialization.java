@@ -90,7 +90,8 @@ public class SimpleJladderSerialization implements JladderSerialization {
 			byte[] bodyBytes = isBodyNeedDecrypt ? CryptoFactory.get().decrypt(sourceBodyBytes) : sourceBodyBytes;
 			ByteBuf body = Unpooled.buffer(bodyLen);
 			body.writeBytes(bodyBytes);
-			return JladderMessageBuilder.buildNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body);
+			return isBodyNeedDecrypt ? JladderMessageBuilder.buildNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body) :
+				JladderMessageBuilder.buildUnNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body);
 		} else if (messageType == JladderMessageTypeEnum.Disconnect) {
 			int idenLen = in.readInt();
 			byte[] idenBytes = new byte[idenLen];
