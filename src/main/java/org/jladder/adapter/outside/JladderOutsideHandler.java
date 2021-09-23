@@ -43,14 +43,18 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 							log.info(forwardClientKey + " has closed...");
 							return ;
 						}
-						JladderDataMessage outMsg = msg.isBodyNeedEncrypt() ? JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()) : JladderMessageBuilder.buildUnNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
-						log.debug("[msg" + outMsg.getMsgId() + "]" + msg.getClientIden() + " flush-len=" + jladderByteBuf.toByteBuf().readableBytes());
-						insideCtx.writeAndFlush(outMsg).addListener(f -> {
-							if (jladderByteBuf.toByteBuf().refCnt() > 0) {
-								jladderByteBuf.toByteBuf().release();
-								log.info("release bytebuf");
-							}
-						});
+						try {
+							JladderDataMessage outMsg = msg.isBodyNeedEncrypt() ? JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()) : JladderMessageBuilder.buildUnNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
+							log.debug("[msg" + outMsg.getMsgId() + "]" + msg.getClientIden() + " flush-len=" + jladderByteBuf.toByteBuf().readableBytes());
+							insideCtx.writeAndFlush(outMsg).addListener(f -> {
+								if (jladderByteBuf.toByteBuf().refCnt() > 0) {
+									jladderByteBuf.toByteBuf().release();
+									log.info("release bytebuf, left=" + jladderByteBuf.toByteBuf().refCnt());
+								}
+							});
+						} catch (Exception ce) {
+							log.error(forwardClientKey, ce);
+						}
 					}
 					@Override
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
