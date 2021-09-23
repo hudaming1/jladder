@@ -130,6 +130,7 @@ public class JladderCryptoForwardWorker extends SimpleChannelInboundHandler<Jlad
 				log.debug("[msg" + msg.getMsgId() + "][" + msg.getClientIden() + "] read message-len=" + ((JladderDataMessage) msg).getBody().readableBytes());
 				listenerMap.get(msg.getClientIden()).fireReadEvent(new JladderByteBuf(((JladderDataMessage) msg).getBody()));
 			} else {
+				channel.close();
 				log.error("listener is not exists, iden=" + msg.getClientIden() + ", discard bytes: " + ((JladderDataMessage) msg).getBody().readableBytes());
 			}
 		} else if (msg instanceof JladderDisconnectMessage) {
