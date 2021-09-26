@@ -1,0 +1,18 @@
+启动阶段
+  1.sentinel根据自身配置先连接到要监听的master节点，并订阅master的sentinel:hello频道，以此来感知其他sentinel上线
+  2.通过读取master节点的配置，读取到slave连接信息，此时sentinel拿到了master、slave和其他sentinel成员的信息，然后与每个成员节点建立起长连接。
+  3.在连接建立完成后，sentinel会向自己监听所有的master节点sentinel:hello频道，每隔2s发送一次信息：信息主要包含2部分内容：①当前sentinel信息；②当前master节点信息。有了这2个信息sentinel集群就能判断出Redis主从集群和sentinel自身集群的可用性了。
+监视阶段
+  1.sentinel向自己监视的所有节点(sentinel/master/slave)每隔1s发送一次ping命令来判断其是否在线
+  2.当节点在规定时间(自身配置)内没有进行有效回复(仅包含pong/loading/masterdown)时，sentinel就判定该节点为「主观下线」
+  3.为了确认目标节点是否真正的下线，sentinel需要和其他节点进行讨论，来决定是否要「客观下线」
+  4.其他sentinel(回复方)收到消息后，解析出主管下线的IP和端口来判断存活状态，最终反馈结果
+  5.发起方sentinel收到其他回复方的消息后并开始计票，当判定失效票数超过自己的配置quorum字段时，最终判定该节点从「主观下线」变为「客观下线」
+故障转移阶段
+  1.首先由leader踢出失效节点
+  2.然后根据配置和优先级从slave中选取出新任master
+  3.向新任master发送slaveofnoone命令，让其晋升为新任master节点
+  4.sentinel-leader向新任master每隔1s发送检测信息，检测是否成功晋升成master
+  5.sentinel-leader向原有slave节点告知master变更消息，其他slave重新挂载新任master
+  6.原master重新上线后，也变成slave挂载新任master。
+ 【疑问】由谁来执行转移操作？sentinel集群中也有master吧？参考raft协议，我记得是有leader和follower角色概念的
