@@ -3,6 +3,9 @@ package org.jladder.core.listener;
 import org.jladder.core.JladderByteBuf;
 import org.jladder.core.message.JladderDisconnectMessage;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class JladderForwardListener {
 
 	private JladderMessageReceiveEvent onReceiveEventCallback;
@@ -19,13 +22,19 @@ public class JladderForwardListener {
 	}
 
 	public void fireReadEvent(JladderByteBuf jladderByteBuf) {
-		if (onReceiveEventCallback != null)
-			onReceiveEventCallback.onReceive(jladderByteBuf);
+		if (onReceiveEventCallback == null) {
+			log.error("error code...");
+			return ;
+		}
+		onReceiveEventCallback.onReceive(jladderByteBuf);
 	}
 
 	public void fireDisconnectEvent(JladderDisconnectMessage msg) {
-		if (onDisconnectEvent != null)
-			onDisconnectEvent.onDisconnect(msg);
+		if (onDisconnectEvent == null) {
+			log.error("error code...");
+			return;
+		}
+		onDisconnectEvent.onDisconnect(msg);
 	}
 
 	public static interface JladderMessageReceiveEvent {
