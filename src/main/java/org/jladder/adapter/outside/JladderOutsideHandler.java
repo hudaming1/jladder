@@ -35,12 +35,10 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 			JladderDataMessage msg = (JladderDataMessage) jladderMessage;
 			log.debug("[msg" + jladderMessage.getMsgId() + "][" + forwardClientKey + "] read-len="  + msg.getBody().readableBytes());
 			if (!ClientMap.containsKey(forwardClientKey)) {
-				// XXX 这里为什么不能用insideCtx的eventLoop(使用ctx.channel().eventLoop()为什么会无响应，哪里有阻塞吗？)
 				ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(forwardClientKey, msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
 						if (!ClientMap.containsKey(forwardClientKey)) {
-							// TODO JladderAsynForwardClient.close() 调用不了啊
 							log.info(forwardClientKey + " has closed...");
 							return ;
 						}
