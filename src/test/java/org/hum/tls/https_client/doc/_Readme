@@ -4,7 +4,7 @@
 首先, 用同样的语法创建一个证书, 我们把名字取明确一些, 就叫myCA吧(跟第一步生成普通证书是一样一样的, 只是这次我们把它理解成一个证书颁发机构)
 
 #生成秘钥
-openssl genrsa -out myCA.key 2048
+openssl genrsa -out myCA.key 512
 #基于秘钥，生成证书
 openssl req -new -x509 -key myCA.key -out myCA.cer -days 36500
 然后, 基于这个证书生成一个证书请求(CSR), (同样, 先生成一个key, 要用key来请求)

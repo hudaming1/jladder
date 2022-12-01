@@ -5,7 +5,9 @@
 default_ca = CA_default
 [ CA_default ]
 # Directory and file locations.
-dir = /Users/hudaming/Workspace/GitHub/netty-proxy/src/test/java/org/hum/nettyproxy/test/officaldemo/ca_and_cert/myca/rootca
+### 这里是变量，需要修改
+dir = /tmp/cert/myca/rootca
+
 certs = $dir/certs
 crl_dir = $dir/crl
 new_certs_dir = $dir/newcerts
@@ -40,7 +42,8 @@ emailAddress = optional
 # Options for the `req` tool (`man req`).
 # Optionally, specify some defaults.
 prompt = no
-input_password = 123456
+### 这里是变量
+input_password = jmitm@123
 
 default_bits = 2048
 distinguished_name = req_distinguished_name
@@ -54,13 +57,16 @@ x509_extensions = v3_ca
 #req_extensions = v3_ca
 [ req_distinguished_name ]
 # See <https://en.wikipedia.org/wiki/Certificate_signing_request>.
+
+### 这里是变量
 countryName = CN
-stateOrProvinceName = ShaanXi
-localityName = Xian
-organizationName = NickLi Ltd
-organizationalUnitName = NickLi Ltd CA
-commonName = NickLi Root CA
-emailAddress = ljfpower@163.com
+stateOrProvinceName = Beijing
+localityName = Beijing
+organizationName = Hudaming
+organizationalUnitName = Hudaming CA
+commonName = Hudaming Root CA
+emailAddress = 512657752@qq.com
+
 [ v3_ca ]
 # Extensions for a typical CA (`man x509v3_config`).
 subjectKeyIdentifier = hash
