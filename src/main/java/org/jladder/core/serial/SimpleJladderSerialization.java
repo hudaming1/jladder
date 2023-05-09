@@ -1,5 +1,7 @@
 package org.jladder.core.serial;
 
+import java.util.Arrays;
+
 import org.jladder.core.crypto.CryptoFactory;
 import org.jladder.core.enumtype.JladderMessageTypeEnum;
 import org.jladder.core.message.JladderDataMessage;
@@ -45,7 +47,7 @@ public class SimpleJladderSerialization implements JladderSerialization {
 		
 		byte[] bodyArr = new byte[body.readableBytes()];
 		body.readBytes(bodyArr);
-		body.release();
+		// body.release();
 		// TODO 如果不需要加密，则直接用CompositeByteBuf组合即可
 		byte[] bodyBytes4Encrypt = dataMsg.isBodyNeedEncrypt() ? CryptoFactory.get().encrypt(bodyArr) : bodyArr;
 		
@@ -63,6 +65,15 @@ public class SimpleJladderSerialization implements JladderSerialization {
 		buf.writeBoolean(dataMsg.isBodyNeedEncrypt());
 		buf.writeInt(bodyBytes4Encrypt.length);
 		buf.writeBytes(bodyBytes4Encrypt);
+		
+		// =======debug 部分 start =======
+		buf.markReaderIndex();
+		byte[] bbbb = new byte[buf.writerIndex()];
+		buf.readBytes(bbbb);
+		log.info("server data=" + Arrays.toString(bbbb));
+		buf.resetReaderIndex();
+		// =======debug 部分 end =======
+		
 		return buf;
 	}
 

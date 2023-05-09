@@ -21,6 +21,7 @@ public class JladderCryptoOutHandler extends ChannelOutboundHandlerAdapter {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
     	if (msg instanceof JladderMessage) {
     		ByteBuf byteBuf = serialization.serial((JladderMessage) msg);
+    		System.out.println("server append " + byteBuf.writerIndex() + " bytes");
     		ctx.writeAndFlush(byteBuf);
     		// byteBuf.release();
     	} else {

@@ -67,7 +67,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(message);
 			listener.onReceive(byteBuf -> {
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
-				byteBuf.release();
+				// byteBuf.release();
 			}).onDisconnect(ctx -> {
 				browserCtx.close();
 				log.debug("channel " + clientIden + " disconnect");
@@ -114,14 +114,14 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
 	    	if (msg instanceof ByteBuf) {
 	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(System.nanoTime(), clientIden, remoteHost, remotePort, (ByteBuf) msg);
-	    		log.debug("[msg" + request.getMsgId() + "]" + clientIden + " browser read " + remoteHost + ":" + remotePort + " " + browserCtx.channel().toString() + ", writelen=" + ((ByteBuf) msg).readableBytes());
+	    		log.info("[msg" + request.getMsgId() + "]" + clientIden + " browser read " + remoteHost + ":" + remotePort + " " + browserCtx.channel().toString() + ", writelen=" + ((ByteBuf) msg).readableBytes());
 	    		JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(request);
 	    		listener.onReceive(byteBuf -> {
-	    			log.debug("[" + clientIden + "]readlen=" + byteBuf.toByteBuf().readableBytes());
+	    			log.info("[" + clientIden + "]readlen=" + byteBuf.toByteBuf().readableBytes());
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		}).onDisconnect(ctx -> {
 					browserCtx.close();
-					log.debug("channel " + clientIden + " disconnect by remote_server");
+					log.info("channel " + clientIden + " disconnect by remote_server");
 				});
 	    	}
 	    }
