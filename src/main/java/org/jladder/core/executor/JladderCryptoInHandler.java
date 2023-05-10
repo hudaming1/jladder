@@ -3,12 +3,15 @@ package org.jladder.core.executor;
 import java.util.List;
 
 import org.jladder.core.enumtype.JladderMessageTypeEnum;
+import org.jladder.core.message.JladderDataMessage;
+import org.jladder.core.message.JladderMessage;
 import org.jladder.core.serial.JladderSerialization;
 import org.jladder.core.serial.SimpleJladderSerialization;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import lombok.extern.slf4j.Slf4j;
 
 //public class JladderCryptoInHandler extends ReplayingDecoder<JladderMessage> {
 //
@@ -20,6 +23,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 //	}
 //}
 
+@Slf4j
 public class JladderCryptoInHandler extends ByteToMessageDecoder {
 
 	private final JladderSerialization jladderSerialization = new SimpleJladderSerialization();
@@ -35,7 +39,23 @@ public class JladderCryptoInHandler extends ByteToMessageDecoder {
 			return ;
 		}
 		
-		out.add(jladderSerialization.deserial(buf));
+		long r = System.nanoTime();
+		
+		// ⑤ outside接收到inside数据，但未解析，消息目前仍是ByteBuf类型
+		// ⑪ inside收到outside数据，但未解析，消息目前仍是ByteBuf类型
+		log.info("[" + r + "]接收inside/outside传来数据，长度=" + buf.readableBytes());
+		
+		JladderMessage jladderMsg = jladderSerialization.deserial(buf);
+		
+		int len = 0;
+		if (jladderMsg instanceof JladderDataMessage) {
+			len = ((JladderDataMessage) jladderMsg).getBody().readableBytes();
+		}
+		// ⑥ outside接收到inside数据，解析完成，消息已经被解码成JladderMessage类型
+		// ⑫ inside接收到outside数据，解析完成，消息已经被解码成JladderMessage类型
+		log.info("[" + r + "][" + jladderMsg.getClientIden() + "]解码完成，消息Id=" + jladderMsg.getMsgId() + ", 传输数据长度=" + len);
+		
+		out.add(jladderMsg);
 	}
 	
 	private boolean isCompleted(ByteBuf in) {

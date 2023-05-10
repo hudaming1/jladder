@@ -1,5 +1,6 @@
 package org.jladder.core.serial;
 
+import org.jladder.common.exception.JladderException;
 import org.jladder.core.crypto.CryptoFactory;
 import org.jladder.core.enumtype.JladderMessageTypeEnum;
 import org.jladder.core.message.JladderDataMessage;
@@ -100,8 +101,7 @@ public class SimpleJladderSerialization implements JladderSerialization {
 			String clientIden = new String(idenBytes);
 			return JladderMessageBuilder.buildDisconnectMessage(msgId, clientIden);
 		} else {
-			log.error("unsupport message-type found: " + msgType);
-			return null;
+			throw new JladderException("unsupport message-type found: " + msgType);
 		}
 	}
 

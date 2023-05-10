@@ -11,8 +11,11 @@ public class IdCenter {
 	
 	public static String gen(String prefix) {
 		if (!CENTER.containsKey(prefix)) {
-			CENTER.put(prefix, new AtomicInteger(0));
+			CENTER.putIfAbsent(prefix, new AtomicInteger(0));
 		}
-		return Machine + "-" + prefix + "-" + CENTER.get(prefix).getAndIncrement();
+		
+		AtomicInteger counter = CENTER.get(prefix);
+		
+		return Machine + "-" + prefix + "-" + counter.getAndIncrement();
 	}
 }

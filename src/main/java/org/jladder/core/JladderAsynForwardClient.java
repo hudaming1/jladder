@@ -113,6 +113,8 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf byteBuf = (ByteBuf) msg;
 		try {
+			// ⑧ outside接到了remote的响应，但消息尚未解析，是ByteBuf类型
+			log.info("outside接到了remote的响应，但消息尚未解析，是ByteBuf类型，可读字节数=" + byteBuf.readableBytes());
 			jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
 		} finally {
 //			if (byteBuf.refCnt() > 0) {

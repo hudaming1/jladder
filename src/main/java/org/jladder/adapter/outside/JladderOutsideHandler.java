@@ -33,7 +33,6 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 		String forwardClientKey = jladderMessage.getClientIden() + "#" + jladderMessage.getHost() + ":" + jladderMessage.getPort();
 		if (jladderMessage instanceof JladderDataMessage) {
 			JladderDataMessage msg = (JladderDataMessage) jladderMessage;
-			log.debug("[msg" + jladderMessage.getMsgId() + "][" + forwardClientKey + "] read-len="  + msg.getBody().readableBytes());
 			if (!ClientMap.containsKey(forwardClientKey)) {
 				ClientMap.putIfAbsent(forwardClientKey, new JladderAsynForwardClient(forwardClientKey, msg.getHost(), msg.getPort(), HttpClientEventLoopGroup, new SimpleJladderAsynForwardClientListener() {
 					@Override
@@ -44,7 +43,8 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 						}
 						try {
 							JladderDataMessage outMsg = msg.isBodyNeedEncrypt() ? JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()) : JladderMessageBuilder.buildUnNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
-							log.info("[msg" + outMsg.getMsgId() + "]" + msg.getClientIden() + " flush-len=" + jladderByteBuf.toByteBuf().readableBytes());
+							// ⑨ outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息
+							log.info("[" + jladderMessage.getClientIden() + "][" + jladderMessage.getMsgId() + "] outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息");
 							insideCtx.writeAndFlush(outMsg).addListener(f -> {
 								if (jladderByteBuf.toByteBuf().refCnt() > 0) {
 									jladderByteBuf.toByteBuf().release();
@@ -63,6 +63,10 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 					}
 				}));
 			}
+			
+			// ⑦ outside将JladderMessage发送给远端目标服务器
+			log.info("[" + msg.getClientIden() + "][" + msg.getMsgId() + "]将消息转发给远端，可发送字节长度=" + msg.getBody().readableBytes());
+			
 			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody());
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
 			Iterator<Entry<String, JladderAsynForwardClient>> iterator = ClientMap.entrySet().iterator();

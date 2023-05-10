@@ -15,6 +15,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -38,7 +39,8 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		clientIden = IdCenter.gen("FD");
-		log.info(clientIden + " connected");
+		// ① 客户端上线
+		log.info("[" + clientIden + "]上线");
     }
     
 	@Override
@@ -59,7 +61,10 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.pipeline().remove(HttpObjectAggregator.class);
 			browserCtx.pipeline().remove(HttpRequestWrapperHandler.class);
 			browserCtx.pipeline().addLast(new SimpleForwardChannelHandler(clientIden, requestWrapper.host(), requestWrapper.port()));
-			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE.retain());
+			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE.retain()).addListener(f -> {
+				// ② SSL握手完成，获得客户端还要访问的目标地址
+				log.info("[" + clientIden + "]SSL握手完成，对端地址为：" + requestWrapper.host() + ":" + requestWrapper.port()); 
+			});
 			return ;
 		} else {
 			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(System.nanoTime(), clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
@@ -113,11 +118,15 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    @Override
 	    public void channelRead(ChannelHandlerContext browserCtx, Object msg) throws Exception {
 	    	if (msg instanceof ByteBuf) {
-	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(System.nanoTime(), clientIden, remoteHost, remotePort, (ByteBuf) msg);
-	    		log.info("[msg" + request.getMsgId() + "]" + clientIden + " browser read " + remoteHost + ":" + remotePort + " " + browserCtx.channel().toString() + ", writelen=" + ((ByteBuf) msg).readableBytes());
+	    		ByteBuf msgByteBuf = (ByteBuf) msg;
+	    		int clientMessageLen = msgByteBuf.readableBytes();
+	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(System.nanoTime(), clientIden, remoteHost, remotePort, msgByteBuf);
+	    		// ③ inside接收到客户端消息，并将byteBuf封装成jladderMessage
+	    		log.info("[" + clientIden + "]收到客户端消息长度=" + clientMessageLen + "，封装后的消息Id=" + request.getMsgId());
 	    		JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(request);
 	    		listener.onReceive(byteBuf -> {
-	    			log.info("[" + clientIden + "]readlen=" + byteBuf.toByteBuf().readableBytes());
+	    			// ⑬ inside接收到outside的JladderMessage类型消息，并将body输出给客户端
+	    			log.info("[" + clientIden + "]inside接收到outside的JladderMessage类型消息，并将body输出给客户端，body长度=" + byteBuf.toByteBuf().readableBytes());
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		}).onDisconnect(ctx -> {
 					browserCtx.close();
