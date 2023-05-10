@@ -28,7 +28,6 @@ public class JladderCryptoInHandler extends ByteToMessageDecoder {
 	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
 
 		if (buf.readableBytes() < 18) {
-			System.out.println("unreasdfasdfasdlfjaslkfjlasdjfk");
 			return;
 		}
 		
