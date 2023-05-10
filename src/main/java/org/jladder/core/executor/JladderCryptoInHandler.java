@@ -1,18 +1,14 @@
 package org.jladder.core.executor;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.jladder.core.crypto.CryptoFactory;
 import org.jladder.core.enumtype.JladderMessageTypeEnum;
-import org.jladder.core.message.JladderMessage;
 import org.jladder.core.serial.JladderSerialization;
 import org.jladder.core.serial.SimpleJladderSerialization;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.ReplayingDecoder;
 
 //public class JladderCryptoInHandler extends ReplayingDecoder<JladderMessage> {
 //
@@ -47,8 +43,7 @@ public class JladderCryptoInHandler extends ByteToMessageDecoder {
 		in.markReaderIndex();
 		try {
 			int readableBytes = in.readableBytes();
-			in.skipBytes(8); // skip magic_number
-			in.readLong();
+			in.skipBytes(16); // skip magic_number
 			short msgType = in.readShort();
 			JladderMessageTypeEnum messageType = JladderMessageTypeEnum.getEnum(msgType);
 			if (messageType == JladderMessageTypeEnum.Data) {
@@ -65,14 +60,8 @@ public class JladderCryptoInHandler extends ByteToMessageDecoder {
 				// read body
 				in.readBoolean();
 				int bodyLen = in.readInt();
-				boolean isCompldted = readableBytes >= bodyLen + 31 + idenLen + hostLen;
-				System.out.println("JladderCryptoInHandler.java ------> " + in + ", refCnt=" + in.refCnt() + ", readableBytes=" + readableBytes + ", bodyLen=" + bodyLen + ", total=" + (bodyLen + 31 + idenLen + hostLen));
-				if (isCompldted) {
-					byte[] bbbb = new byte[bodyLen];
-					in.readBytes(bbbb);
-					System.out.println("JladderCryptoInHandler.java ------> " + in + ", refCnt=" + in.refCnt() + ", read body size=" + bodyLen + ", data=" + Arrays.toString(bbbb));
-				}
-				return isCompldted;
+				// 31=(magicNumber+messageType+messageId....)
+				return readableBytes >= bodyLen + 31 + idenLen + hostLen;
 			} else {
 				// 
 				return true;
