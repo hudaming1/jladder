@@ -1,5 +1,7 @@
 package org.jladder.core.serial;
 
+import java.util.Arrays;
+
 import org.jladder.common.exception.JladderException;
 import org.jladder.core.crypto.CryptoFactory;
 import org.jladder.core.enumtype.JladderMessageTypeEnum;
@@ -67,41 +69,51 @@ public class SimpleJladderSerialization implements JladderSerialization {
 
 	@Override
 	public JladderMessage deserial(ByteBuf in) {
-		in.skipBytes(8); // skip magic_number
-		long msgId = in.readLong();
-		short msgType = in.readShort();
-		JladderMessageTypeEnum messageType = JladderMessageTypeEnum.getEnum(msgType);
-		if (messageType == JladderMessageTypeEnum.Data) {
-			// read client_iden
-			int idenLen = in.readInt();
-			byte[] idenBytes = new byte[idenLen];
-			in.readBytes(idenBytes);
-			String clientIden = new String(idenBytes);
-			// read host
-			int hostLen = in.readInt();
-			byte[] hostBytes4Encrypt = new byte[hostLen];
-			in.readBytes(hostBytes4Encrypt);
-			byte[] hostBytes = CryptoFactory.get().decrypt(hostBytes4Encrypt);
-			// read port
-			int port = in.readInt();
-			// read body
-			boolean isBodyNeedDecrypt = in.readBoolean();
-			int bodyLen = in.readInt();
-			byte[] sourceBodyBytes = new byte[bodyLen];
-			in.readBytes(sourceBodyBytes);
-			byte[] bodyBytes = isBodyNeedDecrypt ? CryptoFactory.get().decrypt(sourceBodyBytes) : sourceBodyBytes;
-			ByteBuf body = PooledByteBufAllocator.DEFAULT.buffer(bodyLen);
-			body.writeBytes(bodyBytes);
-			return isBodyNeedDecrypt ? JladderMessageBuilder.buildNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body) :
-				JladderMessageBuilder.buildUnNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body);
-		} else if (messageType == JladderMessageTypeEnum.Disconnect) {
-			int idenLen = in.readInt();
-			byte[] idenBytes = new byte[idenLen];
-			in.readBytes(idenBytes);
-			String clientIden = new String(idenBytes);
-			return JladderMessageBuilder.buildDisconnectMessage(msgId, clientIden);
-		} else {
-			throw new JladderException("unsupport message-type found: " + msgType);
+		try {
+			in.markReaderIndex();
+			in.skipBytes(8); // skip magic_number
+			long msgId = in.readLong();
+			short msgType = in.readShort();
+			JladderMessageTypeEnum messageType = JladderMessageTypeEnum.getEnum(msgType);
+			if (messageType == JladderMessageTypeEnum.Data) {
+				// read client_iden
+				int idenLen = in.readInt();
+				byte[] idenBytes = new byte[idenLen];
+				in.readBytes(idenBytes);
+				String clientIden = new String(idenBytes);
+				// read host
+				int hostLen = in.readInt();
+				byte[] hostBytes4Encrypt = new byte[hostLen];
+				in.readBytes(hostBytes4Encrypt);
+				byte[] hostBytes = CryptoFactory.get().decrypt(hostBytes4Encrypt);
+				// read port
+				int port = in.readInt();
+				// read body
+				boolean isBodyNeedDecrypt = in.readBoolean();
+				int bodyLen = in.readInt();
+				byte[] sourceBodyBytes = new byte[bodyLen];
+				in.readBytes(sourceBodyBytes);
+				byte[] bodyBytes = isBodyNeedDecrypt ? CryptoFactory.get().decrypt(sourceBodyBytes) : sourceBodyBytes;
+				ByteBuf body = PooledByteBufAllocator.DEFAULT.buffer(bodyLen);
+				body.writeBytes(bodyBytes);
+				return isBodyNeedDecrypt ? JladderMessageBuilder.buildNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body) :
+					JladderMessageBuilder.buildUnNeedEncryptMessage(msgId, clientIden, new String(hostBytes), port, body);
+			} else if (messageType == JladderMessageTypeEnum.Disconnect) {
+				int idenLen = in.readInt();
+				byte[] idenBytes = new byte[idenLen];
+				in.readBytes(idenBytes);
+				String clientIden = new String(idenBytes);
+				return JladderMessageBuilder.buildDisconnectMessage(msgId, clientIden);
+			} else {
+				throw new JladderException("unsupport message-type found: " + msgType);
+			}
+		} catch (Exception ce) {
+			in.resetReaderIndex();
+			byte[] bytes = new byte[in.readableBytes()];
+			in.readBytes(bytes);
+			log.error("接收inside/outside消息异常，无法进行反序列化操作，打印本次异常数据=" + Arrays.toString(bytes));
+			in.discardReadBytes();
+			throw new JladderException(ce.getMessage(), ce);
 		}
 	}
 
