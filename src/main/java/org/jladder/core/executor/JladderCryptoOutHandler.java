@@ -32,13 +32,13 @@ public class JladderCryptoOutHandler extends ChannelOutboundHandlerAdapter {
     		// 9. 将jladder消息序列化成ByteBuf，然后由outside消息发送给inside
     		
     		// -----debug
-    		byteBuf.markReaderIndex();
-    		byte[] bytes = new byte[byteBuf.readableBytes()];
-    		byteBuf.readBytes(bytes);
-    		byteBuf.resetReaderIndex();
+//    		byteBuf.markReaderIndex();
+//    		byte[] bytes = new byte[byteBuf.readableBytes()];
+//    		byteBuf.readBytes(bytes);
+//    		byteBuf.resetReaderIndex();
     		// ---debug
     		// TODO 关注一下④和⑤的发送长度和收到长度不一致的问题
-    		log.debug("④/⑩/3/9[" + jladderMsg.getClientIden() + "]将封装后消息输出给对端，消息总长度=" + byteBuf.readableBytes() + ", refCnt=" + byteBuf.refCnt() + "，消息内容=" + Arrays.toString(bytes)); 
+//    		log.debug("④/⑩/3/9[" + jladderMsg.getClientIden() + "]将封装后消息输出给对端，消息总长度=" + byteBuf.readableBytes() + ", refCnt=" + byteBuf.refCnt() + "，消息内容=" + Arrays.toString(bytes)); 
     		ctx.writeAndFlush(byteBuf);
     		log.debug("========> refCnt=" + byteBuf.refCnt());
     	} else {

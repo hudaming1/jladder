@@ -78,7 +78,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);
 		chanelFuture.addListener(f -> {
 			if (f.isSuccess()) {
-				log.info("连接" + remoteHost + "成功....");
 				this.channel = ((ChannelFuture) f).channel();
 				status = JladderForwardWorkerStatusEnum.Running;
 				jladderAsynForwardClientInvokeChain.onConnect(new JladderChannelFuture((ChannelFuture) f));
@@ -102,11 +101,11 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		}
 		
 		// ===debug
-		message.markReaderIndex();
-		byte[] bytes = new byte[message.readableBytes()];
-		message.readBytes(bytes);
-		log.info("输出结果=" + Arrays.toString(bytes));
-		message.resetReaderIndex();
+//		message.markReaderIndex();
+//		byte[] bytes = new byte[message.readableBytes()];
+//		message.readBytes(bytes);
+//		log.debug("输出结果=" + Arrays.toString(bytes));
+//		message.resetReaderIndex();
 		// ===debug
 		
 		this.channel.writeAndFlush(message).addListener(f -> {
