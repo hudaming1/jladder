@@ -128,7 +128,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 			// TODO 目前HTTP请求卡到这7这里，步骤6能成功打印日志，却无法走到这里，说明请求已经发给对端服务器了，但对端服务器却迟迟没有响应，或程序在哪里堆积了报文，没有走到这里的channelRead
 			// ⑧ outside接到了remote的响应，但消息尚未解析，是ByteBuf类型
 			// 7. outside接到了remote的响应，但消息尚未解析，是ByteBuf类型
-			log.info("⑧/7 outside接到了remote的响应，但消息尚未解析，是ByteBuf类型，可读字节数=" + byteBuf.readableBytes());
+			log.debug("⑧/7 outside接到了remote的响应，但消息尚未解析，是ByteBuf类型，可读字节数=" + byteBuf.readableBytes());
 			jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
 		} finally {
 			// 这里没有释放byteBuf，而是在JladderOutsideHandler.onReceive方法中异步回调时释放了
@@ -141,7 +141,6 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	log.debug(this.channel.toString() + "(" + id + ")" + " diconnect");
     	jladderAsynForwardClientInvokeChain.onDisconnect(new JladderChannelHandlerContext(ctx));
     }
     

@@ -38,21 +38,14 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 					@Override
 					public void onReceiveData(JladderByteBuf jladderByteBuf) {
 						if (!ClientMap.containsKey(forwardClientKey)) {
-							log.info(forwardClientKey + " has closed...");
 							return ;
 						}
 						try {
 							JladderDataMessage outMsg = msg.isBodyNeedEncrypt() ? JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()) : JladderMessageBuilder.buildUnNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
 							// ⑨ outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息
 							// 8. outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息
-							log.info("⑨/8 [" + jladderMessage.getClientIden() + "][" + jladderMessage.getMsgId() + "] outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息");
-							insideCtx.writeAndFlush(outMsg).addListener(f -> {
-								// 原本是计划在这里手动释放ByteBuf，但经测试，发现应该是在writeAndFlush时释放了
-								if (jladderByteBuf.toByteBuf().refCnt() > 0) {
-									jladderByteBuf.toByteBuf().release();
-									log.info("release bytebuf, left=" + jladderByteBuf.toByteBuf().refCnt());
-								}
-							});
+							log.debug("⑨/8 [" + jladderMessage.getClientIden() + "][" + jladderMessage.getMsgId() + "] outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息");
+							insideCtx.writeAndFlush(outMsg);
 						} catch (Exception ce) {
 							log.error(forwardClientKey, ce);
 						}
@@ -61,14 +54,13 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 					public void onDisconnect(JladderChannelHandlerContext jladderChannelHandlerContext) {
 						insideCtx.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(IdCenter.getAndIncrement(), msg.getClientIden()));
 						ClientMap.remove(forwardClientKey);
-						log.debug("remote " + forwardClientKey + " disconnect by remote_server");
 					}
 				}));
 			}
 			
 			// ⑦ outside将JladderMessage发送给远端目标服务器
 			// 6. outside将JladderMessage发送给远端服务器
-			log.info("⑦/6[" + msg.getClientIden() + "][" + msg.getMsgId() + "]将消息转发给远端，可发送字节长度=" + msg.getBody().readableBytes());
+			log.debug("⑦/6[" + msg.getClientIden() + "][" + msg.getMsgId() + "]将消息转发给远端，可发送字节长度=" + msg.getBody().readableBytes());
 			
 			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody());
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {
@@ -78,7 +70,6 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 				Entry<String, JladderAsynForwardClient> clientEntry = iterator.next();
 				if (clientEntry.getKey().startsWith(jladderMessage.getClientIden() + "#")) {
 					clientEntry.getValue().close();
-					log.info("disconnect, clientKey=" + clientEntry.getKey() + " by browser");
 					iterator.remove();
 				}
 			}

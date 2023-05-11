@@ -38,9 +38,9 @@ public class JladderCryptoOutHandler extends ChannelOutboundHandlerAdapter {
     		byteBuf.resetReaderIndex();
     		// ---debug
     		// TODO 关注一下④和⑤的发送长度和收到长度不一致的问题
-    		log.info("④/⑩/3/9[" + jladderMsg.getClientIden() + "]将封装后消息输出给对端，消息总长度=" + byteBuf.readableBytes() + ", refCnt=" + byteBuf.refCnt() + "，消息内容=" + Arrays.toString(bytes)); 
+    		log.debug("④/⑩/3/9[" + jladderMsg.getClientIden() + "]将封装后消息输出给对端，消息总长度=" + byteBuf.readableBytes() + ", refCnt=" + byteBuf.refCnt() + "，消息内容=" + Arrays.toString(bytes)); 
     		ctx.writeAndFlush(byteBuf);
-    		log.info("========> refCnt=" + byteBuf.refCnt());
+    		log.debug("========> refCnt=" + byteBuf.refCnt());
     	} else {
     		ctx.writeAndFlush(msg);
     	}

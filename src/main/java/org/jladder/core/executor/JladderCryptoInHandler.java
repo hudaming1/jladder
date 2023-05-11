@@ -47,7 +47,7 @@ public class JladderCryptoInHandler extends ByteToMessageDecoder {
 		// ⑪ inside收到outside数据，但未解析，消息目前仍是ByteBuf类型
 		// 4. outside收到inside数据，但未解析，消息目前仍是ByteBuf类型
 		// 10. inside收到outside数据，但未解析，消息目前仍是ByteBuf类型
-		log.info("⑤/⑪/4/10[" + r + "]接收inside/outside传来数据，长度=" + buf.readableBytes());
+		log.debug("⑤/⑪/4/10[" + r + "]接收inside/outside传来数据，长度=" + buf.readableBytes());
 		
 		JladderMessage jladderMsg = jladderSerialization.deserial(buf);
 		
@@ -59,7 +59,7 @@ public class JladderCryptoInHandler extends ByteToMessageDecoder {
 		// ⑫ inside接收到outside数据，解析完成，消息已经被解码成JladderMessage类型
 		// 5. outside接收到inside数据，解析完成，消息已经被解码成JladderMessage类型
 		// 11.inside接收到outside数据，解析完成，消息已经被解码成JladderMessage类型
-		log.info("⑥/⑫/5/11[" + r + "][" + jladderMsg.getClientIden() + "]解码完成，消息Id=" + jladderMsg.getMsgId() + ", 传输数据长度=" + len);
+		log.debug("⑥/⑫/5/11[" + r + "][" + jladderMsg.getClientIden() + "]解码完成，消息Id=" + jladderMsg.getMsgId() + ", 传输数据长度=" + len);
 		
 		out.add(jladderMsg);
 	}
@@ -73,7 +73,7 @@ public class JladderCryptoInHandler extends ByteToMessageDecoder {
 			JladderMessageTypeEnum messageType = JladderMessageTypeEnum.getEnum(msgType);
 			if (messageType == JladderMessageTypeEnum.Data) {
 				// read client_iden
-				int idenLen = in.readInt();
+				int idenLen = in.readInt(); 
 				byte[] idenBytes = new byte[idenLen];
 				in.readBytes(idenBytes);
 				// read host

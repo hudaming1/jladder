@@ -71,9 +71,9 @@ public class SimpleJladderSerialization implements JladderSerialization {
 	public JladderMessage deserial(ByteBuf in) {
 		try {
 			in.markReaderIndex();
-			in.skipBytes(8); // skip magic_number
-			long msgId = in.readLong();
-			short msgType = in.readShort();
+			in.skipBytes(8); // skip magic_number +8
+			long msgId = in.readLong(); // + 8
+			short msgType = in.readShort(); // + 2
 			JladderMessageTypeEnum messageType = JladderMessageTypeEnum.getEnum(msgType);
 			if (messageType == JladderMessageTypeEnum.Data) {
 				// read client_iden
