@@ -1,5 +1,7 @@
 package org.jladder.core.executor;
 
+import java.util.Arrays;
+
 import org.jladder.core.message.JladderMessage;
 import org.jladder.core.serial.JladderSerialization;
 import org.jladder.core.serial.SimpleJladderSerialization;
@@ -26,12 +28,23 @@ public class JladderCryptoOutHandler extends ChannelOutboundHandlerAdapter {
     		ByteBuf byteBuf = serialization.serial(jladderMsg);
     		// ④ 将jladder消息序列化成ByteBuf，然后由inside将JladderMessage发送给outside 
     		// ⑩ 将jladder消息序列化成ByteBuf，然后由outside消息发送给inside
-    		log.info("[" + jladderMsg.getClientIden() + "]将封装后消息输出给对端，消息总长度=" + byteBuf.writableBytes()); 
+    		// 3. 将jladder消息序列化成ByteBuf，然后由inside将JladderMessage发送给outside
+    		// 9. 将jladder消息序列化成ByteBuf，然后由outside消息发送给inside
+    		
+    		// -----debug
+    		byteBuf.markReaderIndex();
+    		byte[] bytes = new byte[byteBuf.readableBytes()];
+    		byteBuf.readBytes(bytes);
+    		byteBuf.resetReaderIndex();
+    		// ---debug
+    		// TODO 关注一下④和⑤的发送长度和收到长度不一致的问题
+    		log.info("④/⑩/3/9[" + jladderMsg.getClientIden() + "]将封装后消息输出给对端，消息总长度=" + byteBuf.readableBytes() + ", refCnt=" + byteBuf.refCnt() + "，消息内容=" + Arrays.toString(bytes)); 
     		ctx.writeAndFlush(byteBuf);
+    		log.info("========> refCnt=" + byteBuf.refCnt());
     	} else {
     		ctx.writeAndFlush(msg);
     	}
-		ReferenceCountUtil.release(msg);
+		// ReferenceCountUtil.release(msg);
     }
 
 }

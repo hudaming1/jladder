@@ -44,8 +44,10 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 						try {
 							JladderDataMessage outMsg = msg.isBodyNeedEncrypt() ? JladderMessageBuilder.buildNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf()) : JladderMessageBuilder.buildUnNeedEncryptMessage(IdCenter.getAndIncrement(), msg.getClientIden(), "", 0, jladderByteBuf.toByteBuf());
 							// ⑨ outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息
-							log.info("[" + jladderMessage.getClientIden() + "][" + jladderMessage.getMsgId() + "] outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息");
+							// 8. outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息
+							log.info("⑨/8 [" + jladderMessage.getClientIden() + "][" + jladderMessage.getMsgId() + "] outside接到了对端服务器的响应数据，将ByteBuf加上JladderHeader，封装成新的消息");
 							insideCtx.writeAndFlush(outMsg).addListener(f -> {
+								// 原本是计划在这里手动释放ByteBuf，但经测试，发现应该是在writeAndFlush时释放了
 								if (jladderByteBuf.toByteBuf().refCnt() > 0) {
 									jladderByteBuf.toByteBuf().release();
 									log.info("release bytebuf, left=" + jladderByteBuf.toByteBuf().refCnt());
@@ -65,7 +67,8 @@ public class JladderOutsideHandler extends SimpleChannelInboundHandler<JladderMe
 			}
 			
 			// ⑦ outside将JladderMessage发送给远端目标服务器
-			log.info("[" + msg.getClientIden() + "][" + msg.getMsgId() + "]将消息转发给远端，可发送字节长度=" + msg.getBody().readableBytes());
+			// 6. outside将JladderMessage发送给远端服务器
+			log.info("⑦/6[" + msg.getClientIden() + "][" + msg.getMsgId() + "]将消息转发给远端，可发送字节长度=" + msg.getBody().readableBytes());
 			
 			ClientMap.get(forwardClientKey).writeAndFlush(msg.getBody());
 		} else if (jladderMessage instanceof JladderDisconnectMessage) {

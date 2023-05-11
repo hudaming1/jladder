@@ -1,5 +1,6 @@
 package org.jladder.core;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -20,6 +21,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -76,6 +78,7 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 		ChannelFuture chanelFuture = bootstrap.connect(remoteHost, remotePort);
 		chanelFuture.addListener(f -> {
 			if (f.isSuccess()) {
+				log.info("连接" + remoteHost + "成功....");
 				this.channel = ((ChannelFuture) f).channel();
 				status = JladderForwardWorkerStatusEnum.Running;
 				jladderAsynForwardClientInvokeChain.onConnect(new JladderChannelFuture((ChannelFuture) f));
@@ -97,6 +100,15 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
 	    	jladderAsynForwardClientInvokeChain.onDisconnect(null);
 			throw new JladderException(remoteHost + ":" + remotePort + " connect failed");
 		}
+		
+		// ===debug
+		message.markReaderIndex();
+		byte[] bytes = new byte[message.readableBytes()];
+		message.readBytes(bytes);
+		log.info("输出结果=" + Arrays.toString(bytes));
+		message.resetReaderIndex();
+		// ===debug
+		
 		this.channel.writeAndFlush(message).addListener(f -> {
 			if (!f.isSuccess()) {
 				log.error("(" + id + ")" + this.channel.toString() + " flush error", f.cause());
@@ -113,10 +125,14 @@ public class JladderAsynForwardClient extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf byteBuf = (ByteBuf) msg;
 		try {
+			// TODO 目前HTTP请求卡到这7这里，步骤6能成功打印日志，却无法走到这里，说明请求已经发给对端服务器了，但对端服务器却迟迟没有响应，或程序在哪里堆积了报文，没有走到这里的channelRead
 			// ⑧ outside接到了remote的响应，但消息尚未解析，是ByteBuf类型
-			log.info("outside接到了remote的响应，但消息尚未解析，是ByteBuf类型，可读字节数=" + byteBuf.readableBytes());
+			// 7. outside接到了remote的响应，但消息尚未解析，是ByteBuf类型
+			log.info("⑧/7 outside接到了remote的响应，但消息尚未解析，是ByteBuf类型，可读字节数=" + byteBuf.readableBytes());
 			jladderAsynForwardClientInvokeChain.onReceiveData(new JladderByteBuf(byteBuf));
 		} finally {
+			// 这里没有释放byteBuf，而是在JladderOutsideHandler.onReceive方法中异步回调时释放了
+//			log.info("byteBuf.refCnt()=" + byteBuf.refCnt());
 //			if (byteBuf.refCnt() > 0) {
 //				byteBuf.release();
 //			}
