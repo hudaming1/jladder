@@ -122,11 +122,11 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    		int clientMessageLen = msgByteBuf.readableBytes();
 	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(System.nanoTime(), clientIden, remoteHost, remotePort, msgByteBuf);
 	    		// ③ inside接收到客户端消息，并将byteBuf封装成jladderMessage
-	    		log.info("[" + clientIden + "]收到客户端消息长度=" + clientMessageLen + "，封装后的消息Id=" + request.getMsgId());
+	    		log.debug("[" + clientIden + "]收到客户端消息长度=" + clientMessageLen + "，封装后的消息Id=" + request.getMsgId());
 	    		JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(request);
 	    		listener.onReceive(byteBuf -> {
 	    			// ⑬ inside接收到outside的JladderMessage类型消息，并将body输出给客户端
-	    			log.info("[" + clientIden + "]inside接收到outside的JladderMessage类型消息，并将body输出给客户端，body长度=" + byteBuf.toByteBuf().readableBytes());
+	    			log.debug("[" + clientIden + "]inside接收到outside的JladderMessage类型消息，并将body输出给客户端，body长度=" + byteBuf.toByteBuf().readableBytes());
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		}).onDisconnect(ctx -> {
 					browserCtx.close();
@@ -152,7 +152,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	     */
 	    @Override
 	    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-	    	log.info("channel " + clientIden + " disconnect by browser");
+	    	log.debug("channel " + clientIden + " disconnect by browser");
 			JladderForwardExecutor.writeAndFlush(JladderMessageBuilder.buildDisconnectMessage(System.nanoTime(), clientIden));
 			JladderForwardExecutor.clearClientIden(clientIden);
 	    }
