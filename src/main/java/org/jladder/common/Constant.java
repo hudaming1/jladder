@@ -3,7 +3,7 @@ package org.jladder.common;
 public class Constant {
 
 	public static final int MAGIC_NUMBER = 1387781;
-	public static final String RETURN_LINE = "\n";
+	public static final String RETURN_LINE = "\r\n";
 
 	// HTTP
 	public static final String HTTPS_METHOD = "CONNECT";
