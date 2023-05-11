@@ -40,7 +40,7 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		clientIden = IdCenter.gen("FD");
 		// ① 客户端上线
-		log.debug("①[" + clientIden + "]上线");
+		log.debug("[" + clientIden + "]上线");
     }
     
 	@Override
@@ -63,14 +63,12 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 			browserCtx.pipeline().addLast(new SimpleForwardChannelHandler(clientIden, requestWrapper.host(), requestWrapper.port()));
 			browserCtx.writeAndFlush(HTTPS_CONNECTED_LINE.retain()).addListener(f -> {
 				// ② SSL握手完成，获得客户端还要访问的目标地址
-				log.debug("②[" + clientIden + "]SSL握手完成，对端地址为：" + requestWrapper.host() + ":" + requestWrapper.port()); 
+				log.debug("[" + clientIden + "]SSL握手完成，对端地址为：" + requestWrapper.host() + ":" + requestWrapper.port()); 
 			});
 			return ;
 		} else {
-			int clientMessageLen = requestWrapper.toByteBuf().readableBytes();
 			JladderDataMessage message = JladderMessageBuilder.buildNeedEncryptMessage(System.nanoTime(), clientIden, requestWrapper.host(), requestWrapper.port(), requestWrapper.toByteBuf());
-			// 2.inside将HTTP消息封装成JladderMessage，并转发给outside
-			log.debug("2.[" + clientIden + "][msg" + message.getMsgId() + "] 原始HTTP消息长度=" + clientMessageLen + ", 请求目标地址=" + requestWrapper.host());
+			log.debug("[msg" + message.getMsgId() + "][" + clientIden + "] flush to outside, host=" + requestWrapper.host() + ", msgLen=" + message.getBody().readableBytes());
 			JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(message);
 			listener.onReceive(byteBuf -> {
 				browserCtx.writeAndFlush(byteBuf.toByteBuf());
@@ -124,11 +122,11 @@ public class HttpInsideLocalHandler extends SimpleChannelInboundHandler<HttpRequ
 	    		int clientMessageLen = msgByteBuf.readableBytes();
 	    		JladderDataMessage request = JladderMessageBuilder.buildUnNeedEncryptMessage(System.nanoTime(), clientIden, remoteHost, remotePort, msgByteBuf);
 	    		// ③ inside接收到客户端消息，并将byteBuf封装成jladderMessage
-	    		log.debug("③[" + clientIden + "]收到客户端消息长度=" + clientMessageLen + "，封装后的消息Id=" + request.getMsgId());
+	    		log.info("[" + clientIden + "]收到客户端消息长度=" + clientMessageLen + "，封装后的消息Id=" + request.getMsgId());
 	    		JladderForwardListener listener = JladderForwardExecutor.writeAndFlush(request);
 	    		listener.onReceive(byteBuf -> {
 	    			// ⑬ inside接收到outside的JladderMessage类型消息，并将body输出给客户端
-	    			log.debug("⑬[" + clientIden + "]inside接收到outside的JladderMessage类型消息，并将body输出给客户端，body长度=" + byteBuf.toByteBuf().readableBytes());
+	    			log.info("[" + clientIden + "]inside接收到outside的JladderMessage类型消息，并将body输出给客户端，body长度=" + byteBuf.toByteBuf().readableBytes());
 	    			browserCtx.writeAndFlush(byteBuf.toByteBuf());
 	    		}).onDisconnect(ctx -> {
 					browserCtx.close();
